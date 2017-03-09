@@ -39,11 +39,11 @@ int main()
 
     // Fake the allocation so that the de-allocation doesn't underflow
     // within the allocator controllers bookkeeping.
-    C.countAlloc(nullptr, maxSize, 1);
+    C.countAlloc(nullptr, maxSize * sizeof(int), alignof(int));
 
     a.deallocate(nullptr, maxSize);
     try {
-      a.deallocate(nullptr, maxSize + 1);
+      a.deallocate(nullptr, maxSize + 1u);
       assert(false);
     } catch (...) {}
 }

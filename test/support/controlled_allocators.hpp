@@ -65,9 +65,9 @@ struct AllocController {
     int dealloc_count = 0;
     int is_equal_count = 0;
 
-    std::size_t alive_size;
-    std::size_t allocated_size;
-    std::size_t deallocated_size;
+    std::size_t alive_size = 0;
+    std::size_t allocated_size = 0;
+    std::size_t deallocated_size = 0;
 
     std::size_t last_size = 0;
     std::size_t last_align = 0;
