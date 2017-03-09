@@ -4737,6 +4737,16 @@ struct __can_extract_map_key<_ValTy, _Key, _Key, _RawValTy>
 
 #endif
 
+template <class _SizeT>
+inline _LIBCPP_CONSTEXPR
+_SizeT __unsigned_negate(_SizeT __value) _NOEXCEPT
+  _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK {
+  static_assert(is_unsigned<_SizeT>::value, "");
+  static_assert(is_same<_SizeT, decltype(-__value)>::value,
+                "promotion must not occur");
+  return -__value;
+}
+
 _LIBCPP_END_NAMESPACE_STD
 
 #if _LIBCPP_STD_VER > 14

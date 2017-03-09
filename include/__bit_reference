@@ -615,7 +615,7 @@ __copy_backward_unaligned(__bit_iterator<_Cp, _IsConst> __first, __bit_iterator<
                     *__result.__seg_ |= __b << (__result.__ctz_ - __last.__ctz_);
                 else
                     *__result.__seg_ |= __b >> (__last.__ctz_ - __result.__ctz_);
-                __result.__ctz_ = static_cast<unsigned>(((-__ddn & (__bits_per_word - 1)) +
+                __result.__ctz_ = static_cast<unsigned>(((__unsigned_negate(__ddn) & (__bits_per_word - 1)) +
                                                          __result.__ctz_)  % __bits_per_word);
                 __dn -= __ddn;
             }

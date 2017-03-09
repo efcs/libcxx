@@ -8,6 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 // UNSUPPORTED: c++98, c++03
+// UNSUPPORTED: libcpp-no-exceptions
+// MODULES_DEFINES: _LIBCPP_DEBUG=0
+// MODULES_DEFINES: _LIBCPP_DEBUG_USE_EXCEPTIONS
 
 // <experimental/memory_resource>
 
@@ -15,10 +18,8 @@
 
 // T* polymorphic_allocator<T>::deallocate(T*, size_t size)
 
-int AssertCount = 0;
-
-#define _LIBCPP_ASSERT(x, m) ((x) ? (void)0 : (void)::AssertCount++)
 #define _LIBCPP_DEBUG 0
+#define _LIBCPP_DEBUG_USE_EXCEPTIONS
 #include <experimental/memory_resource>
 #include <type_traits>
 #include <cassert>
@@ -32,11 +33,17 @@ int main()
     using Alloc = ex::polymorphic_allocator<int>;
     using Traits = std::allocator_traits<Alloc>;
     NullResource R;
+    AllocController &C = R.getController();
     Alloc a(&R);
     const std::size_t maxSize = Traits::max_size(a);
 
+    // Fake the allocation so that the de-allocation doesn't underflow
+    // within the allocator controllers bookkeeping.
+    C.countAlloc(nullptr, maxSize, 1);
+
     a.deallocate(nullptr, maxSize);
-    assert(AssertCount == 0);
-    a.deallocate(nullptr, maxSize + 1);
-    assert(AssertCount == 1);
+    try {
+      a.deallocate(nullptr, maxSize + 1);
+      assert(false);
+    } catch (...) {}
 }
