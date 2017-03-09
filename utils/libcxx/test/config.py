@@ -846,7 +846,7 @@ class Configuration(object):
                                                 symbolizer_search_paths)
 
             def add_ubsan():
-                self.cxx.flags += ['-fsanitize=undefined',
+                self.cxx.flags += ['-fsanitize=undefined,unsigned-integer-overflow',
                                    '-fno-sanitize=vptr,function,float-divide-by-zero',
                                    '-fno-sanitize-recover=all']
                 self.exec_env['UBSAN_OPTIONS'] = 'print_stacktrace=1'
