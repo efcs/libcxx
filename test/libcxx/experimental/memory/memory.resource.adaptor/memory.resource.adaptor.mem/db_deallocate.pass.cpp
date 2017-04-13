@@ -8,6 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 // UNSUPPORTED: c++98, c++03
+// UNSUPPORTED: libcpp-no-exceptions
+// MODULES_DEFINES: _LIBCPP_DEBUG=0
+// MODULES_DEFINES: _LIBCPP_DEBUG_USE_EXCEPTIONS
 
 // <experimental/memory_resource>
 
@@ -15,10 +18,8 @@
 
 // T* polymorphic_allocator<T>::deallocate(T*, size_t size)
 
-int AssertCount = 0;
-
-#define _LIBCPP_ASSERT(x, m) ((x) ? (void)0 : (void)::AssertCount++)
 #define _LIBCPP_DEBUG 0
+#define _LIBCPP_DEBUG_USE_EXCEPTIONS
 #include <experimental/memory_resource>
 #include <type_traits>
 #include <cassert>
@@ -37,9 +38,11 @@ int main()
 
     std::size_t maxSize = std::numeric_limits<std::size_t>::max()
                             - alignof(std::max_align_t);
-
+    m1.allocate(maxSize);
     m1.deallocate(nullptr, maxSize);
-    assert(AssertCount == 0);
+
+  try {
     m1.deallocate(nullptr, maxSize + 1);
-    assert(AssertCount >= 1);
+    assert(false);
+  } catch (...) {}
 }

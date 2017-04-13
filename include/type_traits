@@ -4747,6 +4747,17 @@ _SizeT __unsigned_negate(_SizeT __value) _NOEXCEPT
   return -__value;
 }
 
+
+template <class _SizeT>
+inline _LIBCPP_CONSTEXPR
+_SizeT __unsigned_add(_SizeT __lhs, _SizeT __rhs) _NOEXCEPT
+  _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK {
+  static_assert(is_unsigned<_SizeT>::value, "");
+  static_assert(is_same<_SizeT, decltype(__lhs + __rhs)>::value,
+                "promotion must not occur");
+  return __lhs + __rhs;
+}
+
 _LIBCPP_END_NAMESPACE_STD
 
 #if _LIBCPP_STD_VER > 14
