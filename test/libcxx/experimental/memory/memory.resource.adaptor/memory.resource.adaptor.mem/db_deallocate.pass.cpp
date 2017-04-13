@@ -28,21 +28,25 @@
 
 namespace ex = std::experimental::pmr;
 
-int main()
-{
-    using Alloc = NullAllocator<char>;
-    using R = ex::resource_adaptor<Alloc>;
-    AllocController P;
-    ex::resource_adaptor<Alloc> r(Alloc{P});
-    ex::memory_resource & m1 = r;
+int main() {
+  using Alloc = NullAllocator<char>;
+  using R = ex::resource_adaptor<Alloc>;
+  AllocController P;
+  Alloc A{P};
+  ex::resource_adaptor<Alloc> r(A);
+  ex::memory_resource& m1 = r;
 
-    std::size_t maxSize = std::numeric_limits<std::size_t>::max()
-                            - alignof(std::max_align_t);
-    m1.allocate(maxSize);
-    m1.deallocate(nullptr, maxSize);
+  std::size_t maxSize =
+      std::numeric_limits<std::size_t>::max() - alignof(std::max_align_t);
+
+
+  auto dummy_ptr = m1.allocate(maxSize); // dummy allocation to initialize AllocController state.
+  assert(dummy_ptr == nullptr);
+  m1.deallocate(nullptr, maxSize);
 
   try {
     m1.deallocate(nullptr, maxSize + 1);
     assert(false);
-  } catch (...) {}
+  } catch (...) {
+  }
 }

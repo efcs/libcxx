@@ -567,6 +567,10 @@ if (LIBCXX_STANDALONE_BUILD)
   elseif(LLVM_USE_SANITIZER AND MSVC)
     message(WARNING "LLVM_USE_SANITIZER is not supported on this platform.")
   endif()
+elseif(LLVM_USE_SANITIZER MATCHES ".*Undefined.*")
+  # Explicitly add unsigned-integer-overflow checks on top of the sanitizers
+  # added by LLVM.
+  add_flags("-fsanitize=unsigned-integer-overflow")
 endif()
 
 # Configuration file flags =====================================================

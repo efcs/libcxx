@@ -60,6 +60,7 @@ int main()
         int s = 100;
         int a = 64;
         void* p = reinterpret_cast<void*>(640);
+        P.countAlloc(p, s, a);
         M.deallocate(p, s, a);
         assert(P.dealloc_count == 1);
         assert(P.checkDealloc(p, s, a));
@@ -67,6 +68,7 @@ int main()
         s = 128;
         a = alignof(std::max_align_t);
         p = reinterpret_cast<void*>(12800);
+        P.countAlloc(p, s, a);
         M.deallocate(p, s);
         assert(P.dealloc_count == 2);
         assert(P.checkDealloc(p, s, a));
