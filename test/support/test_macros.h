@@ -212,6 +212,12 @@ inline void DoNotOptimize(Tp const& value) {
 }
 #endif
 
+#ifdef _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+#define TEST_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK _LIBCPP_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+#else
+#define TEST_DISABLE_UBSAN_UNSIGNED_INTEGER_CHECK
+#endif
+
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
