@@ -90,3 +90,6 @@ on_failure:
 artifacts:
   - path: '_build/CMakeFiles/*.log'
     name: logs
+
+cache:
+ - C:\projects\deps\llvm-package.zip
