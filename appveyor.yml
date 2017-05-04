@@ -63,7 +63,7 @@ artifacts:
     name: logs
 
 cache:
- - C:\projects\deps\llvm-package.zip
+ - C:\projects\deps\install-llvm
  - C:\projects\deps\ninja
  - C:\projects\deps\cmake
  - C:\projects\deps\llvm
