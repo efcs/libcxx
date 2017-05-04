@@ -52,8 +52,7 @@ build_script:
   - ninja
 
 test_script:
-  - echo FIXME disabled tests...
-  #- ninja check-cxx
+  - ninja check-cxx
 
 on_failure:
   - appveyor PushArtifact CMakeFiles/CMakeOutput.log
