@@ -11,9 +11,11 @@ if NOT EXIST llvm-installer.exe (
   appveyor DownloadFile http://llvm.org/pre-releases/win-snapshots/LLVM-5.0.0-r301646-win32.exe -FileName llvm-installer.exe
 )
 if "%CLANG_VERSION%"=="ToT" (
-    llvm-installer.exe /S /D="C:\\Program Files\\LLVM"
+    llvm-installer.exe /S /D=C:\projects\deps\llvm-install
+    set PATH=C:\projects\deps\llvm-install\bin;%PATH%
+) ELSE (
+  set PATH="C:\Program Files\LLVM\bin";%PATH%
 )
-@set PATH="C:\Program Files\LLVM\bin";%PATH%
 clang-cl -v
 
 ::###########################################################################
