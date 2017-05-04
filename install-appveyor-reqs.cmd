@@ -14,7 +14,7 @@ if "%CLANG_VERSION%"=="ToT" (
     move "C:\Program Files\LLVM" "C:\Program Files\LLVM_BAK"
     7z x llvm-package.zip -o"C:\Program Files\LLVM" > nul
 )
-set PATH="C:\Program Files\LLVM\bin";%PATH%
+@set PATH="C:\Program Files\LLVM\bin";%PATH%
 clang-cl -v
 
 ::###########################################################################
@@ -26,7 +26,7 @@ if NOT EXIST cmake (
   move C:\projects\deps\cmake-* C:\projects\deps\cmake
   rm cmake.zip
 )
-set PATH=C:\projects\deps\cmake\bin;%PATH%
+@set PATH=C:\projects\deps\cmake\bin;%PATH%
 cmake --version
 
 ::###########################################################################
@@ -37,7 +37,7 @@ if NOT EXIST ninja (
   7z x ninja.zip -oC:\projects\deps\ninja > nul
   rm ninja.zip
 )
-set PATH=C:\projects\deps\ninja;%PATH%
+@set PATH=C:\projects\deps\ninja;%PATH%
 ninja --version
 
 ::###########################################################################
