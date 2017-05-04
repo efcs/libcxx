@@ -11,6 +11,7 @@ if "%CLANG_VERSION%"=="ToT" (
     appveyor DownloadFile http://efcs.ca/downloads/llvm-tot-win32.zip -FileName llvm-package.zip
     move "C:\Program Files\LLVM" "C:\Program Files\LLVM_BAK"
     7z x llvm-package.zip -o"C:\Program Files\LLVM" > nul
+    rm llvm-package.zip
 )
 @set PATH="C:\Program Files\LLVM\bin";%PATH%
 clang-cl -v
