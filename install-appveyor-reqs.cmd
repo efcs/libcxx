@@ -12,6 +12,8 @@ if NOT EXIST llvm-installer.exe (
 )
 if "%CLANG_VERSION%"=="ToT" (
     llvm-installer.exe /S "/D=C:\Program Files\LLVM"
+    dir "C:\Program Files\LLVM\"
+    dir "C:\Program Files\LLVM\bin"
 )
 @set PATH="C:\Program Files\LLVM\bin";%PATH%
 clang-cl -v
