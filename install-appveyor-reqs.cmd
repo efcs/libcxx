@@ -7,11 +7,11 @@ cd C:\projects\deps
 ::###########################################################################
 :: Setup the path to Clang-cl
 ::###########################################################################
-if NOT EXIST install-llvm (
+if NOT EXIST llvm-package.zip (
     appveyor DownloadFile http://efcs.ca/downloads/llvm-tot-win32.zip -FileName llvm-package.zip
-    7z x llvm-package.zip -oC:\projects\deps > nul
 )
 if "%CLANG_VERSION%"=="ToT" (
+    7z x llvm-package.zip -oC:\projects\deps > nul
     move "C:\Program Files\LLVM" "C:\Program Files\LLVM_BAK"
     mklink /D "C:\Program Files\LLVM" "C:\projects\deps\install-llvm"
 )
