@@ -92,4 +92,4 @@ artifacts:
     name: logs
 
 cache:
- - C:\projects\deps\llvm-package.zip
+ - C:\projects\deps\install-llvm\
