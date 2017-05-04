@@ -24,7 +24,7 @@ clang-cl -v
 ::###########################################################################
 if NOT EXIST cmake (
   set CMAKE_URL="https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.zip"
-  if NOT EXIST cmake.zip appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
+  if NOT EXIST cmake.zip appveyor DownloadFile !CMAKE_URL! -FileName cmake.zip
   7z x cmake.zip -oC:\projects\deps > nul
   move C:\projects\deps\cmake-* C:\projects\deps\cmake
 )
@@ -36,7 +36,7 @@ cmake --version
 ::###########################################################################
 if NOT EXIST ninja (
   set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-win.zip"
-  if NOT EXIST ninja.zip appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
+  if NOT EXIST ninja.zip appveyor DownloadFile !NINJA_URL! -FileName ninja.zip
   7z x ninja.zip -oC:\projects\deps\ninja > nul
 )
 set PATH=C:\projects\deps\ninja;%PATH%
