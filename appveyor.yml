@@ -9,7 +9,7 @@ configuration:
   - Debug
 
 environment:
-  - APPVEYOR_SAVE_CACHE_ON_ERROR: true
+  APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CLANG_VERSION: ToT
