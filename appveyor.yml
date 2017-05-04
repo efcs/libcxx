@@ -16,45 +16,16 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CLANG_VERSION: ToT
       MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+      APPVEYOR_SAVE_CACHE_ON_ERROR: true
 
 install:
   ############################################################################
   # All external dependencies are installed in C:\projects\deps
   ############################################################################
-  - mkdir C:\projects\deps
-  - cd C:\projects\deps
+  - "%APPVEYOR_BUILD_FOLDER%\\install-appveyor-reqs.cmd"
 
-  ############################################################################
-  # Install Ninja
-  ############################################################################
-  - set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.6.0/ninja-win.zip"
-  - appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
-  - 7z x ninja.zip -oC:\projects\deps\ninja > nul
-  - set PATH=C:\projects\deps\ninja;%PATH%
-  - ninja --version
 
-  ############################################################################
-  # Install a recent CMake
-  ############################################################################
-  - set CMAKE_URL="https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.zip"
-  - appveyor DownloadFile %CMAKE_URL% -FileName cmake.zip
-  - 7z x cmake.zip -oC:\projects\deps > nul
-  - move C:\projects\deps\cmake-* C:\projects\deps\cmake # Move to a version-agnostic directory
-  - set PATH=C:\projects\deps\cmake\bin;%PATH%
-  - cmake --version
 
-  ############################################################################
-  # Setup the path to Clang-cl
-  ############################################################################
-  - "%APPVEYOR_BUILD_FOLDER%\\install-clang.cmd"
-  - echo %LLVM_PATH%
-  - set PATH="C:\Program Files\LLVM\bin";%PATH%
-  - clang-cl -v
-
-  ############################################################################
-  # Setup the cached copy of LLVM
-  ############################################################################
-  - git clone --depth=1 http://llvm.org/git/llvm.git
 
 
 before_build:
@@ -93,5 +64,7 @@ artifacts:
     name: logs
 
 cache:
- - C:\projects\deps\llvm-package.zip
- - C:\projects\deps\install-llvm\
+ - C:\projects\deps\install-llvm
+ - C:\projects\deps\ninja
+ - C:\projects\deps\cmake
+ - C:\projects\deps\llvm
