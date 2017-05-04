@@ -9,24 +9,23 @@ configuration:
   - Debug
 
 environment:
+  - APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
-    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    #  CLANG_VERSION: 4
-    #  MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CLANG_VERSION: ToT
       MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+      APPVEYOR_SAVE_CACHE_ON_ERROR: true
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      CLANG_VERSION: 4
+      MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
       APPVEYOR_SAVE_CACHE_ON_ERROR: true
 
 install:
   ############################################################################
   # All external dependencies are installed in C:\projects\deps
   ############################################################################
-  - "%APPVEYOR_BUILD_FOLDER%\\install-appveyor-reqs.cmd"
-
-
-
-
+  - call "%APPVEYOR_BUILD_FOLDER%\\install-appveyor-reqs.cmd"
+  - echo %PATH%
 
 before_build:
   - call "%MSVC_SETUP_PATH%" x86
@@ -64,7 +63,7 @@ artifacts:
     name: logs
 
 cache:
- - C:\projects\deps\install-llvm
+ - C:\projects\deps\llvm-package.zip
  - C:\projects\deps\ninja
  - C:\projects\deps\cmake
  - C:\projects\deps\llvm
