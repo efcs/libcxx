@@ -60,7 +60,6 @@ before_build:
   - dir C:\projects
   - cd C:\projects\libcxx
 
-
 build_script:
   - md C:\projects\build-libcxx
   - cd C:\projects\build-libcxx
