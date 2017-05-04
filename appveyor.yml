@@ -46,14 +46,8 @@ install:
   ############################################################################
   # Setup the path to Clang-cl
   ############################################################################
-  - if "%CLANG_VERSION%"=="ToT" (
-    CLANG_URL=http://llvm.org/pre-releases/win-snapshots/LLVM-5.0.0-r301646-win32.exe
-    appveyor DownloadFile %CLANG_URL% -FileName clang-installer.exe
-    clang-installer.exe
-    set PATH="C:\Program Files\LLVM\bin";%PATH%
-  ) else (
-    set PATH="C:\Program Files\LLVM\bin";%PATH%
-  )
+  - install-clang.cmd
+  - set PATH="C:\Program Files\LLVM\bin";%PATH%
   - clang-cl -v
 
   ############################################################################
