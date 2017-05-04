@@ -57,6 +57,7 @@ install:
 
 before_build:
   - call %MSVC_SETUP_PATH% amd64
+  - dir C:\projects
   - cd C:\projects\libcxx
 
 
