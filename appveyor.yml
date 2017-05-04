@@ -11,11 +11,11 @@ configuration:
 environment:
   matrix:
     #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    #  COMPILER: Clang-CL 4.0
+    #  CLANG_VERSION: 4
     #  MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      COMPILER: Clang-CL 4.0
-      MSVC_SETUP_PATH: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+      CLANG_VERSION: ToT
+      MSVC_SETUP_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
 
 install:
   ############################################################################
@@ -46,7 +46,14 @@ install:
   ############################################################################
   # Setup the path to Clang-cl
   ############################################################################
-  - set PATH="C:\Program Files\LLVM\bin";%PATH%
+  - if "%CLANG_VERSION%"=="ToT" (
+    CLANG_URL=http://llvm.org/pre-releases/win-snapshots/LLVM-5.0.0-r301646-win32.exe
+    appveyor DownloadFile %CLANG_URL% -FileName clang-installer.exe
+    clang-installer.exe
+    set PATH="C:\Program Files\LLVM\bin";%PATH%
+  ) else (
+    set PATH="C:\Program Files\LLVM\bin";%PATH%
+  )
   - clang-cl -v
 
   ############################################################################
