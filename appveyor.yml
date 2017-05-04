@@ -56,9 +56,10 @@ install:
 
 
 before_build:
-  - call %MSVC_SETUP_PATH% amd64
+  - call %MSVC_SETUP_PATH% x86
   - dir C:\projects
-  - cd C:\projects\libcxx
+  - echo %APPVEYOR_BUILD_FOLDER%
+  - cd %APPVEYOR_BUILD_FOLDER%
 
 build_script:
   - md C:\projects\build-libcxx
@@ -73,7 +74,7 @@ build_script:
     "-DCMAKE_BUILD_TYPE=%configuration%"
     "-DLLVM_PATH=C:\projects\deps\llvm" -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=OFF
     -DLLVM_LIT_ARGS="-sv --no-progress-bar --show-xfail --show-unsupported"
-    C:\projects\libcxx
+    %APPVEYOR_BUILD_FOLDER%
 
   #############################################################################
   # Build Step
