@@ -4,9 +4,8 @@ if "%CLANG_VERSION%"=="ToT" (
       appveyor DownloadFile http://efcs.ca/downloads/llvm-tot-win32.zip -FileName llvm-package.zip
       7z x llvm-package.zip -oC:\projects\deps
     )
-    dir .
-    dir install-llvm
     move "C:\Program Files\LLVM" "C:\Program Files\LLVM_BAK"
-    move "C:\projects\deps\install-llvm" "C:\Program Files\LLVM"
+    mklink /D "C:\Program Files\LLVM" "C:\projects\deps\install-llvm"
+    set LLVM_PATH="C:\projects\deps\install-llvm"
     dir "C:\Program Files\LLVM"
 )

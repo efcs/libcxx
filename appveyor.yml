@@ -47,6 +47,7 @@ install:
   # Setup the path to Clang-cl
   ############################################################################
   - "%APPVEYOR_BUILD_FOLDER%\\install-clang.cmd"
+  - echo %LLVM_PATH%
   - set PATH="C:\Program Files\LLVM\bin";%PATH%
   - clang-cl -v
 
