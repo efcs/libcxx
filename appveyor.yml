@@ -58,7 +58,7 @@ install:
 
 
 before_build:
-  - call "%MSVC_SETUP_PATH%" x86_amd64
+  - call "%MSVC_SETUP_PATH%" x86
   - cd %APPVEYOR_BUILD_FOLDER%
 
 build_script:
@@ -93,4 +93,5 @@ artifacts:
     name: logs
 
 cache:
+ - C:\projects\deps\llvm-package.zip
  - C:\projects\deps\install-llvm\
