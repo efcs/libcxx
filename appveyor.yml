@@ -66,3 +66,4 @@ cache:
  - C:\projects\deps\ninja
  - C:\projects\deps\cmake
  - C:\projects\deps\llvm
+ - C:\projects\deps\llvm-installer.exe
