@@ -9,7 +9,7 @@ cd C:\projects\deps
 ::###########################################################################
 if NOT EXIST install-llvm (
     appveyor DownloadFile http://efcs.ca/downloads/llvm-tot-win32.zip -FileName llvm-package.zip
-    7z x llvm-package.zip -oC:\projects\deps
+    7z x llvm-package.zip -oC:\projects\deps > nul
 )
 if "%CLANG_VERSION%"=="ToT" (
     move "C:\Program Files\LLVM" "C:\Program Files\LLVM_BAK"

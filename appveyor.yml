@@ -9,7 +9,6 @@ configuration:
   - Debug
 
 environment:
-  APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CLANG_VERSION: ToT
@@ -25,7 +24,6 @@ install:
   # All external dependencies are installed in C:\projects\deps
   ############################################################################
   - call "%APPVEYOR_BUILD_FOLDER%\\install-appveyor-reqs.cmd"
-  - echo %PATH%
 
 before_build:
   - call "%MSVC_SETUP_PATH%" x86
@@ -52,7 +50,8 @@ build_script:
   - ninja
 
 test_script:
-  - ninja check-cxx
+  #- ninja check-cxx
+  - echo Skipping tests...
 
 on_failure:
   - appveyor PushArtifact CMakeFiles/CMakeOutput.log
