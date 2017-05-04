@@ -52,8 +52,7 @@ build_script:
   - ninja
 
 test_script:
-  - echo FIXME tests disabled...
-  #- ninja check-cxx
+  - ninja check-cxx
 
 on_failure:
   - appveyor PushArtifact CMakeFiles/CMakeOutput.log
@@ -66,5 +65,4 @@ artifacts:
 cache:
  - C:\projects\deps\ninja
  - C:\projects\deps\cmake
- - C:\projects\deps\llvm
  - C:\projects\deps\llvm-installer.exe
