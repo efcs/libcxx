@@ -58,7 +58,7 @@ install:
 
 
 before_build:
-  - call "%MSVC_SETUP_PATH%" amd64
+  - call "%MSVC_SETUP_PATH%" x86_amd64
   - cd %APPVEYOR_BUILD_FOLDER%
 
 build_script:
