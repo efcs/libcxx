@@ -41,6 +41,10 @@ ninja --version
 ::###########################################################################
 :: Setup the cached copy of LLVM
 ::###########################################################################
-git clone --depth=1 https://github.com/llvm-mirror/llvm.git
+if NOT EXIST llvm (
+  git clone --depth=1 http://llvm.org/git/llvm.git
+) ELSE (
+  git -C llvm pull --rebase=true --ff-only
+)
 
 @echo off
