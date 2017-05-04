@@ -52,8 +52,7 @@ build_script:
   - ninja
 
 test_script:
-  #- ninja check-cxx
-  - echo Skipping tests...
+  - ninja check-cxx
 
 on_failure:
   - appveyor PushArtifact CMakeFiles/CMakeOutput.log
