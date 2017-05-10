@@ -30,8 +30,13 @@
 #include <Windows.h>
 #include <process.h>
 #include <fibersapi.h>
-#include <__undef_min_max>
 #endif
+
+_LIBCPP_PUSH_MACROS
+#if defined(min) || defined(max)
+# include <__undef_macros>
+#endif
+
 
 #if defined(_LIBCPP_HAS_THREAD_LIBRARY_EXTERNAL) || \
     defined(_LIBCPP_BUILDING_THREAD_LIBRARY_EXTERNAL)
