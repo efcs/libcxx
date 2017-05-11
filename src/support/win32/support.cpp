@@ -16,7 +16,7 @@
 #include <cwchar>  // mbstate_t
 
 // Some of these functions aren't standard or if they conform, the name does not.
-
+#if defined(_LIBCPP_MSVCRT)
 int asprintf(char **sptr, const char *__restrict format, ...)
 {
     va_list ap;
@@ -26,6 +26,7 @@ int asprintf(char **sptr, const char *__restrict format, ...)
     va_end(ap);
     return result;
 }
+#endif
 
 // Like sprintf, but when return value >= 0 it returns
 // a pointer to a malloc'd string in *sptr.

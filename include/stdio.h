@@ -110,10 +110,12 @@ void perror(const char* s);
 #ifdef __cplusplus
 
 // snprintf
-#if defined(_LIBCPP_MSVCRT)
+#if defined(_LIBCPP_WIN32API)
 extern "C" {
-int vasprintf(char **sptr, const char *__restrict fmt, va_list ap);
+#if defined(_LIBCPP_MSVCRT)
 int asprintf(char **sptr, const char *__restrict fmt, ...);
+#endif
+int vasprintf(char **sptr, const char *__restrict fmt, va_list ap);
 }
 #endif
 
