@@ -189,6 +189,11 @@ namespace std {
 #pragma GCC system_header
 #endif
 
+_LIBCPP_PUSH_MACROS
+#if defined(min) || defined(max)
+# include <__undef_macros>
+#endif
+
 _LIBCPP_BEGIN_NAMESPACE_LFTS
 
     template<class _CharT, class _Traits = _VSTD::char_traits<_CharT> >
@@ -809,5 +814,7 @@ quoted ( std::experimental::basic_string_view <_CharT, _Traits> __sv,
 #endif
 
 _LIBCPP_END_NAMESPACE_STD
+
+_LIBCPP_POP_MACROS
 
 #endif // _LIBCPP_LFTS_STRING_VIEW
