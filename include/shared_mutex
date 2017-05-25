@@ -126,7 +126,7 @@ template <class Mutex>
 #include <__config>
 
 _LIBCPP_PUSH_MACROS
-#if defined(min) || defined(max)
+#if defined(min) || defined(max) || defined(ALWAYS_INCLUDE)
 # include <__undef_macros>
 #endif
 

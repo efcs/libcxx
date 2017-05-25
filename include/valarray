@@ -352,7 +352,7 @@ template <class T> unspecified2 end(const valarray<T>& v);
 #endif
 
 _LIBCPP_PUSH_MACROS
-#if defined(min) || defined(max)
+#if defined(min) || defined(max) || defined(ALWAYS_INCLUDE)
 # include <__undef_macros>
 #endif
 
