@@ -663,9 +663,7 @@ void* align(size_t alignment, size_t size, void*& ptr, size_t& space);
 #endif
 
 _LIBCPP_PUSH_MACROS
-#if defined(min) || defined(max) || defined(ALWAYS_INCLUDE)
-# include <__undef_macros>
-#endif
+#include <__undef_macros>
 
 
 _LIBCPP_BEGIN_NAMESPACE_STD

@@ -108,9 +108,7 @@ public:
 #endif
 
 _LIBCPP_PUSH_MACROS
-#if defined(min) || defined(max) || defined(ALWAYS_INCLUDE)
-# include <__undef_macros>
-#endif
+#include <__undef_macros>
 
 namespace std { namespace experimental { inline namespace __array_extensions_v1 {
 

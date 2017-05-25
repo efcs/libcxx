@@ -83,9 +83,7 @@ namespace pmr {
 #endif
 
 _LIBCPP_PUSH_MACROS
-#if defined(min) || defined(max) || defined(ALWAYS_INCLUDE)
-# include <__undef_macros>
-#endif
+#include <__undef_macros>
 
 _LIBCPP_BEGIN_NAMESPACE_LFTS_PMR
 
