@@ -7,22 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 
-// <iterator>
+#include <cstddef>
+#include <test_macros.h>
 
-// istreambuf_iterator
+// UNSUPPORTED: c++98, c++03, c++11, c++14
+// The following compilers don't like "std::byte b1{1}"
+// XFAIL: clang-3.5, clang-3.6, clang-3.7, clang-3.8
+// XFAIL: apple-clang-6, apple-clang-7, apple-clang-8.0
 
-// pointer operator->() const;
-
-#include <iostream>
-#include <sstream>
-#include <streambuf>
-
-typedef char C;
-int main ()
-{
-   std::istringstream s("filename");
-   std::istreambuf_iterator<char> i(s);
-
-   (*i).~C();  // This is well-formed...
-   i->~C();  // ... so this should be supported!
+int main () {
+  constexpr std::byte b{42};
+  static_assert(std::to_integer<int>(b) == 42, "");
 }
