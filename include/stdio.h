@@ -110,7 +110,7 @@ void perror(const char* s);
 #ifdef __cplusplus
 
 // snprintf
-#if defined(_LIBCPP_WIN32API)
+#if defined(_LIBCPP_MSVCRT_LIKE)
 extern "C" {
 #if defined(_LIBCPP_MSVCRT)
 int asprintf(char **sptr, const char *__restrict fmt, ...);

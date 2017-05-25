@@ -122,7 +122,7 @@ int vasprintf_l( char **ret, locale_t loc, const char *format, va_list ap )
     return vasprintf( ret, format, ap );
 }
 
-#ifndef _LIBCPP_MSVCRT
+#if !defined(_LIBCPP_MSVCRT)
 float strtof_l(const char* nptr, char** endptr, locale_t loc) {
   __libcpp_locale_guard __current(loc);
   return strtof(nptr, endptr);
