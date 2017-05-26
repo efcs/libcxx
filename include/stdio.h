@@ -112,9 +112,6 @@ void perror(const char* s);
 // snprintf
 #if defined(_LIBCPP_MSVCRT_LIKE)
 extern "C" {
-#if defined(_LIBCPP_MSVCRT)
-int asprintf(char **sptr, const char *__restrict fmt, ...);
-#endif
 int vasprintf(char **sptr, const char *__restrict fmt, va_list ap);
 }
 #endif
