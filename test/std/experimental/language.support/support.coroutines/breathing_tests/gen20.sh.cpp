@@ -19,9 +19,9 @@
 #include <experimental/coroutine>
 #include <cassert>
 
-#include "coroutine_generator.h"
+#include "coroutine_library_types.h"
 
-generator<int> range(int from, int n) {
+co_generator<int> range(int from, int n) {
   for (int i = from; i < n; ++i)
     co_yield i;
 }

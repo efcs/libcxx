@@ -22,8 +22,36 @@
 
 #include "test_macros.h"
 #include "coroutine_library_types.h"
+#include "coroutine_concept_archetypes.h"
 
-co_generator<int> fib(int n) {
+// A sample type that uses co_iterator to build a generator.
+// The promise_type
+struct MyGenerator {
+  struct promise_type : ValuePromise<int> {
+    using ValuePromise<int>::ValuePromise;
+    MyGenerator get_return_object() { return MyGenerator{this}; }
+    template <class Arg>
+    coro::suspend_always yield_value(Arg&& arg) {
+      this->get() = std::forward<Arg>(arg);
+      return {};
+    }
+  };
+
+public:
+  using iterator = co_iterator<promise_type>;
+  iterator begin() {
+    p.resume();
+    return {p};
+  }
+
+  iterator end() { return {}; }
+private:
+  using handle_type = coro::coroutine_handle<promise_type>;
+  explicit MyGenerator(promise_type *p) : p(handle_type::from_promise(*p)) {}
+  handle_type p;
+};
+
+MyGenerator fib(int n) {
   for (int i = 0; i < n; ++i)
     co_yield i;
 }

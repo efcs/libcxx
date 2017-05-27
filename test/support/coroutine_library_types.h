@@ -7,8 +7,8 @@
 // Source Licenses. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TEST_SUPPORT_COROUTINE_GENERATOR_H
-#define TEST_SUPPORT_COROUTINE_GENERATOR_H
+#ifndef TEST_SUPPORT_COROUTINE_LIBRARY_TYPES_H
+#define TEST_SUPPORT_COROUTINE_LIBRARY_TYPES_H
 
 #include <experimental/coroutine>
 
@@ -17,11 +17,11 @@ namespace coro = std::experimental::coroutines_v1;
 
 template <class ValueTy> struct generator_promise_type;
 template <class ValueTy, class PromiseTy = generator_promise_type<ValueTy> >
-  struct generator;
+  struct co_generator;
 
-
+// Requires: `PromiseTy` meets the requirements of `ValuePromise`
 template <class PromiseTy>
-struct generator_iterator {
+struct co_iterator {
   using promise_type = PromiseTy;
   using handle_type = coro::coroutine_handle<PromiseTy>;
 
@@ -30,25 +30,32 @@ struct generator_iterator {
   using value_type = typename promise_type::value_type;
   using pointer = value_type const*;
   using reference = value_type const&;
-  using difference_type = std::ptrdiff_t ;
+  using difference_type = std::ptrdiff_t;
 
 private:
-  template <class, class> friend struct generator;
   template <class PT>
-  friend bool operator==(generator_iterator<PT> const& lhs,
-                         generator_iterator<PT> const &rhs);
-
-  generator_iterator(handle_type Coro, bool Done)
-        : coro_(Coro), done_(Done) {}
+  friend bool operator==(co_iterator<PT> const& lhs,
+                         co_iterator<PT> const &rhs);
 
 public:
-    generator_iterator &operator++() {
+  co_iterator() : coro_(), done_(true) {}
+
+  // Requires: The coroutine referenced by `Coro`, if any, must be suspended.
+  co_iterator(handle_type Coro)
+        : coro_(Coro), done_(Coro ? Coro.done() : true) {
+  }
+
+public:
+
+    // Requires:
+    //  The iterator refers to a suspended coroutine.
+    co_iterator &operator++() {
       coro_.resume();
       done_ = coro_.done();
       return *this;
     }
 
-    reference operator*() const { return coro_.promise().get_value(); }
+    reference operator*() const { return coro_.promise().get(); }
     pointer operator->() const { return std::addressof(**this); }
 private:
   handle_type coro_;
@@ -56,14 +63,14 @@ private:
 };
 
 template <class PT>
-inline bool operator==(generator_iterator<PT> const& lhs,
-                       generator_iterator<PT> const &rhs) {
+inline bool operator==(co_iterator<PT> const& lhs,
+                       co_iterator<PT> const &rhs) {
       return lhs.done_ == rhs.done_;
 }
 
 template <class PT>
-inline bool operator!=(generator_iterator<PT> const& lhs,
-                       generator_iterator<PT> const& rhs) {
+inline bool operator!=(co_iterator<PT> const& lhs,
+                       co_iterator<PT> const& rhs) {
       return !(lhs == rhs);
 }
 
@@ -83,38 +90,38 @@ struct generator_promise_type {
   void return_void() {}
   static void unhandled_exception() {}
 
-  decltype(auto) get_value()       { return current_value; }
-  decltype(auto) get_value() const { return current_value; }
+  decltype(auto) get()       { return current_value; }
+  decltype(auto) get() const { return current_value; }
 private:
   value_type current_value;
 };
 
 template <class ValueTy, class PromiseTy>
-struct generator {
+struct co_generator {
   struct promise_type : public PromiseTy {
     using value_type = ValueTy;
     using PromiseTy::PromiseTy;
-    generator get_return_object() { return generator{this}; }
+    co_generator get_return_object() { return co_generator<ValueTy, PromiseTy>{this}; }
   };
 
 public:
-  generator(generator &&rhs) : p(rhs.p) { rhs.p = nullptr; }
-  ~generator() { if (p) p.destroy(); }
+  co_generator(co_generator &&rhs) : p(rhs.p) { rhs.p = nullptr; }
+  ~co_generator() { if (p) p.destroy(); }
 
 public:
-  using iterator = generator_iterator<promise_type>;
+  using iterator = co_iterator<promise_type>;
 
   iterator begin() {
     p.resume();
-    return {p, p.done()};
+    return {p};
   }
 
-  iterator end() { return {p, true}; }
+  iterator end() { return {}; }
 
 private:
   using handle_type = coro::coroutine_handle<promise_type>;
-  explicit generator(promise_type *p) : p(handle_type::from_promise(*p)) {}
+  explicit co_generator(promise_type *p) : p(handle_type::from_promise(*p)) {}
   handle_type p;
 };
 
-#endif // TEST_SUPPORT_COROUTINE_GENERATOR
+#endif // TEST_SUPPORT_COROUTINE_LIBRARY_TYPES_H

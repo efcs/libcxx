@@ -22,18 +22,38 @@
 
 #include "test_macros.h"
 #include "coroutine_library_types.h"
+#include "coroutine_concept_archetypes.h"
+
+struct CustomPromise : ValuePromise<int> {
+  using ValuePromise<int>::ValuePromise;
+  template <class Arg> coro::suspend_always yield_value(Arg&& arg) {
+    this->get() = std::forward<Arg>(arg);
+    return {};
+  }
+};
 
 co_generator<int> fib(int n) {
   for (int i = 0; i < n; ++i)
     co_yield i;
 }
 
-int main() {
+co_generator<int, CustomPromise> fib2(int n) {
+  for (int i = 0; i < n; ++i)
+    co_yield i;
+}
+
+template <class GenT>
+void test_gen(GenT g) {
   std::vector<int> vec;
   const std::vector<int> expect = {
       0, 1, 2, 3, 4
   };
-  for (auto v : fib(5))
+  for (auto v : g)
     vec.push_back(v);
   assert(vec == expect);
+}
+
+int main() {
+  test_gen(fib(5));
+  test_gen(fib2(5));
 }
