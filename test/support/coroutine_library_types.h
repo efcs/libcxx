@@ -15,9 +15,9 @@
 
 namespace coro = std::experimental::coroutines_v1;
 
-template <class ValueTy> struct generator_promise_type;
-template <class ValueTy, class PromiseTy = generator_promise_type<ValueTy> >
-  struct co_generator;
+//===----------------------------------------------------------------------===//
+//                            co_iterator                                     //
+//===----------------------------------------------------------------------===//
 
 // Requires: `PromiseTy` meets the requirements of `ValuePromise`
 template <class PromiseTy>
@@ -74,34 +74,51 @@ inline bool operator!=(co_iterator<PT> const& lhs,
       return !(lhs == rhs);
 }
 
-template <class ValueTy>
-struct generator_promise_type {
-  using value_type = ValueTy;
+//===----------------------------------------------------------------------===//
+//                        co_yieldable_promise                                //
+//===----------------------------------------------------------------------===//
 
+
+// Implements ValuePromise and YieldablePromise
+template <class ValueTy>
+struct co_yieldable_promise {
+  // Required by YieldablePromise
   template <class Tp>
   coro::suspend_always yield_value(Tp&& value) {
       current_value = std::forward<Tp>(value);
       return {};
   }
 
-  coro::suspend_always initial_suspend() { return {}; }
-  coro::suspend_always final_suspend() { return {}; }
-
-  void return_void() {}
-  static void unhandled_exception() {}
-
+  // Required by ValuePromise
+  using value_type = ValueTy;
   decltype(auto) get()       { return current_value; }
   decltype(auto) get() const { return current_value; }
+
+  // Required for all Promise types
+  coro::suspend_always initial_suspend() { return {}; }
+  coro::suspend_always final_suspend() { return {}; }
+  void return_void() {}
+  static void unhandled_exception() {}
 private:
   value_type current_value;
 };
 
-template <class ValueTy, class PromiseTy>
+
+//===----------------------------------------------------------------------===//
+//                            co_generator                                    //
+//===----------------------------------------------------------------------===//
+
+// Requires:
+//  - PromiseTy must meet the requirements of ValuePromise
+template <class ValueTy,
+    class PromiseTy = co_yieldable_promise<ValueTy> >
 struct co_generator {
   struct promise_type : public PromiseTy {
     using value_type = ValueTy;
     using PromiseTy::PromiseTy;
-    co_generator get_return_object() { return co_generator<ValueTy, PromiseTy>{this}; }
+    co_generator get_return_object() {
+      return co_generator<ValueTy, PromiseTy>{this};
+    }
   };
 
 public:
