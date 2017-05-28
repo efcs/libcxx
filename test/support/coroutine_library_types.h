@@ -130,6 +130,8 @@ struct co_generator {
 
 public:
   co_generator(co_generator &&rhs) : p(rhs.p) { rhs.p = nullptr; }
+  // This double destroys the object when the coroutine flows off the end
+  // THIS IS FREAKING COMPLICATED!
   ~co_generator() { if (p) p.destroy(); }
 
 public:
