@@ -24,7 +24,21 @@
 #include "coroutine_library_types.h"
 #include "coroutine_concept_archetypes.h"
 
-// A sample type that uses co_iterator to build a generator.
+
+struct get_coro_handle_tag {
+  bool await_ready() const { return false; }
+  bool await_suspend(coro::coroutine_handle<> h) { h_ = h; return false; }
+  coro::coroutine_handle<> await_resume() const {
+    return h_;
+  }
+  coro::coroutine_handle<> h_;
+};
+
+get_coro_handle_tag get_coro_handle() {
+  return get_coro_handle_tag{};
+}
+
+// A sample type that uses co_input_iterator to build a generator.
 // The promise_type
 struct MyGenerator {
   struct promise_type : co_yieldable_promise<int> {
@@ -33,7 +47,7 @@ struct MyGenerator {
   };
 
 public:
-  using iterator = co_iterator<promise_type>;
+  using iterator = co_input_iterator<promise_type>;
   iterator begin() {
     p.resume();
     return {p};
@@ -47,6 +61,8 @@ private:
 };
 
 MyGenerator fib(int n) {
+   coro::coroutine_handle<> h = co_await get_coro_handle();
+  ((void)h);
   for (int i = 0; i < n; ++i)
     co_yield i;
 }

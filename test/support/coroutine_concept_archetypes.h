@@ -21,6 +21,13 @@ inline namespace Archetypes {
 
 namespace coro = std::experimental::coroutines_v1;
 
+struct BasicPromise {
+  coro::suspend_always initial_suspend() { return {}; }
+  coro::suspend_always final_suspend() { return {}; }
+  void return_void() {}
+  static void unhandled_exception() {}
+};
+
 /**
  * YieldablePromise concept
  *

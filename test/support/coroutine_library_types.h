@@ -15,13 +15,14 @@
 
 namespace coro = std::experimental::coroutines_v1;
 
+
 //===----------------------------------------------------------------------===//
-//                            co_iterator                                     //
+//                            co_input_iterator                                     //
 //===----------------------------------------------------------------------===//
 
 // Requires: `PromiseTy` meets the requirements of `ValuePromise`
 template <class PromiseTy>
-struct co_iterator {
+struct co_input_iterator {
   using promise_type = PromiseTy;
   using handle_type = coro::coroutine_handle<PromiseTy>;
 
@@ -34,14 +35,14 @@ struct co_iterator {
 
 private:
   template <class PT>
-  friend bool operator==(co_iterator<PT> const& lhs,
-                         co_iterator<PT> const &rhs);
+  friend bool operator==(co_input_iterator<PT> const& lhs,
+                         co_input_iterator<PT> const &rhs);
 
 public:
-  co_iterator() : coro_(), done_(true) {}
+  co_input_iterator() : coro_(), done_(true) {}
 
   // Requires: The coroutine referenced by `Coro`, if any, must be suspended.
-  co_iterator(handle_type Coro)
+  co_input_iterator(handle_type Coro)
         : coro_(Coro), done_(Coro ? Coro.done() : true) {
   }
 
@@ -49,7 +50,7 @@ public:
 
     // Requires:
     //  The iterator refers to a suspended coroutine.
-    co_iterator &operator++() {
+    co_input_iterator &operator++() {
       coro_.resume();
       done_ = coro_.done();
       return *this;
@@ -63,14 +64,14 @@ private:
 };
 
 template <class PT>
-inline bool operator==(co_iterator<PT> const& lhs,
-                       co_iterator<PT> const &rhs) {
+inline bool operator==(co_input_iterator<PT> const& lhs,
+                       co_input_iterator<PT> const &rhs) {
       return lhs.done_ == rhs.done_;
 }
 
 template <class PT>
-inline bool operator!=(co_iterator<PT> const& lhs,
-                       co_iterator<PT> const& rhs) {
+inline bool operator!=(co_input_iterator<PT> const& lhs,
+                       co_input_iterator<PT> const& rhs) {
       return !(lhs == rhs);
 }
 
@@ -82,6 +83,12 @@ inline bool operator!=(co_iterator<PT> const& lhs,
 // Implements ValuePromise and YieldablePromise
 template <class ValueTy>
 struct co_yieldable_promise {
+  co_yieldable_promise() = default;
+
+  // Should this be copyable or moveable?
+  co_yieldable_promise(co_yieldable_promise const&) = delete;
+  co_yieldable_promise& operator=(co_yieldable_promise const&) = delete;
+
   // Required by YieldablePromise
   template <class Tp>
   coro::suspend_always yield_value(Tp&& value) {
@@ -126,7 +133,7 @@ public:
   ~co_generator() { if (p) p.destroy(); }
 
 public:
-  using iterator = co_iterator<promise_type>;
+  using iterator = co_input_iterator<promise_type>;
 
   iterator begin() {
     p.resume();
@@ -140,5 +147,6 @@ private:
   explicit co_generator(promise_type *p) : p(handle_type::from_promise(*p)) {}
   handle_type p;
 };
+
 
 #endif // TEST_SUPPORT_COROUTINE_LIBRARY_TYPES_H

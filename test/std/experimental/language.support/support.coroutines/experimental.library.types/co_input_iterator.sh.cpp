@@ -24,6 +24,8 @@
 #include "coroutine_library_types.h"
 #include "coroutine_concept_archetypes.h"
 
+
+
 // A sample type that uses co_iterator to build a generator.
 // The promise_type
 struct MyGenerator {
@@ -38,7 +40,7 @@ struct MyGenerator {
   };
 
 public:
-  using iterator = co_iterator<promise_type>;
+  using iterator = co_input_iterator<promise_type>;
   iterator begin() {
     p.resume();
     return {p};
