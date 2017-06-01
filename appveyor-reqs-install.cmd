@@ -46,8 +46,12 @@ if NOT EXIST ninja (
 ninja --version
 
 ::###########################################################################
-:: Setup the cached copy of LLVM
+:: Setup the copy of LLVM
 ::###########################################################################
-git clone --depth=1 http://llvm.org/git/llvm.git
+git clone --depth=1 http://llvm.org/git/llvm.git C:\projects\llvm
+if DEFINED USE_LIBCXXABI (
+  git clone --depth=1 http://llvm.org/git/libcxxabi.git C:\projects\llvm\projects\libcxxabi
+)
+mklink /D C:\projects\llvm\projects\libcxx "%APPVEYOR_BUILD_FOLDER%"
 
 @echo off
