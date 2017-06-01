@@ -78,5 +78,6 @@ artifacts:
     name: logs
 
 cache:
+ - C:\projects\deps\llvm-installer.exe -> appveyor-reqs-install.cmd
  - C:\projects\deps\ninja -> appveyor.yml
  - C:\projects\deps\cmake -> appveyor.yml
