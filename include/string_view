@@ -215,6 +215,11 @@ public:
 	_LIBCPP_CONSTEXPR_AFTER_CXX11 _LIBCPP_INLINE_VISIBILITY
 	basic_string_view& operator=(const basic_string_view&) _NOEXCEPT = default;
 
+#ifndef _LIBCPP_CXX03_LANG
+  template <class _Alloc>
+  basic_string_view &operator=(basic_string<_CharT, _Traits, _Alloc>&&) = delete;
+#endif
+
 	_LIBCPP_CONSTEXPR _LIBCPP_INLINE_VISIBILITY
 	basic_string_view(const _CharT* __s, size_type __len)
 		: __data(__s), __size(__len)
