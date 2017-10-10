@@ -22,6 +22,7 @@
 #include "min_allocator.h"
 #if TEST_STD_VER >= 11
 #include "emplace_constructible.h"
+#include "container_test_types.h"
 #endif
 
 template <class InputIterator, class Allocator>
@@ -97,7 +98,46 @@ void test_emplacable_concept() {
 #endif
 }
 
+
+void test_ctor_under_alloc() {
+#if TEST_STD_VER >= 11
+  int arr1[] = {42};
+  int arr2[] = {1, 101, 42};
+  {
+    using C = TCT::deque<>;
+    using T = typename C::value_type;
+    using It = forward_iterator<int*>;
+    using Alloc = C::allocator_type;
+    Alloc a;
+    {
+      ExpectConstructGuard<int&> G(1);
+      C v(It(arr1), It(std::end(arr1)), a);
+    }
+    {
+      ExpectConstructGuard<int&> G(3);
+      C v(It(arr2), It(std::end(arr2)), a);
+    }
+  }
+  {
+    using C = TCT::deque<>;
+    using T = typename C::value_type;
+    using It = input_iterator<int*>;
+    using Alloc = C::allocator_type;
+    Alloc a;
+    {
+      ExpectConstructGuard<int&> G(1);
+      C v(It(arr1), It(std::end(arr1)), a);
+    }
+    {
+      ExpectConstructGuard<int&> G(3);
+      C v(It(arr2), It(std::end(arr2)), a);
+    }
+  }
+#endif
+}
+
 int main() {
   basic_test();
   test_emplacable_concept();
+  test_ctor_under_alloc();
 }
