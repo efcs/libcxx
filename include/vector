@@ -2001,8 +2001,12 @@ vector<_Tp, _Allocator>::insert(const_iterator __position,
                 __RAII_IncreaseAnnotator __annotator(*this, __n);
                 __move_range(__p, __old_last, __p + __old_n);
                 __annotator.__done();
-                this->__destruct_range(__p, __p + __old_n);
-                _VSTD::uninitialized_copy(__first, __m, __p);
+                this->__destruct_range(__p, __p + __n);
+                pointer __new_p = __p;
+                while (__first != __m)
+                  __alloc_traits::construct(this->__alloc(),
+                                      _VSTD::__to_raw_pointer(__new_p++), *__first++);
+                //_VSTD::uninitialized_copy(__first, __m, __p);
             }
         }
         else

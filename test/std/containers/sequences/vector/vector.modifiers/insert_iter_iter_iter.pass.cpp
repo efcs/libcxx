@@ -214,7 +214,76 @@ void test_emplaceable_concept() {
 #endif
 }
 
+struct LifetimeInfo {
+  int destroyed = 0;
+  int alive = 0;
+  int move_constructed = 0;
+  int move_assigned = 0;
+  void reset() { *this = LifetimeInfo{}; }
+};
+
+struct RangeType {
+  LifetimeInfo *Info;
+  explicit RangeType(LifetimeInfo &IA) : Info(&IA) { Info->alive++; }
+  RangeType(RangeType&& Other) : Info(Other.Info) {
+    assert(Info);
+    Info->alive++;
+    Info->move_constructed++;
+  }
+  RangeType& operator=(RangeType&& Other) {
+    assert(Info && Other.Info);
+    Info->move_assigned++;
+    return *this;
+  }
+
+  ~RangeType() {
+    assert(Info);
+    Info->destroyed++;
+    Info->alive--;
+    Info = nullptr;
+  }
+};
+
+void test_destroys_range() {
+#if TEST_STD_VER >= 11
+  LifetimeInfo Info[5] = {};
+  LifetimeInfo Info2[5] = {};
+  auto Reset = [&]{
+    std::fill(std::begin(Info), std::end(Info), LifetimeInfo{});
+    std::fill(std::begin(Info2), std::end(Info2), LifetimeInfo{});
+  };
+  {
+    using T = RangeType;
+    using It = forward_iterator<LifetimeInfo*>;
+    std::vector<T> v;
+    v.reserve(10);
+    v.insert(v.end(), It(std::begin(Info)), It(std::end(Info)));
+    assert(v.size() == 5);
+    for (auto const& I : v) {
+      assert(I.Info);
+      assert(I.Info->alive == 1);
+      assert(I.Info->destroyed == 0);
+    }
+    v.insert(v.begin(), It(std::begin(Info2)), It(std::end(Info2)));
+    for (unsigned i=0; i < 5; ++i) {
+      assert(v[i].Info == &Info2[i]);
+      assert(v[i].Info->alive == 1);
+      assert(v[i].Info->destroyed == 0);
+      assert(v[i].Info->move_constructed == 0);
+      assert(v[i].Info->move_assigned == 0);
+      assert(v[i+5].Info == &Info[i]);
+      assert(v[i+5].Info->alive == 1);
+      assert(v[i+5].Info->destroyed == 1);
+      assert(v[i+5].Info->move_constructed == 1);
+      assert(v[i+5].Info->move_assigned == 0);
+    }
+  }
+  Reset();
+#endif
+}
+
 int main() {
   test_basic();
   test_emplaceable_concept();
+  test_destroys_range();
 }
