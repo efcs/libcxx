@@ -21,6 +21,7 @@
 #include "test_iterators.h"
 #if TEST_STD_VER >= 11
 #include "emplace_constructible.h"
+#include "container_test_types.h"
 #endif
 
 
@@ -66,6 +67,8 @@ void test_emplaceable_concept() {
   }
 #endif
 }
+
+
 
 int main()
 {
