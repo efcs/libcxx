@@ -360,6 +360,8 @@ protected:
 
     _LIBCPP_INLINE_VISIBILITY
     void __destruct_at_end(pointer __new_last) _NOEXCEPT;
+    _LIBCPP_INLINE_VISIBILITY
+    void __destruct_range(pointer __first, pointer __last) _NOEXCEPT;
 
     _LIBCPP_INLINE_VISIBILITY
     void __copy_assign_alloc(const __vector_base& __c)
@@ -412,6 +414,16 @@ __vector_base<_Tp, _Allocator>::__destruct_at_end(pointer __new_last) _NOEXCEPT
     while (__new_last != __soon_to_be_end)
         __alloc_traits::destroy(__alloc(), _VSTD::__to_raw_pointer(--__soon_to_be_end));
     __end_ = __new_last;
+}
+
+
+template <class _Tp, class _Allocator>
+inline _LIBCPP_INLINE_VISIBILITY
+void
+__vector_base<_Tp, _Allocator>::__destruct_range(pointer __first, pointer __last) _NOEXCEPT
+{
+    for (; __first != __last; ++__first)
+      __alloc_traits::destroy(__alloc(), _VSTD::__to_raw_pointer(__first));
 }
 
 template <class _Tp, class _Allocator>
@@ -673,6 +685,17 @@ public:
     _LIBCPP_INLINE_VISIBILITY
     const value_type* data() const _NOEXCEPT
         {return _VSTD::__to_raw_pointer(this->__begin_);}
+
+#ifdef _LIBCPP_CXX03_LANG
+    _LIBCPP_INLINE_VISIBILITY
+    void __emplace_back(const value_type& __x) { push_back(__x); }
+#else
+    template <class _Arg>
+    _LIBCPP_INLINE_VISIBILITY
+    void __emplace_back(_Arg&& __arg) {
+      emplace_back(_VSTD::forward<_Arg>(__arg));
+    }
+#endif
 
     _LIBCPP_INLINE_VISIBILITY void push_back(const_reference __x);
 
@@ -1128,7 +1151,7 @@ vector<_Tp, _Allocator>::vector(_InputIterator __first,
     __get_db()->__insert_c(this);
 #endif
     for (; __first != __last; ++__first)
-        push_back(*__first);
+        __emplace_back(*__first);
 }
 
 template <class _Tp, class _Allocator>
@@ -1145,7 +1168,7 @@ vector<_Tp, _Allocator>::vector(_InputIterator __first, _InputIterator __last, c
     __get_db()->__insert_c(this);
 #endif
     for (; __first != __last; ++__first)
-        push_back(*__first);
+        __emplace_back(*__first);
 }
 
 template <class _Tp, class _Allocator>
@@ -1365,7 +1388,7 @@ vector<_Tp, _Allocator>::assign(_InputIterator __first, _InputIterator __last)
 {
     clear();
     for (; __first != __last; ++__first)
-        push_back(*__first);
+        __emplace_back(*__first);
 }
 
 template <class _Tp, class _Allocator>
@@ -1887,7 +1910,9 @@ typename enable_if
        typename iterator_traits<_InputIterator>::reference>::value,
     typename vector<_Tp, _Allocator>::iterator
 >::type
-vector<_Tp, _Allocator>::insert(const_iterator __position, _InputIterator __first, _InputIterator __last)
+vector<_Tp, _Allocator>::insert(const_iterator __position,
+                                _InputIterator __first,
+                                _InputIterator __last)
 {
 #if _LIBCPP_DEBUG_LEVEL >= 2
     _LIBCPP_ASSERT(__get_const_db()->__find_c_from_i(&__position) == this,
@@ -1944,7 +1969,9 @@ typename enable_if
        typename iterator_traits<_ForwardIterator>::reference>::value,
     typename vector<_Tp, _Allocator>::iterator
 >::type
-vector<_Tp, _Allocator>::insert(const_iterator __position, _ForwardIterator __first, _ForwardIterator __last)
+vector<_Tp, _Allocator>::insert(const_iterator __position,
+                                _ForwardIterator __first,
+                                _ForwardIterator __last)
 {
 #if _LIBCPP_DEBUG_LEVEL >= 2
     _LIBCPP_ASSERT(__get_const_db()->__find_c_from_i(&__position) == this,
@@ -1974,13 +2001,15 @@ vector<_Tp, _Allocator>::insert(const_iterator __position, _ForwardIterator __fi
                 __RAII_IncreaseAnnotator __annotator(*this, __n);
                 __move_range(__p, __old_last, __p + __old_n);
                 __annotator.__done();
-                _VSTD::copy(__first, __m, __p);
+                this->__destruct_range(__p, __p + __old_n);
+                _VSTD::uninitialized_copy(__first, __m, __p);
             }
         }
         else
         {
             allocator_type& __a = this->__alloc();
-            __split_buffer<value_type, allocator_type&> __v(__recommend(size() + __n), __p - this->__begin_, __a);
+            __split_buffer<value_type, allocator_type&> __v(
+                __recommend(size() + __n), __p - this->__begin_, __a);
             __v.__construct_at_end(__first, __last);
             __p = __swap_out_circular_buffer(__v, __p);
         }

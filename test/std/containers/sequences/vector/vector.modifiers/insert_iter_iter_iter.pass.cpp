@@ -21,8 +21,11 @@
 #include "test_iterators.h"
 #include "min_allocator.h"
 #include "asan_testing.h"
+#if TEST_STD_VER >= 11
+#include "../emplace_constructible.h"
+#endif
 
-int main()
+void test_basic()
 {
     {
         std::vector<int> v(100);
@@ -164,4 +167,54 @@ int main()
             assert(v[j] == 0);
     }
 #endif
+}
+
+void test_emplaceable_concept() {
+#if TEST_STD_VER >= 11
+  int arr1[] = {42};
+  int arr2[] = {1, 101, 42};
+  {
+    using T = EmplaceConstructibleAndMoveable<int>;
+    using It = forward_iterator<int*>;
+    {
+      std::vector<T> v;
+      v.insert(v.end(), It(arr1), It(std::end(arr1)));
+      assert(v[0].value == 42);
+    }
+    {
+      std::vector<T> v;
+      v.insert(v.end(), It(arr2), It(std::end(arr2)));
+      assert(v[0].value == 1);
+      assert(v[1].value == 101);
+      assert(v[2].value == 42);
+    }
+  }
+  {
+    using T = EmplaceConstructibleAndMoveable<int>;
+    using It = input_iterator<int*>;
+    {
+      std::vector<T> v;
+      v.reserve(1);
+      v.insert(v.end(), It(arr1), It(std::end(arr1)));
+      assert(v[0].copied == 0);
+      assert(v[0].value == 42);
+    }
+    {
+      std::vector<T> v;
+      v.reserve(3);
+      v.insert(v.end(), It(arr2), It(std::end(arr2)));
+      //assert(v[0].copied == 0);
+      assert(v[0].value == 1);
+      //assert(v[1].copied == 0);
+      assert(v[1].value == 101);
+      assert(v[2].copied == 0);
+      assert(v[2].value == 42);
+    }
+  }
+#endif
+}
+
+int main() {
+  test_basic();
+  test_emplaceable_concept();
 }
