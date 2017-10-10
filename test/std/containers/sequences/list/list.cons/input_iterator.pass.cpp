@@ -17,8 +17,11 @@
 #include "test_iterators.h"
 #include "test_allocator.h"
 #include "min_allocator.h"
+#if TEST_STD_VER >= 11
+#include "emplace_constructible.h"
+#endif
 
-int main()
+void basic_test()
 {
     {
         int a[] = {0, 1, 2, 3};
@@ -75,4 +78,106 @@ int main()
             assert(*i == j);
     }
 #endif
+}
+
+
+
+void test_emplacable_concept() {
+#if TEST_STD_VER >= 11
+  int arr1[] = {42};
+  int arr2[] = {1, 101, 42};
+  {
+    using T = EmplaceConstructible<int>;
+    using It = random_access_iterator<int*>;
+    {
+      std::list<T> v(It(arr1), It(std::end(arr1)));
+      auto I = v.begin();
+      assert(I->value == 42);
+    }
+    {
+      std::list<T> v(It(arr2), It(std::end(arr2)));
+      auto I = v.begin();
+      assert(I->value == 1);
+      ++I;
+      assert(I->value == 101);
+      ++I;
+      assert(I->value == 42);
+    }
+  }
+  {
+    using T = EmplaceConstructible<int>;
+    using It = input_iterator<int*>;
+    {
+      std::list<T> v(It(arr1), It(std::end(arr1)));
+      auto I = v.begin();
+      assert(I->value == 42);
+    }
+    {
+      std::list<T> v(It(arr2), It(std::end(arr2)));
+      auto I = v.begin();
+      //assert(v[0].copied == 0);
+      assert(I->value == 1);
+      //assert(v[1].copied == 0);
+      ++I;
+      assert(I->value == 101);
+      ++I;
+      assert(I->value == 42);
+    }
+  }
+#endif
+}
+
+
+
+void test_emplacable_concept_with_alloc() {
+#if TEST_STD_VER >= 11
+  int arr1[] = {42};
+  int arr2[] = {1, 101, 42};
+  {
+    using T = EmplaceConstructible<int>;
+    using It = random_access_iterator<int*>;
+    std::allocator<T> a;
+    {
+      std::list<T> v(It(arr1), It(std::end(arr1)), a);
+      auto I = v.begin();
+      assert(I->value == 42);
+    }
+    {
+      std::list<T> v(It(arr2), It(std::end(arr2)), a);
+      auto I = v.begin();
+      assert(I->value == 1);
+      ++I;
+      assert(I->value == 101);
+      ++I;
+      assert(I->value == 42);
+    }
+  }
+  {
+    using T = EmplaceConstructible<int>;
+    using It = input_iterator<int*>;
+    std::allocator<T> a;
+    {
+      std::list<T> v(It(arr1), It(std::end(arr1)), a);
+      auto I = v.begin();
+      assert(I->value == 42);
+    }
+    {
+      std::list<T> v(It(arr2), It(std::end(arr2)), a);
+      auto I = v.begin();
+      //assert(v[0].copied == 0);
+      assert(I->value == 1);
+      //assert(v[1].copied == 0);
+      ++I;
+      assert(I->value == 101);
+      ++I;
+      assert(I->value == 42);
+    }
+  }
+#endif
+}
+
+int main() {
+  basic_test();
+  test_emplacable_concept();
+  test_emplacable_concept_with_alloc();
 }
