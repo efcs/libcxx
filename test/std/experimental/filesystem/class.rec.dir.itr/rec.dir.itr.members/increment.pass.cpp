@@ -237,4 +237,73 @@ TEST_CASE(access_denied_on_recursion_test_case)
     }
 }
 
+// See llvm.org/PR35078
+TEST_CASE(test_PR35078)
+{
+  using namespace std::experimental::filesystem;
+    scoped_test_env env;
+    const path testFiles[] = {
+        env.create_dir("dir1"),
+        env.create_dir("dir1/dir2"),
+        env.create_dir("dir1/dir2/dir3"),
+        env.create_file("dir1/file1"),
+        env.create_file("dir1/dir2/dir3/file2")
+    };
+    const path startDir = testFiles[0];
+    const path permDeniedDir = testFiles[1];
+    const path nestedDir = testFiles[2];
+    const path nestedFile = testFiles[3];
+
+    // Change the permissions so we can no longer iterate
+    permissions(permDeniedDir,
+                perms::remove_perms|perms::group_exec
+               |perms::owner_exec|perms::others_exec);
+
+    const std::error_code eacess_ec =
+        std::make_error_code(std::errc::permission_denied);
+    std::error_code ec = GetTestEC();
+
+    const recursive_directory_iterator endIt;
+
+  auto SetupState = [&](bool AllowEAccess, bool& SeenFile3) {
+    SeenFile3 = false;
+    auto Opts = AllowEAccess ? directory_options::skip_permission_denied
+        : directory_options::none;
+    recursive_directory_iterator it(startDir, Opts, ec);
+    while (!ec && it != endIt && *it != nestedDir) {
+      if (*it == nestedFile)
+        SeenFile3 = true;
+      it.increment(ec);
+    }
+    return it;
+  };
+
+  {
+    bool SeenNestedFile = false;
+    recursive_directory_iterator it = SetupState(false, SeenNestedFile);
+    TEST_REQUIRE(it != endIt);
+    TEST_REQUIRE(*it == nestedDir);
+    ec = GetTestEC();
+    it.increment(ec);
+    TEST_CHECK(ec);
+    TEST_CHECK(ec == eacess_ec);
+    TEST_CHECK(it == endIt);
+  }
+  {
+    bool SeenNestedFile = false;
+    recursive_directory_iterator it = SetupState(true, SeenNestedFile);
+    TEST_REQUIRE(it != endIt);
+    TEST_REQUIRE(*it == nestedDir);
+    ec = GetTestEC();
+    it.increment(ec);
+    TEST_CHECK(!ec);
+    if (SeenNestedFile) {
+      TEST_CHECK(it == endIt);
+    } else {
+      TEST_REQUIRE(it != endIt);
+      TEST_CHECK(*it == nestedFile);
+    }
+  }
+}
+
 TEST_SUITE_END()
