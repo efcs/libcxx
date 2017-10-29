@@ -302,21 +302,20 @@ bool recursive_directory_iterator::__try_recursion(error_code *ec) {
     auto& curr_it = __imp_->__stack_.top();
 
     bool skip_rec = false;
-
     std::error_code status_ec;
+    file_status st;
     if (!rec_sym) {
-      file_status st = curr_it.__entry_.symlink_status(status_ec);
+      st = curr_it.__entry_.symlink_status(status_ec);
       if (status_ec && status_known(st))
         status_ec.clear();
       if (status_ec || is_symlink(st) || !is_directory(st))
         skip_rec = true;
-    }
-    if (!skip_rec) {
-      file_status st = curr_it.__entry_.status(status_ec);
+    } else {
+      st = curr_it.__entry_.status(status_ec);
       if (status_ec && status_known(st))
         status_ec.clear();
       if (status_ec || !is_directory(st))
-        skip_rec = false;
+        skip_rec = true;
     }
 
     if (!skip_rec)

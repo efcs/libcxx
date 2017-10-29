@@ -316,7 +316,8 @@ TEST_CASE(test_PR35078_with_symlink)
         env.create_dir("dir1"),
         env.create_file("dir1/file1"),
         env.create_dir("sym_dir"),
-        env.create_symlink("sym_dir", "dir1/dir2"),
+        env.create_dir("sym_dir/nested_sym_dir"),
+        env.create_symlink("sym_dir/nested_sym_dir", "dir1/dir2"),
         env.create_dir("sym_dir/dir1"),
         env.create_dir("sym_dir/dir1/dir2"),
 
@@ -325,7 +326,7 @@ TEST_CASE(test_PR35078_with_symlink)
     const path startDir = testFiles[0];
     const path nestedFile = testFiles[1];
     const path permDeniedDir = testFiles[2];
-    const path symDir = testFiles[3];
+    const path symDir = testFiles[4];
 
     // Change the permissions so we can no longer iterate
     permissions(permDeniedDir,
@@ -338,11 +339,13 @@ TEST_CASE(test_PR35078_with_symlink)
 
     const recursive_directory_iterator endIt;
 
-    auto SetupState = [&](bool AllowEAccess, bool& SeenFile3) {
+    auto SetupState = [&](bool AllowEAccess, bool FollowSym, bool& SeenFile3) {
       SeenFile3 = false;
       auto Opts = AllowEAccess ? directory_options::skip_permission_denied
           : directory_options::none;
-      recursive_directory_iterator it(permDeniedDir, Opts, ec);
+      if (FollowSym)
+        Opts |= directory_options::follow_directory_symlink;
+      recursive_directory_iterator it(startDir, Opts, ec);
       while (!ec && it != endIt && *it != symDir) {
         std::cout << *it << std::endl;
         if (*it == nestedFile)
@@ -354,19 +357,8 @@ TEST_CASE(test_PR35078_with_symlink)
 
     {
       bool SeenNestedFile = false;
-      recursive_directory_iterator it = SetupState(false, SeenNestedFile);
+      recursive_directory_iterator it = SetupState(false, false, SeenNestedFile);
       TEST_REQUIRE(!ec);
-      TEST_REQUIRE(it != endIt);
-      TEST_REQUIRE(*it == symDir);
-      ec = GetTestEC();
-      it.increment(ec);
-      TEST_CHECK(ec);
-      TEST_CHECK(ec == eacess_ec);
-      TEST_CHECK(it == endIt);
-    }
-    {
-      bool SeenNestedFile = false;
-      recursive_directory_iterator it = SetupState(true, SeenNestedFile);
       TEST_REQUIRE(it != endIt);
       TEST_REQUIRE(*it == symDir);
       ec = GetTestEC();
@@ -378,6 +370,49 @@ TEST_CASE(test_PR35078_with_symlink)
         TEST_REQUIRE(it != endIt);
         TEST_CHECK(*it == nestedFile);
       }
+    }
+    {
+      bool SeenNestedFile = false;
+      recursive_directory_iterator it = SetupState(true, false, SeenNestedFile);
+      TEST_REQUIRE(!ec);
+      TEST_REQUIRE(it != endIt);
+      TEST_REQUIRE(*it == symDir);
+      ec = GetTestEC();
+      it.increment(ec);
+      TEST_CHECK(!ec);
+      if (SeenNestedFile) {
+        TEST_CHECK(it == endIt);
+      } else {
+        TEST_REQUIRE(it != endIt);
+        TEST_CHECK(*it == nestedFile);
+      }
+    }
+    {
+      bool SeenNestedFile = false;
+      recursive_directory_iterator it = SetupState(true, true, SeenNestedFile);
+      TEST_REQUIRE(!ec);
+      TEST_REQUIRE(it != endIt);
+      TEST_REQUIRE(*it == symDir);
+      ec = GetTestEC();
+      it.increment(ec);
+      TEST_CHECK(!ec);
+      if (SeenNestedFile) {
+        TEST_CHECK(it == endIt);
+      } else {
+        TEST_REQUIRE(it != endIt);
+        TEST_CHECK(*it == nestedFile);
+      }
+    }
+    {
+      bool SeenNestedFile = false;
+      recursive_directory_iterator it = SetupState(false, true, SeenNestedFile);
+      TEST_REQUIRE(it != endIt);
+      TEST_REQUIRE(*it == symDir);
+      ec = GetTestEC();
+      it.increment(ec);
+      TEST_CHECK(ec);
+      TEST_CHECK(ec == eacess_ec);
+      TEST_CHECK(it == endIt);
     }
 }
 
