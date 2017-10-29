@@ -301,9 +301,25 @@ bool recursive_directory_iterator::__try_recursion(error_code *ec) {
         bool(options() & directory_options::follow_directory_symlink);
     auto& curr_it = __imp_->__stack_.top();
 
-    std::error_code status_ec, symlink_status_ec;
-    if (is_directory(curr_it.__entry_.status(status_ec)) &&
-        (!is_symlink(curr_it.__entry_.symlink_status(symlink_status_ec)) || rec_sym))
+    bool skip_rec = false;
+
+    std::error_code status_ec;
+    if (!rec_sym) {
+      file_status st = curr_it.__entry_.symlink_status(status_ec);
+      if (status_ec && status_known(st))
+        status_ec.clear();
+      if (status_ec || is_symlink(st) || !is_directory(st))
+        skip_rec = true;
+    }
+    if (!skip_rec) {
+      file_status st = curr_it.__entry_.status(status_ec);
+      if (status_ec && status_known(st))
+        status_ec.clear();
+      if (status_ec || !is_directory(st))
+        skip_rec = false;
+    }
+
+    if (!skip_rec)
     {
         std::error_code m_ec;
         __dir_stream new_it(curr_it.__entry_.path(), __imp_->__options_, m_ec);
