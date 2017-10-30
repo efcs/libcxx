@@ -296,48 +296,42 @@ void recursive_directory_iterator::__advance(error_code* ec) {
 }
 
 bool recursive_directory_iterator::__try_recursion(error_code *ec) {
-
     bool rec_sym =
         bool(options() & directory_options::follow_directory_symlink);
+
     auto& curr_it = __imp_->__stack_.top();
 
     bool skip_rec = false;
-    std::error_code status_ec;
+    std::error_code m_ec;
     if (!rec_sym) {
-      file_status st = curr_it.__entry_.symlink_status(status_ec);
-      if (status_ec && status_known(st))
-        status_ec.clear();
-      if (status_ec || is_symlink(st) || !is_directory(st))
+      file_status st = curr_it.__entry_.symlink_status(m_ec);
+      if (m_ec && status_known(st))
+        m_ec.clear();
+      if (m_ec || is_symlink(st) || !is_directory(st))
         skip_rec = true;
     } else {
-      file_status st = curr_it.__entry_.status(status_ec);
-      if (status_ec && status_known(st))
-        status_ec.clear();
-      if (status_ec || !is_directory(st))
+      file_status st = curr_it.__entry_.status(m_ec);
+      if (m_ec && status_known(st))
+        m_ec.clear();
+      if (m_ec || !is_directory(st))
         skip_rec = true;
     }
 
     if (!skip_rec) {
-        std::error_code m_ec;
         __dir_stream new_it(curr_it.__entry_.path(), __imp_->__options_, m_ec);
         if (new_it.good()) {
             __imp_->__stack_.push(_VSTD::move(new_it));
             return true;
         }
-        if (m_ec) {
-            __imp_.reset();
-            set_or_throw(m_ec, ec,
-                          "recursive_directory_iterator::operator++()");
-        }
     }
-    else if (status_ec) {
+    if (m_ec) {
         const bool allow_eacess = bool(__imp_->__options_
             & directory_options::skip_permission_denied);
-        if (status_ec.value() == EACCES && allow_eacess) {
+        if (m_ec.value() == EACCES && allow_eacess) {
           if (ec) ec->clear();
         } else {
           __imp_.reset();
-          set_or_throw(status_ec, ec,
+          set_or_throw(m_ec, ec,
                        "recursive_directory_iterator::operator++()");
         }
     }
