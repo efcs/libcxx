@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <fcntl.h>  /* values for fchmodat */
+#include <experimental/filesystem>
 
 #if (__APPLE__)
 #if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
@@ -826,6 +827,18 @@ TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 
 using FSTime = fs_time_util<file_time_type, time_t, struct timespec>;
 
+static file_time_type __extract_last_write_time(path const& p,
+                                                const struct ::stat& st,
+                                                error_code *ec) {
+  auto ts = detail::extract_mtime(st);
+  if (!FSTime::is_representable(ts)) {
+      set_or_throw(error_code(EOVERFLOW, generic_category()), ec,
+                     "last_write_time", p);
+      return file_time_type::min();
+  }
+  return FSTime::convert_timespec(ts);
+}
+
 file_time_type __last_write_time(const path& p, std::error_code *ec)
 {
     using namespace ::std::chrono;
@@ -837,13 +850,7 @@ file_time_type __last_write_time(const path& p, std::error_code *ec)
         return file_time_type::min();
     }
     if (ec) ec->clear();
-    auto ts = detail::extract_mtime(st);
-    if (!FSTime::is_representable(ts)) {
-        set_or_throw(error_code(EOVERFLOW, generic_category()), ec,
-                     "last_write_time", p);
-        return file_time_type::min();
-    }
-    return FSTime::convert_timespec(ts);
+    return __extract_last_write_time(p, st, ec);
 }
 
 void __last_write_time(const path& p, file_time_type new_time,
@@ -1471,12 +1478,32 @@ path::iterator& path::iterator::__decrement() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void directory_entry::__refresh(error_code *ec) {
-  file_status st = __symlink_status(__p_, ec);
+  __data_.__reset();
+#ifndef _LIBCPP_WIN32API
+  error_code m_ec;
+  struct ::stat full_st;
+  file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
+  if (m_ec) {
+    set_or_throw(m_ec, ec, "refresh()", __p_);
+    return;
+  }
   __data_.__type_ = st.type();
-#ifdef _LIBCPP_WIN32API
+  if (_VSTD_FS::is_regular_file(st))
+    __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
+
+  if (!_VSTD_FS::is_symlink(st)) {
+    __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &m_ec);
+    if (m_ec) {
+      set_or_throw(m_ec, ec, "refresh()", __p_);
+      return;
+    }
+    __data_.__hl_count_ = static_cast<uintptr_t>(full_st.st_nlink);
+  }
+  if (ec) ec->clear();
+#else
+  file_status st = __symlink_status(__p_, ec);
+   __data_.__type_ = st.type();
   // FIXME set the last write time and file size attributes
-  __data_.__size_ = -1;
-  __data_.__write_time_ = 0;
 #endif
 }
 

@@ -2073,12 +2073,12 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t hard_link_count() const {
-      return _VSTD_FS::__hard_link_count(__p_);
+      return __get_hl_count();
     }
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t hard_link_count(error_code& __ec) const noexcept {
-      return _VSTD_FS::__hard_link_count(__p_, &__ec);
+      return __get_hl_count(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2147,11 +2147,21 @@ private:
     friend class __dir_stream;
 
     struct __cached_data {
-      file_type __type_ = file_type::none;
-#ifdef _LIBCPP_WIN32API
-      uintmax_t __size_ = -1;
-      file_time_type __write_time_ = 0;
-#endif
+      file_type __type_;
+      uintmax_t __size_;
+      uintmax_t __hl_count_;
+      file_time_type __write_time_;
+
+      _LIBCPP_INLINE_VISIBILITY
+      __cached_data() noexcept {
+        __reset();
+      }
+
+      void __reset() {
+        __type_ = file_type::none;
+        __size_ = __hl_count_ = -1;
+        __write_time_ = file_time_type::min();
+      }
     };
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2186,23 +2196,28 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t __get_size(error_code *__ec = nullptr) const {
-#ifdef _LIBCPP_WIN32API
       if (__data_.__size_ != uintmax_t(-1)) {
         if (__ec) __ec->clear();
         return __data_.__size_;
       }
-#endif
       return _VSTD_FS::__file_size(__p_, __ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
+    uintmax_t __get_hl_count(error_code *__ec = nullptr) const {
+      if (__data_.__hl_count_ != uintmax_t(-1)) {
+        if (__ec) __ec->clear();
+        return __data_.__hl_count_;
+      }
+      return _VSTD_FS::__hard_link_count(__p_, __ec);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
     file_time_type __get_write_time(error_code *__ec = nullptr) const {
-#ifdef _LIBCPP_WIN32API
-      if (__data_.__write_time_ != file_time_type{}) {
+      if (__data_.__write_time_ != file_time_type::min()) {
         if (__ec) __ec->clear();
         return __data_.__write_time_;
       }
-#endif
       return _VSTD_FS::__last_write_time(__p_, __ec);
     }
 private:

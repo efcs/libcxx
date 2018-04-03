@@ -122,7 +122,7 @@ public:
 
   __dir_stream(const path& root, directory_options opts, error_code& ec)
       : __stream_(INVALID_HANDLE_VALUE), __root_(root) {
-    __stream_ = ::FindFirstFile(root.c_str(), &__data_);
+    __stream_ = ::FindFirstFileEx(root.c_str(),  &__data_);
     if (__stream_ == INVALID_HANDLE_VALUE) {
       ec = error_code(::GetLastError(), std::generic_category());
       const bool ignore_permission_denied =
