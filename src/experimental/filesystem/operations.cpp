@@ -1483,7 +1483,7 @@ void directory_entry::__refresh(error_code *ec) {
   error_code m_ec;
   struct ::stat full_st;
   file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
-  if (m_ec) {
+  if (m_ec && !_VSTD_FS::status_known(st)) {
     set_or_throw(m_ec, ec, "refresh()", __p_);
     return;
   }
@@ -1491,7 +1491,7 @@ void directory_entry::__refresh(error_code *ec) {
   if (_VSTD_FS::is_regular_file(st))
     __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
 
-  if (!_VSTD_FS::is_symlink(st)) {
+  if (_VSTD_FS::exists(st) && !_VSTD_FS::is_symlink(st)) {
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &m_ec);
     if (m_ec) {
       set_or_throw(m_ec, ec, "refresh()", __p_);
@@ -1499,7 +1499,9 @@ void directory_entry::__refresh(error_code *ec) {
     }
     __data_.__hl_count_ = static_cast<uintptr_t>(full_st.st_nlink);
   }
-  if (ec) ec->clear();
+  if (ec)
+    *ec = m_ec;
+  return;
 #else
   file_status st = __symlink_status(__p_, ec);
    __data_.__type_ = st.type();
