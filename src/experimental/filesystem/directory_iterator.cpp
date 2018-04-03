@@ -66,7 +66,7 @@ static file_type get_file_type(DirEntT *ent, int) {
 }
 template <class DirEntT>
 static file_type get_file_type(DirEntT *ent, long) {
-  return file_type::none;
+  return file_type::unknown;
 }
 
 static pair<string_view, file_type>
@@ -87,7 +87,7 @@ posix_readdir(DIR *dir_stream,  error_code& ec) {
 static file_type get_file_type(const WIN32_FIND_DATA& data) {
   auto attrs = data.dwFileAttributes;
   // FIXME(EricWF)
-  return file_type::none;
+  return file_type::unknown;
 }
 static uintmax_t get_file_size(const WIN32_FIND_DATA& data) {
   return (data.nFileSizeHight * (MAXDWORD+1)) + data.nFileSizeLow;

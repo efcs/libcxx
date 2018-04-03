@@ -1479,31 +1479,30 @@ path::iterator& path::iterator::__decrement() {
 
 void directory_entry::__refresh(error_code *ec) {
   __data_.__reset();
-#ifndef _LIBCPP_WIN32API
 
+#ifndef _LIBCPP_WIN32API
   struct ::stat full_st;
   file_status st = detail::posix_lstat(__p_, full_st, ec);
-  if (ec && *ec && !_VSTD_FS::status_known(st)) {
-    set_or_throw(ec, "refresh()", __p_);
-    return;
-  }
+  if (ec && *ec && !_VSTD_FS::status_known(st))
+    return set_or_throw(ec, "directory_entry::refresh", __p_);
+
   __data_.__type_ = st.type();
+  __data_.__perms_ = st.permissions();
   if (_VSTD_FS::is_regular_file(st))
     __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
 
   error_code m_ec;
   if (_VSTD_FS::exists(st) && !_VSTD_FS::is_symlink(st)) {
+    __data_.__nlink_ = static_cast<uintptr_t>(full_st.st_nlink);
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &m_ec);
-    if (m_ec) {
-      set_or_throw( ec, "refresh()", __p_);
-      return;
-    }
-    __data_.__hl_count_ = static_cast<uintptr_t>(full_st.st_nlink);
+    if (m_ec)
+      return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
   }
   return;
 #else
   file_status st = __symlink_status(__p_, ec);
    __data_.__type_ = st.type();
+   __data_.__perms_ = st.permissions();
   // FIXME set the last write time and file size attributes
 #endif
 }

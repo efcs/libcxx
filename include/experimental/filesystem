@@ -1955,7 +1955,7 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     void refresh() {
-      __refresh(nullptr);
+      __refresh();
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -1997,6 +1997,7 @@ public:
     bool is_character_file() const {
       return __get_ft() == file_type::character;
     }
+
     _LIBCPP_INLINE_VISIBILITY
     bool is_character_file(error_code& __ec) const noexcept {
       return __get_ft(&__ec) == file_type::character;
@@ -2073,12 +2074,12 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t hard_link_count() const {
-      return __get_hl_count();
+      return __get_nlink();
     }
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t hard_link_count(error_code& __ec) const noexcept {
-      return __get_hl_count(&__ec);
+      return __get_nlink(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2093,22 +2094,22 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     file_status status() const {
-        return _VSTD_FS::status(__p_);
+        return __get_status();
     }
 
     _LIBCPP_INLINE_VISIBILITY
     file_status status(error_code& __ec) const _NOEXCEPT {
-        return _VSTD_FS::status(__p_, __ec);
+        return __get_status(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
     file_status symlink_status() const {
-        return _VSTD_FS::symlink_status(__p_);
+        return __get_symlink_status();
     }
 
     _LIBCPP_INLINE_VISIBILITY
     file_status symlink_status(error_code& __ec) const _NOEXCEPT {
-        return _VSTD_FS::symlink_status(__p_, __ec);
+        return __get_symlink_status(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2147,25 +2148,25 @@ private:
     friend class __dir_stream;
 
     struct __cached_data {
-      file_type __type_;
       uintmax_t __size_;
-      uintmax_t __hl_count_;
+      uintmax_t __nlink_;
       file_time_type __write_time_;
+      perms     __perms_;
+      file_type __type_;
 
       _LIBCPP_INLINE_VISIBILITY
       __cached_data() noexcept {
         __reset();
       }
 
+      _LIBCPP_INLINE_VISIBILITY
       void __reset() {
-        __type_ = file_type::none;
-        __size_ = __hl_count_ = -1;
+        __type_ = file_type::unknown;
+        __perms_ = perms::unknown;
+        __size_ = __nlink_ = -1;
         __write_time_ = file_time_type::min();
       }
     };
-
-    _LIBCPP_INLINE_VISIBILITY
-    directory_entry(_Path const& __p, const __cached_data& __data) : __p_(__p), __data_(__data) {}
 
     _LIBCPP_INLINE_VISIBILITY
     void __assign(_Path&& __p, const __cached_data& __data) {
@@ -2178,47 +2179,68 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_sym_ft(error_code *__ec = nullptr) const {
-      if (__data_.__type_ == file_type::none)
+      if (__data_.__type_ == file_type::unknown)
         return __status(__p_, __ec).type();
-      else if (__ec)
+      if (__ec)
         __ec->clear();
       return __data_.__type_;
     }
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_ft(error_code *__ec = nullptr) const {
-      if (__data_.__type_ == file_type::none && __data_.__type_ != file_type::symlink)
+      if (__data_.__type_ == file_type::unknown || __data_.__type_ == file_type::symlink)
         return __status(__p_, __ec).type();
-      else if (__ec)
+      if (__ec)
         __ec->clear();
       return __data_.__type_;
     }
 
     _LIBCPP_INLINE_VISIBILITY
-    uintmax_t __get_size(error_code *__ec = nullptr) const {
-      if (__data_.__size_ != uintmax_t(-1)) {
-        if (__ec) __ec->clear();
-        return __data_.__size_;
-      }
-      return _VSTD_FS::__file_size(__p_, __ec);
+    file_status __get_status(error_code *__ec = nullptr) const {
+      if (__data_.__type_  == file_type::unknown ||
+          __data_.__type_  == file_type::symlink ||
+          __data_.__perms_ == perms::unknown)
+        return __status(__p_, __ec);
+      if (__ec)
+        __ec->clear();
+      return file_status(__data_.__type_, __data_.__perms_);
     }
 
     _LIBCPP_INLINE_VISIBILITY
-    uintmax_t __get_hl_count(error_code *__ec = nullptr) const {
-      if (__data_.__hl_count_ != uintmax_t(-1)) {
-        if (__ec) __ec->clear();
-        return __data_.__hl_count_;
-      }
-      return _VSTD_FS::__hard_link_count(__p_, __ec);
+    file_status __get_symlink_status(error_code *__ec = nullptr) const {
+      if (__data_.__type_  == file_type::unknown ||
+          __data_.__perms_ == perms::unknown)
+        return __symlink_status(__p_, __ec);
+      if (__ec)
+        __ec->clear();
+      return file_status(__data_.__type_, __data_.__perms_);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t __get_size(error_code *__ec = nullptr) const {
+      if (__data_.__size_ == uintmax_t(-1))
+        return _VSTD_FS::__file_size(__p_, __ec);
+      if (__ec)
+        __ec->clear();
+      return __data_.__size_;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t __get_nlink(error_code *__ec = nullptr) const {
+      if (__data_.__nlink_ == uintmax_t(-1))
+        return _VSTD_FS::__hard_link_count(__p_, __ec);
+      if (__ec)
+        __ec->clear();
+      return __data_.__nlink_;
     }
 
     _LIBCPP_INLINE_VISIBILITY
     file_time_type __get_write_time(error_code *__ec = nullptr) const {
-      if (__data_.__write_time_ != file_time_type::min()) {
-        if (__ec) __ec->clear();
-        return __data_.__write_time_;
-      }
-      return _VSTD_FS::__last_write_time(__p_, __ec);
+      if (__data_.__write_time_ == file_time_type::min())
+        return _VSTD_FS::__last_write_time(__p_, __ec);
+      if (__ec)
+        __ec->clear();
+      return __data_.__write_time_;
     }
 private:
     _Path __p_;
