@@ -1901,6 +1901,10 @@ path weakly_canonical(path const& __p, error_code& __ec) {
 }
 
 
+class directory_iterator;
+class recursive_directory_iterator;
+class __dir_stream;
+
 class directory_entry
 {
     typedef _VSTD_FS::path _Path;
@@ -1912,7 +1916,13 @@ public:
     directory_entry(directory_entry&&) _NOEXCEPT = default;
 
     _LIBCPP_INLINE_VISIBILITY
-    explicit directory_entry(_Path const& __p) : __p_(__p) {}
+    explicit directory_entry(_Path const& __p) : __p_(__p) {
+      __refresh();
+    }
+    _LIBCPP_INLINE_VISIBILITY
+    directory_entry(_Path const& __p, error_code &__ec) : __p_(__p) {
+      __refresh(&__ec);
+    }
 
     ~directory_entry() {}
 
@@ -1922,11 +1932,35 @@ public:
     _LIBCPP_INLINE_VISIBILITY
     void assign(_Path const& __p) {
         __p_ = __p;
+        __refresh();
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    void assign(_Path const& __p, error_code& __ec) {
+        __p_ = __p;
+        __refresh(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
     void replace_filename(_Path const& __p) {
         __p_ = __p_.parent_path() / __p;
+        __refresh();
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    void replace_filename(_Path const& __p, error_code &__ec) {
+      __p_ = __p_.parent_path() / __p;
+      __refresh(&__ec);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    void refresh() {
+      __refresh(nullptr);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    void refresh(error_code &__ec) {
+      __refresh(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -1937,6 +1971,124 @@ public:
     _LIBCPP_INLINE_VISIBILITY
     operator const _Path&() const _NOEXCEPT {
         return __p_;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool exists() const {
+      return _VSTD_FS::exists(file_status{__get_ft()});
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool exists(error_code& __ec) const noexcept {
+      return _VSTD_FS::exists(file_status{__get_ft(&__ec)});
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_block_file() const {
+      return __get_ft() == file_type::block;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_block_file(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::block;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_character_file() const {
+      return __get_ft() == file_type::character;
+    }
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_character_file(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::character;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_directory() const {
+      return __get_ft() == file_type::directory;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_directory(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::directory;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_fifo() const {
+      return __get_ft() == file_type::fifo;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_fifo(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::fifo;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_other() const {
+      return _VSTD_FS::is_other(file_status{__get_ft()});
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_other(error_code& __ec) const noexcept {
+      return _VSTD_FS::is_other(file_status{__get_ft(&__ec)});
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_regular_file() const {
+      return __get_ft() == file_type::regular;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_regular_file(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::regular;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_socket() const {
+      return __get_ft() == file_type::socket;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_socket(error_code& __ec) const noexcept {
+      return __get_ft(&__ec) == file_type::socket;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_symlink() const {
+      return __get_sym_ft() == file_type::symlink;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_symlink(error_code& __ec) const noexcept {
+      return __get_sym_ft(&__ec) == file_type::symlink;
+    }
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t file_size() const {
+      return __get_size();
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t file_size(error_code& __ec) const noexcept {
+      return __get_size(&__ec);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t hard_link_count() const {
+      return _VSTD_FS::__hard_link_count(__p_);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t hard_link_count(error_code& __ec) const noexcept {
+      return _VSTD_FS::__hard_link_count(__p_, &__ec);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    file_time_type last_write_time() const {
+      return __get_write_time();
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    file_time_type last_write_time(error_code& __ec) const noexcept {
+      return __get_write_time(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -1988,14 +2140,75 @@ public:
     bool operator>=(directory_entry const& __rhs) const _NOEXCEPT {
         return __p_ >= __rhs.__p_;
     }
+
+private:
+    friend class directory_iterator;
+    friend class recursive_directory_iterator;
+    friend class __dir_stream;
+
+    struct __cached_data {
+      file_type __type_ = file_type::none;
+#ifdef _LIBCPP_WIN32API
+      uintmax_t __size_ = -1;
+      file_time_type __write_time_ = 0;
+#endif
+    };
+
+    _LIBCPP_INLINE_VISIBILITY
+    directory_entry(_Path const& __p, const __cached_data& __data) : __p_(__p), __data_(__data) {}
+
+    _LIBCPP_INLINE_VISIBILITY
+    void __assign(_Path&& __p, const __cached_data& __data) {
+      __p_ = std::move(__p);
+      __data_ = __data;
+    }
+
+    _LIBCPP_FUNC_VIS
+    void __refresh(error_code *__ec = nullptr);
+
+    _LIBCPP_INLINE_VISIBILITY
+    file_type __get_sym_ft(error_code *__ec = nullptr) const {
+      if (__data_.__type_ == file_type::none)
+        return __status(__p_, __ec).type();
+      else if (__ec)
+        __ec->clear();
+      return __data_.__type_;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    file_type __get_ft(error_code *__ec = nullptr) const {
+      if (__data_.__type_ == file_type::none && __data_.__type_ != file_type::symlink)
+        return __status(__p_, __ec).type();
+      else if (__ec)
+        __ec->clear();
+      return __data_.__type_;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    uintmax_t __get_size(error_code *__ec = nullptr) const {
+#ifdef _LIBCPP_WIN32API
+      if (__data_.__size_ != uintmax_t(-1)) {
+        if (__ec) __ec->clear();
+        return __data_.__size_;
+      }
+#endif
+      return _VSTD_FS::__file_size(__p_, __ec);
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    file_time_type __get_write_time(error_code *__ec = nullptr) const {
+#ifdef _LIBCPP_WIN32API
+      if (__data_.__write_time_ != file_time_type{}) {
+        if (__ec) __ec->clear();
+        return __data_.__write_time_;
+      }
+#endif
+      return _VSTD_FS::__last_write_time(__p_, __ec);
+    }
 private:
     _Path __p_;
+    __cached_data __data_;
 };
-
-
-class directory_iterator;
-class recursive_directory_iterator;
-class __dir_stream;
 
 class __dir_element_proxy {
 public:

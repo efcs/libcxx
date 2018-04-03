@@ -1116,8 +1116,6 @@ path __weakly_canonical(const path& p, std::error_code *ec) {
   return result.lexically_normal();
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //                            path definitions
 ///////////////////////////////////////////////////////////////////////////////
@@ -1468,5 +1466,18 @@ path::iterator& path::iterator::__decrement() {
   return *this;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//                           directory entry definitions
+///////////////////////////////////////////////////////////////////////////////
+
+void directory_entry::__refresh(error_code *ec) {
+  file_status st = __symlink_status(__p_, ec);
+  __data_.__type_ = st.type();
+#ifdef _LIBCPP_WIN32API
+  // FIXME set the last write time and file size attributes
+  __data_.__size_ = -1;
+  __data_.__write_time_ = 0;
+#endif
+}
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM

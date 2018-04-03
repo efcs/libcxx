@@ -42,7 +42,35 @@ inline bool set_or_throw(std::error_code& my_ec,
 }
 
 #if !defined(_LIBCPP_WIN32API)
-inline path::string_type posix_readdir(DIR *dir_stream, error_code& ec) {
+template <class DirEntT, class = decltype(DirEntT::d_type)>
+static file_type get_file_type(DirEntT *ent, int) {
+  switch (ent->d_type) {
+  case DT_BLK:
+    return file_type::block;
+  case DT_CHR:
+    return file_type::character;
+  case DT_DIR:
+    return file_type::directory;
+  case DT_FIFO:
+    return file_type::fifo;
+  case DT_LNK:
+    return file_type::symlink;
+  case DT_REG:
+    return file_type::regular;
+  case DT_SOCK:
+    return file_type::socket;
+  case DT_UNKNOWN:
+    return file_type::unknown;
+  }
+  return file_type::none;
+}
+template <class DirEntT>
+static file_type get_file_type(DirEntT *ent, long) {
+  return file_type::none;
+}
+
+static pair<string_view, file_type>
+posix_readdir(DIR *dir_stream,  error_code& ec) {
     struct dirent* dir_entry_ptr = nullptr;
     errno = 0; // zero errno in order to detect errors
     ec.clear();
@@ -51,18 +79,38 @@ inline path::string_type posix_readdir(DIR *dir_stream, error_code& ec) {
           ec = capture_errno();
         return {};
     } else {
-        return dir_entry_ptr->d_name;
+        return {dir_entry_ptr->d_name, get_file_type(dir_entry_ptr, 0)};
     }
 }
+#else
+
+static file_type get_file_type(const WIN32_FIND_DATA& data) {
+  auto attrs = data.dwFileAttributes;
+  // FIXME(EricWF)
+  return file_type::none;
+}
+static uintmax_t get_file_size(const WIN32_FIND_DATA& data) {
+  return (data.nFileSizeHight * (MAXDWORD+1)) + data.nFileSizeLow;
+}
+static file_time_type get_write_time(const WIN32_FIND_DATA& data) {
+  ULARGE_INTEGER tmp;
+  FILETIME& time = data.ftLastWriteTime;
+  tmp.u.LowPart = time.dwLowDateTime;
+  tmp.u.HighPart = time.dwHighDateTime;
+  return file_time_type(file_time_type::duration(time.QuadPart));
+}
+
 #endif
 
 }}                                                       // namespace detail
 
 using detail::set_or_throw;
 
+
 #if defined(_LIBCPP_WIN32API)
 class __dir_stream {
 public:
+
   __dir_stream() = delete;
   __dir_stream& operator=(const __dir_stream&) = delete;
 
@@ -97,7 +145,11 @@ public:
     while (::FindNextFile(__stream_, &__data_)) {
       if (!strcmp(__data_.cFileName, ".") || strcmp(__data_.cFileName, ".."))
         continue;
-      __entry_.assign(__root_ / __data_.cFileName);
+      directory_entry::__cached_data cdata;
+      cdata.__type_ = get_file_type(__data_);
+      cdata.__size_ = get_file_size(__data_);
+      cdata.__write_time_ = get_write_time(__data_);
+      __entry_.__assign(__root_ / __data_.cFileName, cdata);
       return true;
     }
     ec = error_code(::GetLastError(), std::generic_category());
@@ -157,14 +209,17 @@ public:
 
     bool advance(error_code &ec) {
         while (true) {
-            auto str = detail::posix_readdir(__stream_,  ec);
+            auto str_type_pair = detail::posix_readdir(__stream_,  ec);
+            auto& str = str_type_pair.first;
             if (str == "." || str == "..") {
                 continue;
             } else if (ec || str.empty()) {
                 close();
                 return false;
             } else {
-                __entry_.assign(__root_ / str);
+                directory_entry::__cached_data data;
+                data.__type_ = str_type_pair.second;
+                __entry_.__assign(__root_ / str, data);
                 return true;
             }
         }
