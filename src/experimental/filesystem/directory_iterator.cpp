@@ -85,7 +85,7 @@ posix_readdir(DIR *dir_stream,  error_code& ec) {
 #else
 
 static file_type get_file_type(const WIN32_FIND_DATA& data) {
-  auto attrs = data.dwFileAttributes;
+  //auto attrs = data.dwFileAttributes;
   // FIXME(EricWF)
   return file_type::unknown;
 }

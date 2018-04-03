@@ -2188,7 +2188,8 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_ft(error_code *__ec = nullptr) const {
-      if (__data_.__type_ == file_type::unknown || __data_.__type_ == file_type::symlink)
+      if (__data_.__type_ == file_type::unknown ||
+          __data_.__type_ == file_type::symlink)
         return __status(__p_, __ec).type();
       if (__ec)
         __ec->clear();
