@@ -25,6 +25,11 @@
 
 TEST_SUITE(directory_entry_obs_testsuite)
 
+TEST_CASE(file_dne) {
+  using namespace fs;
+  directory_entry p("dne");
+
+}
 
 TEST_CASE(basic) {
   using namespace fs;
