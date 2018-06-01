@@ -5011,39 +5011,29 @@ swap(shared_ptr<_Tp>& __x, shared_ptr<_Tp>& __y) _NOEXCEPT
 
 template<class _Tp, class _Up>
 inline _LIBCPP_INLINE_VISIBILITY
-typename enable_if
-<
-    !is_array<_Tp>::value && !is_array<_Up>::value,
-    shared_ptr<_Tp>
->::type
+shared_ptr<_Tp>
 static_pointer_cast(const shared_ptr<_Up>& __r) _NOEXCEPT
 {
-    return shared_ptr<_Tp>(__r, static_cast<_Tp*>(__r.get()));
+    return shared_ptr<_Tp>(__r,
+        static_cast<typename shared_ptr<_Tp>::element_type*>(__r.get()));
 }
 
 template<class _Tp, class _Up>
 inline _LIBCPP_INLINE_VISIBILITY
-typename enable_if
-<
-    !is_array<_Tp>::value && !is_array<_Up>::value,
-    shared_ptr<_Tp>
->::type
+shared_ptr<_Tp>
 dynamic_pointer_cast(const shared_ptr<_Up>& __r) _NOEXCEPT
 {
-    _Tp* __p = dynamic_cast<_Tp*>(__r.get());
+    typedef typename shared_ptr<_Tp>::element_type* _PtrT;
+    _PtrT __p = dynamic_cast<_PtrT>(__r.get());
     return __p ? shared_ptr<_Tp>(__r, __p) : shared_ptr<_Tp>();
 }
 
 template<class _Tp, class _Up>
-typename enable_if
-<
-    is_array<_Tp>::value == is_array<_Up>::value,
-    shared_ptr<_Tp>
->::type
+shared_ptr<_Tp>
 const_pointer_cast(const shared_ptr<_Up>& __r) _NOEXCEPT
 {
-    typedef typename remove_extent<_Tp>::type _RTp;
-    return shared_ptr<_Tp>(__r, const_cast<_RTp*>(__r.get()));
+    return shared_ptr<_Tp>(__r,
+        const_cast<typename shared_ptr<_Tp>::element_type*>(__r.get()));
 }
 
 #ifndef _LIBCPP_NO_RTTI
