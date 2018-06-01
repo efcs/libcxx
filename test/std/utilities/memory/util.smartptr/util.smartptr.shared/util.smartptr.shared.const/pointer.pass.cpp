@@ -14,7 +14,19 @@
 #include <memory>
 #include <cassert>
 
+struct B
+{
+    static int count;
+
+    B() {++count;}
+    B(const B&) {++count;}
+    virtual ~B() {--count;}
+};
+
+int B::count = 0;
+
 struct A
+    : public B
 {
     static int count;
 
@@ -24,6 +36,17 @@ struct A
 };
 
 int A::count = 0;
+
+struct C
+{
+    static int count;
+
+    C() {++count;}
+    C(const C&) {++count;}
+    virtual ~C() {--count;}
+};
+
+int C::count = 0;
 
 int main()
 {
