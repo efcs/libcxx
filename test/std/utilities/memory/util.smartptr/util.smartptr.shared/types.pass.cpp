@@ -26,6 +26,11 @@ struct A;  // purposefully incomplete
 int main()
 {
     static_assert((std::is_same<std::shared_ptr<A>::element_type, A>::value), "");
+    static_assert((std::is_same<std::shared_ptr<A[]>::element_type, A>::value), "");
+    static_assert((std::is_same<std::shared_ptr<A[42]>::element_type, A>::value), "");
+    static_assert((std::is_same<std::shared_ptr<A[][42]>::element_type, A[42]>::value), "");
+    static_assert((std::is_same<std::shared_ptr<A[3][2]>::element_type, A[2]>::value), "");
+
 #if TEST_STD_VER > 14
     static_assert((std::is_same<std::shared_ptr<A>::weak_type, std::weak_ptr<A>>::value), "");
 #endif
