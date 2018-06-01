@@ -15,6 +15,7 @@
 
 #include <memory>
 #include <cassert>
+#include "test_macros.h"
 #include "deleter_types.h"
 
 struct A
@@ -27,6 +28,40 @@ struct A
 };
 
 int A::count = 0;
+
+
+#if TEST_STD_VER >= 11
+struct AMoveOnlyDel {
+  AMoveOnlyDel() = default;
+  AMoveOnlyDel(AMoveOnlyDel&&) = default;
+
+  void operator()(A* p) const { delete p; }
+};
+
+struct AMoveOnlyDelArr {
+  AMoveOnlyDelArr() = default;
+  AMoveOnlyDelArr(AMoveOnlyDelArr&&) = default;
+
+  void operator()(A* p) const { delete [] p; }
+};
+void test_move_only() {
+  {
+    std::shared_ptr<A> S(nullptr, AMoveOnlyDel{});
+    assert(A::count == 0);
+  }
+  assert(A::count == 0);
+  {
+    std::shared_ptr<A[]> S(nullptr, AMoveOnlyDelArr{});
+    assert(A::count == 0);
+  }
+  assert(A::count == 0);
+  {
+    std::shared_ptr<A[3]> S(nullptr, AMoveOnlyDelArr{});
+    assert(A::count == 0);
+  }
+  assert(A::count == 0);
+}
+#endif
 
 int main()
 {
@@ -44,4 +79,9 @@ int main()
     assert(A::count == 0);
     assert(test_deleter<A>::count == 0);
     assert(test_deleter<A>::dealloc_count == 1);
+#if TEST_STD_VER >= 11
+  {
+    test_move_only();
+  }
+#endif
 }
