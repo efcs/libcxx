@@ -673,11 +673,11 @@ namespace std {
 #if defined(_LIBCPP_COMPILER_MSVC)
 #  define _LIBCPP_INLINE_VISIBILITY __forceinline
 #  define _LIBCPP_ALWAYS_INLINE     __forceinline
-#  define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __forceinline
+#  define _LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY __forceinline
 #else
 #  define _LIBCPP_INLINE_VISIBILITY __attribute__ ((__always_inline__))
 #  define _LIBCPP_ALWAYS_INLINE     __attribute__ ((__always_inline__))
-#  define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__ ((__always_inline__))
+#  define _LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__ ((__always_inline__))
 #endif
 
 #endif // defined(_LIBCPP_OBJECT_FORMAT_COFF)
@@ -780,10 +780,18 @@ namespace std {
 #endif
 
 #ifndef _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-#  if !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
-#    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__visibility__("default"), __always_inline__))
-#  else
+#  if defined(_LIBCPP_BUILDING_LIBRARY)
 #    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__always_inline__))
+#  else
+#    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY _LIBCPP_INLINE_VISIBILITY
+#  endif
+#endif
+
+#ifndef _LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY
+#  if !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
+#    define _LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__visibility__("default"), __always_inline__))
+#  else
+#    define _LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__always_inline__))
 #  endif
 #endif
 

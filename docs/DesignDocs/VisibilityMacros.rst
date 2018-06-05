@@ -139,7 +139,7 @@ Visibility Macros
   against the libc++ headers after making `_LIBCPP_TYPE_VIS` and
   `_LIBCPP_EXTERN_TEMPLATE_TYPE_VIS` expand to default visibility.
 
-**_LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY**
+**_LIBCPP_NON_HIDDEN_EXTERN_TEMPLATE_INLINE_VISIBILITY**
   Mark a member function of a class template as visible and always inline. This
   macro should only be applied to member functions of class templates that are
   externally instantiated. It is important that these symbols are not marked
