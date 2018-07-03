@@ -328,6 +328,74 @@ struct hash<_VSTD_CORO::coroutine_handle<_Tp> > {
     {return hash<void*>()(__v.address());}
 };
 
+
+//===----------------------------------------------------------------------===//
+//                    Experimental Generator Type
+//===----------------------------------------------------------------------===//
+
+template <typename _Tp> struct generator {
+  struct promise_type {
+    _Tp __current_value_;
+    suspend_always yield_value(_Tp __value) {
+      this->__current_value_ = __value;
+      return {};
+    }
+    suspend_always initial_suspend() { return {}; }
+    suspend_always final_suspend() { return {}; }
+    generator get_return_object() { return generator{this}; };
+    void return_void() {}
+    void unhandled_exception() {}
+  };
+
+  struct iterator {
+    coroutine_handle<promise_type> __coro_;
+    bool __done_;
+
+    iterator(coroutine_handle<promise_type> __coro, bool __done)
+        : __coro_(__coro), __done_(__done) {}
+
+    iterator &operator++() {
+      __coro_.resume();
+      __done_ = __coro_.done();
+      return *this;
+    }
+
+    bool operator==(iterator const &__other) const {
+      return __done_ == __other.__done_;
+    }
+
+    bool operator!=(iterator const &__other) const { return !(*this == __other); }
+
+    _Tp const &operator*() const { return __get_value(); }
+    _Tp const *operator->() const { return _VSTD::addressof(__get_value()); }
+
+  private:
+    _Tp const &__get_value() const {
+      return __coro_.promise().__current_value_;
+    }
+  };
+
+  iterator begin() {
+    __handle_.resume();
+    return {__handle_, __handle_.done()};
+  }
+
+  iterator end() { return {__handle_, true}; }
+
+  generator(generator &&__other) : __handle_(__other.__handle_) { __other_.__handle_ = nullptr; }
+
+  ~generator() {
+    if (__handle_)
+      __handle_.destroy();
+  }
+
+private:
+  explicit generator(promise_type *__p)
+      : __handle_(coroutine_handle<promise_type>::from_promise(*__p)) {}
+
+  coroutine_handle<promise_type> __handle_;
+};
+
 _LIBCPP_END_NAMESPACE_STD
 
 #endif // !defined(_LIBCPP_HAS_NO_COROUTINES)
