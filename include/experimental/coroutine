@@ -328,6 +328,9 @@ struct hash<_VSTD_CORO::coroutine_handle<_Tp> > {
     {return hash<void*>()(__v.address());}
 };
 
+_LIBCPP_END_NAMESPACE_STD
+
+_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_COROUTINES
 
 //===----------------------------------------------------------------------===//
 //                    Experimental Generator Type
@@ -382,7 +385,7 @@ template <typename _Tp> struct generator {
 
   iterator end() { return {__handle_, true}; }
 
-  generator(generator &&__other) : __handle_(__other.__handle_) { __other_.__handle_ = nullptr; }
+  generator(generator &&__other) : __handle_(__other.__handle_) { __other.__handle_ = nullptr; }
 
   ~generator() {
     if (__handle_)
@@ -396,7 +399,7 @@ private:
   coroutine_handle<promise_type> __handle_;
 };
 
-_LIBCPP_END_NAMESPACE_STD
+_LIBCPP_END_NAMESPACE_EXPERIMENTAL_COROUTINES
 
 #endif // !defined(_LIBCPP_HAS_NO_COROUTINES)
 
