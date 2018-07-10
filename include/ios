@@ -604,20 +604,45 @@ public:
         return !fail() ? &__cxx03_bool::__true_value : nullptr;
     }
 #else
-    _LIBCPP_EXPLICIT operator bool() const { return !fail(); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY _LIBCPP_EXPLICIT
+    operator bool() const {
+      return !fail();
+    }
 #endif
 
-    bool operator!() const { return fail(); }
-    iostate rdstate() const { return ios_base::rdstate(); }
-    void clear(iostate __state = goodbit) { ios_base::clear(__state); }
-    void setstate(iostate __state) { ios_base::setstate(__state); }
-    bool good() const { return ios_base::good(); }
-    bool eof() const { return ios_base::eof(); }
-    bool fail() const { return ios_base::fail(); }
-    bool bad() const { return ios_base::bad(); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool operator!() const {
+      return fail();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iostate rdstate() const {
+      return ios_base::rdstate();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    clear(iostate __state = goodbit) {
+      ios_base::clear(__state);
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void setstate(iostate __state) {
+      ios_base::setstate(__state);
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool good() const {
+      return ios_base::good();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool eof() const {
+      return ios_base::eof();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool fail() const {
+      return ios_base::fail();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool bad() const {
+      return ios_base::bad();
+    }
 
-    iostate exceptions() const { return ios_base::exceptions(); }
-    void exceptions(iostate __iostate) { ios_base::exceptions(__iostate); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iostate exceptions() const {
+      return ios_base::exceptions();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    exceptions(iostate __iostate) {
+      ios_base::exceptions(__iostate);
+    }
 
     // 27.5.4.1 Constructor/destructor:
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
@@ -652,6 +677,7 @@ public:
     char_type widen(char __c) const;
 
 protected:
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
   basic_ios() { // purposefully does no initialization
   }
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
@@ -660,7 +686,9 @@ protected:
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
   void move(basic_ios& __rhs);
 #ifndef _LIBCPP_CXX03_LANG
-  void move(basic_ios&& __rhs) { move(__rhs); }
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void move(basic_ios&& __rhs) {
+    move(__rhs);
+  }
 #endif
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
   void swap(basic_ios& __rhs) _NOEXCEPT;

@@ -780,11 +780,7 @@ namespace std {
 #endif
 
 #ifndef _LIBCPP_EXTERN_INLINE
-# ifdef _LIBCPP_BUILDING_LIBRARY
 #  define _LIBCPP_EXTERN_INLINE inline
-# else
-#  define _LIBCPP_EXTERN_INLINE
-# endif
 #endif
 
 #ifndef _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY

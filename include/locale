@@ -576,67 +576,80 @@ public:
     typedef _CharT char_type;
     typedef _InputIterator iter_type;
 
-    explicit num_get(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit num_get(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, bool& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        bool& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, long& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        long& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, long long& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        long long& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, unsigned short& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        unsigned short& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, unsigned int& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        unsigned int& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, unsigned long& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        unsigned long& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, unsigned long long& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        unsigned long long& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, float& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        float& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, double& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        double& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, long double& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        long double& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, void*& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        void*& __v) const {
       return do_get(__b, __e, __iob, __err, __v);
     }
 
     static locale::id id;
 
 protected:
-  inline ~num_get() {}
+  ~num_get() {}
 
   template <class _Fp>
   _LIBCPP_METHOD_TEMPLATE_IMPLICIT_INSTANTIATION_VIS iter_type
@@ -657,57 +670,50 @@ protected:
   do_get(iter_type __b, iter_type __e, ios_base& __iob,
          ios_base::iostate& __err, bool& __v) const;
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, long& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, long& __v) const {
     return this->__do_get_signed(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, long long& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, long long& __v) const {
     return this->__do_get_signed(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, unsigned short& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err,
+                           unsigned short& __v) const {
     return this->__do_get_unsigned(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, unsigned int& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, unsigned int& __v) const {
     return this->__do_get_unsigned(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, unsigned long& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, unsigned long& __v) const {
     return this->__do_get_unsigned(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, unsigned long long& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err,
+                           unsigned long long& __v) const {
     return this->__do_get_unsigned(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, float& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, float& __v) const {
     return this->__do_get_floating_point(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, double& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, double& __v) const {
     return this->__do_get_floating_point(__b, __e, __iob, __err, __v);
   }
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-  do_get(iter_type __b, iter_type __e, ios_base& __iob,
-         ios_base::iostate& __err, long double& __v) const {
+  virtual iter_type do_get(iter_type __b, iter_type __e, ios_base& __iob,
+                           ios_base::iostate& __err, long double& __v) const {
     return this->__do_get_floating_point(__b, __e, __iob, __err, __v);
   }
 
@@ -1255,52 +1261,62 @@ public:
     typedef _CharT char_type;
     typedef _OutputIterator iter_type;
 
-    explicit num_put(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit num_put(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  bool __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type put(iter_type __s,
+                                                            ios_base& __iob,
+                                                            char_type __fl,
+                                                            bool __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  long __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type put(iter_type __s,
+                                                            ios_base& __iob,
+                                                            char_type __fl,
+                                                            long __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  long long __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl, long long __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  unsigned long __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl,
+        unsigned long __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  unsigned long long __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl,
+        unsigned long long __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  double __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type put(iter_type __s,
+                                                            ios_base& __iob,
+                                                            char_type __fl,
+                                                            double __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  long double __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl, long double __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  const void* __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl, const void* __v) const {
       return do_put(__s, __iob, __fl, __v);
     }
 
     static locale::id id;
 
 protected:
-  inline ~num_put() {}
+  ~num_put() {}
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
   do_put(iter_type __s, ios_base& __iob, char_type __fl, bool __v) const;
@@ -1746,38 +1762,47 @@ public:
     typedef time_base::dateorder    dateorder;
     typedef basic_string<char_type> string_type;
 
-    explicit time_get(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_get(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    dateorder date_order() const { return this->do_date_order(); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY dateorder date_order() const {
+      return this->do_date_order();
+    }
 
-    iter_type get_time(iter_type __b, iter_type __e, ios_base& __iob,
-                       ios_base::iostate& __err, tm* __tm) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get_time(iter_type __b, iter_type __e, ios_base& __iob,
+             ios_base::iostate& __err, tm* __tm) const {
       return do_get_time(__b, __e, __iob, __err, __tm);
     }
 
-    iter_type get_date(iter_type __b, iter_type __e, ios_base& __iob,
-                       ios_base::iostate& __err, tm* __tm) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get_date(iter_type __b, iter_type __e, ios_base& __iob,
+             ios_base::iostate& __err, tm* __tm) const {
       return do_get_date(__b, __e, __iob, __err, __tm);
     }
 
-    iter_type get_weekday(iter_type __b, iter_type __e, ios_base& __iob,
-                          ios_base::iostate& __err, tm* __tm) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get_weekday(iter_type __b, iter_type __e, ios_base& __iob,
+                ios_base::iostate& __err, tm* __tm) const {
       return do_get_weekday(__b, __e, __iob, __err, __tm);
     }
 
-    iter_type get_monthname(iter_type __b, iter_type __e, ios_base& __iob,
-                            ios_base::iostate& __err, tm* __tm) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get_monthname(iter_type __b, iter_type __e, ios_base& __iob,
+                  ios_base::iostate& __err, tm* __tm) const {
       return do_get_monthname(__b, __e, __iob, __err, __tm);
     }
 
-    iter_type get_year(iter_type __b, iter_type __e, ios_base& __iob,
-                       ios_base::iostate& __err, tm* __tm) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get_year(iter_type __b, iter_type __e, ios_base& __iob,
+             ios_base::iostate& __err, tm* __tm) const {
       return do_get_year(__b, __e, __iob, __err, __tm);
     }
 
-    iter_type get(iter_type __b, iter_type __e, ios_base& __iob,
-                  ios_base::iostate& __err, tm* __tm, char __fmt,
-                  char __mod = 0) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
+        tm* __tm, char __fmt, char __mod = 0) const {
       return do_get(__b, __e, __iob, __err, __tm, __fmt, __mod);
     }
 
@@ -1788,7 +1813,7 @@ public:
     static locale::id id;
 
 protected:
-  inline ~time_get() {}
+  ~time_get() {}
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual dateorder
   do_date_order() const;
@@ -2374,26 +2399,52 @@ public:
     typedef _CharT                  char_type;
     typedef basic_string<char_type> string_type;
 
-    explicit time_get_byname(const char* __nm, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_get_byname(
+        const char* __nm, size_t __refs = 0)
         : time_get<_CharT, _InputIterator>(__refs), __time_get_storage<_CharT>(
                                                         __nm) {}
-    explicit time_get_byname(const string& __nm, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_get_byname(
+        const string& __nm, size_t __refs = 0)
         : time_get<_CharT, _InputIterator>(__refs), __time_get_storage<_CharT>(
                                                         __nm) {}
 
   protected:
-    inline ~time_get_byname() {}
+    ~time_get_byname() {}
 
-    virtual dateorder do_date_order() const { return this->__do_date_order(); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual dateorder
+    do_date_order() const {
+      return this->__do_date_order();
+    }
 
   private:
-    virtual const string_type* __weeks() const { return this->__weeks_; }
-    virtual const string_type* __months() const { return this->__months_; }
-    virtual const string_type* __am_pm() const { return this->__am_pm_; }
-    virtual const string_type& __c() const { return this->__c_; }
-    virtual const string_type& __r() const { return this->__r_; }
-    virtual const string_type& __x() const { return this->__x_; }
-    virtual const string_type& __X() const { return this->__X_; }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type*
+    __weeks() const {
+      return this->__weeks_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type*
+    __months() const {
+      return this->__months_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type*
+    __am_pm() const {
+      return this->__am_pm_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type&
+    __c() const {
+      return this->__c_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type&
+    __r() const {
+      return this->__r_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type&
+    __x() const {
+      return this->__x_;
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual const string_type&
+    __X() const {
+      return this->__X_;
+    }
 };
 
 _LIBCPP_EXTERN_TEMPLATE2(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS time_get_byname<char>)
@@ -2422,28 +2473,33 @@ public:
     typedef _CharT char_type;
     typedef _OutputIterator iter_type;
 
-    explicit time_put(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_put(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
     put(iter_type __s, ios_base& __iob, char_type __fl, const tm* __tm,
         const char_type* __pb, const char_type* __pe) const;
 
-    iter_type put(iter_type __s, ios_base& __iob, char_type __fl,
-                  const tm* __tm, char __fmt, char __mod = 0) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, ios_base& __iob, char_type __fl, const tm* __tm,
+        char __fmt, char __mod = 0) const {
       return do_put(__s, __iob, __fl, __tm, __fmt, __mod);
     }
 
     static locale::id id;
 
 protected:
-  inline ~time_put() {}
+  ~time_put() {}
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
   do_put(iter_type __s, ios_base&, char_type, const tm* __tm, char __fmt,
          char __mod) const;
 
-  explicit time_put(const char* __nm, size_t __refs)
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_put(const char* __nm,
+                                                              size_t __refs)
       : locale::facet(__refs), __time_put(__nm) {}
-  explicit time_put(const string& __nm, size_t __refs)
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_put(
+      const string& __nm, size_t __refs)
       : locale::facet(__refs), __time_put(__nm) {}
 };
 
@@ -2510,14 +2566,16 @@ class _LIBCPP_TEMPLATE_VIS time_put_byname
     : public time_put<_CharT, _OutputIterator>
 {
 public:
-  explicit time_put_byname(const char* __nm, size_t __refs = 0)
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_put_byname(
+      const char* __nm, size_t __refs = 0)
       : time_put<_CharT, _OutputIterator>(__nm, __refs) {}
 
-  explicit time_put_byname(const string& __nm, size_t __refs = 0)
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit time_put_byname(
+      const string& __nm, size_t __refs = 0)
       : time_put<_CharT, _OutputIterator>(__nm, __refs) {}
 
 protected:
-  inline ~time_put_byname() {}
+  ~time_put_byname() {}
 };
 
 _LIBCPP_EXTERN_TEMPLATE2(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS time_put_byname<char>)
@@ -2545,57 +2603,62 @@ public:
     typedef _CharT                  char_type;
     typedef basic_string<char_type> string_type;
 
-    explicit moneypunct(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit moneypunct(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    char_type decimal_point() const { return do_decimal_point(); }
-    char_type thousands_sep() const { return do_thousands_sep(); }
-    string grouping() const { return do_grouping(); }
-    string_type curr_symbol() const { return do_curr_symbol(); }
-    string_type positive_sign() const { return do_positive_sign(); }
-    string_type negative_sign() const { return do_negative_sign(); }
-    int frac_digits() const { return do_frac_digits(); }
-    pattern pos_format() const { return do_pos_format(); }
-    pattern neg_format() const { return do_neg_format(); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char_type decimal_point() const {
+      return do_decimal_point();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char_type thousands_sep() const {
+      return do_thousands_sep();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY string grouping() const {
+      return do_grouping();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY string_type curr_symbol() const {
+      return do_curr_symbol();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY string_type
+    positive_sign() const {
+      return do_positive_sign();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY string_type
+    negative_sign() const {
+      return do_negative_sign();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY int frac_digits() const {
+      return do_frac_digits();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY pattern pos_format() const {
+      return do_pos_format();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY pattern neg_format() const {
+      return do_neg_format();
+    }
 
     static locale::id id;
     static const bool intl = _International;
 
 protected:
-  inline ~moneypunct() {}
+  ~moneypunct() {}
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual char_type
-  do_decimal_point() const {
+  virtual char_type do_decimal_point() const {
     return numeric_limits<char_type>::max();
   }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual char_type
-  do_thousands_sep() const {
+  virtual char_type do_thousands_sep() const {
     return numeric_limits<char_type>::max();
   }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string do_grouping() const {
-    return string();
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_curr_symbol() const {
-    return string_type();
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_positive_sign() const {
-    return string_type();
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_negative_sign() const {
-    return string_type(1, '-');
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int do_frac_digits() const {
-    return 0;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pattern
-  do_pos_format() const {
+  virtual string do_grouping() const { return string(); }
+  virtual string_type do_curr_symbol() const { return string_type(); }
+  virtual string_type do_positive_sign() const { return string_type(); }
+  virtual string_type do_negative_sign() const { return string_type(1, '-'); }
+  virtual int do_frac_digits() const { return 0; }
+  virtual pattern do_pos_format() const {
     pattern __p = {{symbol, sign, none, value}};
     return __p;
   }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pattern
-  do_neg_format() const {
+  virtual pattern do_neg_format() const {
     pattern __p = {{symbol, sign, none, value}};
     return __p;
   }
@@ -2625,53 +2688,30 @@ public:
     typedef _CharT                  char_type;
     typedef basic_string<char_type> string_type;
 
-    explicit moneypunct_byname(const char* __nm, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit moneypunct_byname(
+        const char* __nm, size_t __refs = 0)
         : moneypunct<_CharT, _International>(__refs) {
       init(__nm);
     }
 
-    explicit moneypunct_byname(const string& __nm, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit moneypunct_byname(
+        const string& __nm, size_t __refs = 0)
         : moneypunct<_CharT, _International>(__refs) {
       init(__nm.c_str());
     }
 
 protected:
-  inline ~moneypunct_byname() {}
+  ~moneypunct_byname() {}
 
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual char_type
-  do_decimal_point() const {
-    return __decimal_point_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual char_type
-  do_thousands_sep() const {
-    return __thousands_sep_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string do_grouping() const {
-    return __grouping_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_curr_symbol() const {
-    return __curr_symbol_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_positive_sign() const {
-    return __positive_sign_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_negative_sign() const {
-    return __negative_sign_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int do_frac_digits() const {
-    return __frac_digits_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pattern
-  do_pos_format() const {
-    return __pos_format_;
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pattern
-  do_neg_format() const {
-    return __neg_format_;
-  }
+  virtual char_type do_decimal_point() const { return __decimal_point_; }
+  virtual char_type do_thousands_sep() const { return __thousands_sep_; }
+  virtual string do_grouping() const { return __grouping_; }
+  virtual string_type do_curr_symbol() const { return __curr_symbol_; }
+  virtual string_type do_positive_sign() const { return __positive_sign_; }
+  virtual string_type do_negative_sign() const { return __negative_sign_; }
+  virtual int do_frac_digits() const { return __frac_digits_; }
+  virtual pattern do_pos_format() const { return __pos_format_; }
+  virtual pattern do_neg_format() const { return __neg_format_; }
 
 private:
     char_type   __decimal_point_;
@@ -2706,7 +2746,7 @@ protected:
     typedef _CharT                  char_type;
     typedef basic_string<char_type> string_type;
 
-    __money_get() {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __money_get() {}
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
     __gather_info(bool __intl, const locale& __loc, money_base::pattern& __pat,
@@ -2764,22 +2804,26 @@ public:
     typedef _InputIterator          iter_type;
     typedef basic_string<char_type> string_type;
 
-    explicit money_get(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit money_get(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    iter_type get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
-                  ios_base::iostate& __err, long double& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
+        ios_base::iostate& __err, long double& __v) const {
       return do_get(__b, __e, __intl, __iob, __err, __v);
     }
 
-    iter_type get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
-                  ios_base::iostate& __err, string_type& __v) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
+        ios_base::iostate& __err, string_type& __v) const {
       return do_get(__b, __e, __intl, __iob, __err, __v);
     }
 
     static locale::id id;
 
 protected:
-  inline ~money_get() {}
+  ~money_get() {}
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
   do_get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
@@ -3138,7 +3182,7 @@ protected:
     typedef _CharT                  char_type;
     typedef basic_string<char_type> string_type;
 
-    __money_put() {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __money_put() {}
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
     __gather_info(bool __intl, bool __neg, const locale& __loc,
@@ -3313,22 +3357,26 @@ public:
     typedef _OutputIterator         iter_type;
     typedef basic_string<char_type> string_type;
 
-    explicit money_put(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit money_put(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    iter_type put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
-                  long double __units) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
+        long double __units) const {
       return do_put(__s, __intl, __iob, __fl, __units);
     }
 
-    iter_type put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
-                  const string_type& __digits) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
+        const string_type& __digits) const {
       return do_put(__s, __intl, __iob, __fl, __digits);
     }
 
     static locale::id id;
 
 protected:
-  inline ~money_put() {}
+  ~money_put() {}
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
   do_put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
@@ -3470,23 +3518,28 @@ public:
     typedef _CharT               char_type;
     typedef basic_string<_CharT> string_type;
 
-    explicit messages(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit messages(
+        size_t __refs = 0)
+        : locale::facet(__refs) {}
 
-    catalog open(const basic_string<char>& __nm, const locale& __loc) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY catalog
+    open(const basic_string<char>& __nm, const locale& __loc) const {
       return do_open(__nm, __loc);
     }
 
-    string_type get(catalog __c, int __set, int __msgid,
-                    const string_type& __dflt) const {
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY string_type
+    get(catalog __c, int __set, int __msgid, const string_type& __dflt) const {
       return do_get(__c, __set, __msgid, __dflt);
     }
 
-    void close(catalog __c) const { do_close(__c); }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void close(catalog __c) const {
+      do_close(__c);
+    }
 
     static locale::id id;
 
 protected:
-  inline ~messages() {}
+  ~messages() {}
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual catalog
   do_open(const basic_string<char>&, const locale&) const;
@@ -3560,14 +3613,16 @@ public:
     typedef messages_base::catalog catalog;
     typedef basic_string<_CharT> string_type;
 
-    explicit messages_byname(const char*, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit messages_byname(
+        const char*, size_t __refs = 0)
         : messages<_CharT>(__refs) {}
 
-    explicit messages_byname(const string&, size_t __refs = 0)
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit messages_byname(
+        const string&, size_t __refs = 0)
         : messages<_CharT>(__refs) {}
 
   protected:
-    inline ~messages_byname() {}
+    ~messages_byname() {}
 };
 
 _LIBCPP_EXTERN_TEMPLATE2(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS messages_byname<char>)
