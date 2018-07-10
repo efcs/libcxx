@@ -915,6 +915,7 @@ class Configuration(object):
         if self.cxx.hasWarningFlag('-Wuser-defined-warnings'):
             self.cxx.warning_flags += ['-Wuser-defined-warnings']
             self.config.available_features.add('diagnose-if-support')
+        self.cxx.addWarningFlagIfSupported('-Wno-undefined-internal')
         self.cxx.addWarningFlagIfSupported('-Wshadow')
         self.cxx.addWarningFlagIfSupported('-Wno-unused-command-line-argument')
         self.cxx.addWarningFlagIfSupported('-Wno-attributes')
