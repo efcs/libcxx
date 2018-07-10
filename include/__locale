@@ -244,34 +244,38 @@ public:
     typedef _CharT char_type;
     typedef basic_string<char_type> string_type;
 
-    explicit collate(size_t __refs = 0) : locale::facet(__refs) {}
+    _LIBCPP_INLINE_VISIBILITY
+    explicit collate(size_t __refs = 0)
+        : locale::facet(__refs) {}
 
+    _LIBCPP_INLINE_VISIBILITY
     int compare(const char_type* __lo1, const char_type* __hi1,
-                const char_type* __lo2, const char_type* __hi2) const {
-      return do_compare(__lo1, __hi1, __lo2, __hi2);
+                const char_type* __lo2, const char_type* __hi2) const
+    {
+        return do_compare(__lo1, __hi1, __lo2, __hi2);
     }
 
-    string_type transform(const char_type* __lo, const char_type* __hi) const {
-      return do_transform(__lo, __hi);
+    _LIBCPP_INLINE_VISIBILITY
+    string_type transform(const char_type* __lo, const char_type* __hi) const
+    {
+        return do_transform(__lo, __hi);
     }
 
-    long hash(const char_type* __lo, const char_type* __hi) const {
-      return do_hash(__lo, __hi);
+    _LIBCPP_INLINE_VISIBILITY
+    long hash(const char_type* __lo, const char_type* __hi) const
+    {
+        return do_hash(__lo, __hi);
     }
 
     static locale::id id;
 
 protected:
-  inline ~collate();
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int
-  do_compare(const char_type* __lo1, const char_type* __hi1,
-             const char_type* __lo2, const char_type* __hi2) const;
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-  do_transform(const char_type* __lo, const char_type* __hi) const {
-    return string_type(__lo, __hi);
-  }
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual long
-  do_hash(const char_type* __lo, const char_type* __hi) const;
+    ~collate();
+    virtual int do_compare(const char_type* __lo1, const char_type* __hi1,
+                           const char_type* __lo2, const char_type* __hi2) const;
+    virtual string_type do_transform(const char_type* __lo, const char_type* __hi) const
+        {return string_type(__lo, __hi);}
+    virtual long do_hash(const char_type* __lo, const char_type* __hi) const;
 };
 
 template <class _CharT> locale::id collate<_CharT>::id;
@@ -1206,13 +1210,14 @@ class _LIBCPP_TEMPLATE_VIS codecvt_byname
     : public codecvt<_InternT, _ExternT, _StateT>
 {
 public:
-  explicit codecvt_byname(const char* __nm, size_t __refs = 0)
-      : codecvt<_InternT, _ExternT, _StateT>(__nm, __refs) {}
-  explicit codecvt_byname(const string& __nm, size_t __refs = 0)
-      : codecvt<_InternT, _ExternT, _StateT>(__nm.c_str(), __refs) {}
-
+    _LIBCPP_ALWAYS_INLINE
+    explicit codecvt_byname(const char* __nm, size_t __refs = 0)
+        : codecvt<_InternT, _ExternT, _StateT>(__nm, __refs) {}
+    _LIBCPP_ALWAYS_INLINE
+    explicit codecvt_byname(const string& __nm, size_t __refs = 0)
+        : codecvt<_InternT, _ExternT, _StateT>(__nm.c_str(), __refs) {}
 protected:
-  inline ~codecvt_byname();
+    ~codecvt_byname();
 };
 
 template <class _InternT, class _ExternT, class _StateT>

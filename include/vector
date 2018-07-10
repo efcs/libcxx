@@ -295,11 +295,9 @@ template <bool>
 class __vector_base_common
 {
 protected:
-  __vector_base_common() {}
-  _LIBCPP_NORETURN _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
-  __throw_length_error() const;
-  _LIBCPP_NORETURN _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
-  __throw_out_of_range() const;
+    _LIBCPP_ALWAYS_INLINE __vector_base_common() {}
+    _LIBCPP_NORETURN void __throw_length_error() const;
+    _LIBCPP_NORETURN void __throw_out_of_range() const;
 };
 
 template <bool __b>
