@@ -296,10 +296,12 @@ class __vector_base_common
 {
 protected:
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __vector_base_common() {}
-  _LIBCPP_NORETURN inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
-  __throw_length_error() const;
-  _LIBCPP_NORETURN inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
-  __throw_out_of_range() const;
+  _LIBCPP_NORETURN
+      _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+      __throw_length_error() const;
+  _LIBCPP_NORETURN
+      _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+      __throw_out_of_range() const;
 };
 
 template <bool __b>

@@ -271,14 +271,14 @@ public:
 
 protected:
   inline ~collate();
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int
   do_compare(const char_type* __lo1, const char_type* __hi1,
              const char_type* __lo2, const char_type* __hi2) const;
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
   do_transform(const char_type* __lo, const char_type* __hi) const {
     return string_type(__lo, __hi);
   }
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual long
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual long
   do_hash(const char_type* __lo, const char_type* __hi) const;
 };
 

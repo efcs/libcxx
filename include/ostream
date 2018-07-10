@@ -160,29 +160,31 @@ public:
     typedef typename traits_type::off_type off_type;
 
     // 27.7.2.2 Constructor/destructor:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     explicit basic_ostream(basic_streambuf<char_type, traits_type>* __sb)
     { this->init(__sb); }
     inline virtual ~basic_ostream();
 
   protected:
 #ifndef _LIBCPP_CXX03_LANG
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ostream(basic_ostream&& __rhs);
 
     // 27.7.2.3 Assign/swap
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator=(basic_ostream&& __rhs);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator=(basic_ostream&& __rhs);
 #endif
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     void swap(basic_ostream& __rhs)
     { basic_ios<char_type, traits_type>::swap(__rhs); }
 
 #ifndef _LIBCPP_CXX03_LANG
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ostream(const basic_ostream& __rhs) = delete;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator=(const basic_ostream& __rhs) = delete;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator=(const basic_ostream& __rhs) = delete;
 #else
     basic_ostream           (const basic_ostream& __rhs); // not defined
     basic_ostream& operator=(const basic_ostream& __rhs); // not defined
@@ -193,66 +195,86 @@ public:
     class _LIBCPP_TEMPLATE_VIS sentry;
 
     // 27.7.2.6 Formatted output:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ostream& operator<<(basic_ostream& (*__pf)(basic_ostream&))
     { return __pf(*this); }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ostream& operator<<(basic_ios<char_type, traits_type>&
                               (*__pf)(basic_ios<char_type,traits_type>&))
     { __pf(*this); return *this; }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ostream& operator<<(ios_base& (*__pf)(ios_base&))
     { __pf(*this); return *this; }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(bool __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(short __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(unsigned short __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(int __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(unsigned int __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(long __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(unsigned long __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(long long __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(unsigned long long __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(float __f);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(double __f);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(long double __f);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(const void* __p);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    operator<<(basic_streambuf<char_type, traits_type>* __sb);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(bool __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(short __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(unsigned short __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(int __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(unsigned int __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(long __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(unsigned long __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(long long __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(unsigned long long __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(float __f);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(double __f);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(long double __f);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(const void* __p);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        operator<<(basic_streambuf<char_type, traits_type>* __sb);
 
     // 27.7.2.7 Unformatted output:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    put(char_type __c);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
-    write(const char_type* __s, streamsize __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream& flush();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        put(char_type __c);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        write(const char_type* __s, streamsize __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        flush();
 
     // 27.7.2.5 seeks:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-    pos_type tellp();
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-    basic_ostream& seekp(pos_type __pos);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-    basic_ostream& seekp(off_type __off, ios_base::seekdir __dir);
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY pos_type
+    tellp();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        seekp(pos_type __pos);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ostream&
+        seekp(off_type __off, ios_base::seekdir __dir);
 
-protected:
-  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-  basic_ostream() {} // extension, intentially does not initialize
+  protected:
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    basic_ostream() {} // extension, intentially does not initialize
 };
 
 template <class _CharT, class _Traits>
@@ -265,8 +287,9 @@ class _LIBCPP_TEMPLATE_VIS basic_ostream<_CharT, _Traits>::sentry
     sentry& operator=(const sentry&); // = delete;
 
 public:
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit sentry(
-      basic_ostream<_CharT, _Traits>& __os);
+  _LIBCPP_EXTERN_INLINE
+      _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit sentry(
+          basic_ostream<_CharT, _Traits>& __os);
   inline ~sentry();
 
   _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY

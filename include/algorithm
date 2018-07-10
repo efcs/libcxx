@@ -3737,7 +3737,7 @@ __sort4(_ForwardIterator __x1, _ForwardIterator __x2, _ForwardIterator __x3,
 // stable, 4-10 compares, 0-9 swaps
 
 template <class _Compare, class _ForwardIterator>
-unsigned
+_LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY unsigned
 __sort5(_ForwardIterator __x1, _ForwardIterator __x2, _ForwardIterator __x3,
         _ForwardIterator __x4, _ForwardIterator __x5, _Compare __c) {
   unsigned __r = __sort4<_Compare>(__x1, __x2, __x3, __x4, __c);
@@ -3821,7 +3821,7 @@ __insertion_sort_3(_RandomAccessIterator __first, _RandomAccessIterator __last, 
 }
 
 template <class _Compare, class _RandomAccessIterator>
-inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool
+_LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool
 __insertion_sort_incomplete(_RandomAccessIterator __first,
                             _RandomAccessIterator __last, _Compare __comp) {
   switch (__last - __first) {
@@ -3904,7 +3904,7 @@ __insertion_sort_move(_BirdirectionalIterator __first1, _BirdirectionalIterator 
 }
 
 template <class _Compare, class _RandomAccessIterator>
-inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+_LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
 __sort(_RandomAccessIterator __first, _RandomAccessIterator __last,
        _Compare __comp) {
   // _Compare is known to be a reference type

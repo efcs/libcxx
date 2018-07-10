@@ -138,7 +138,7 @@ public:
     inline virtual ~basic_streambuf();
 
     // 27.6.2.2.1 locales:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     locale pubimbue(const locale& __loc) {
         imbue(__loc);
         locale __r = __loc_;
@@ -146,70 +146,70 @@ public:
         return __r;
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     locale getloc() const { return __loc_; }
 
     // 27.6.2.2.2 buffer and positioning:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_streambuf* pubsetbuf(char_type* __s, streamsize __n)
     { return setbuf(__s, __n); }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     pos_type pubseekoff(off_type __off, ios_base::seekdir __way,
                         ios_base::openmode __which = ios_base::in | ios_base::out)
     { return seekoff(__off, __way, __which); }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     pos_type pubseekpos(pos_type __sp,
                         ios_base::openmode __which = ios_base::in | ios_base::out)
     { return seekpos(__sp, __which); }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int pubsync() { return sync(); }
 
     // Get and put areas:
     // 27.6.2.2.3 Get area:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     streamsize in_avail() {
         if (__ninp_ < __einp_)
             return static_cast<streamsize>(__einp_ - __ninp_);
         return showmanyc();
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type snextc() {
         if (sbumpc() == traits_type::eof())
             return traits_type::eof();
         return sgetc();
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type sbumpc() {
         if (__ninp_ == __einp_)
             return uflow();
         return traits_type::to_int_type(*__ninp_++);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type sgetc() {
         if (__ninp_ == __einp_)
             return underflow();
         return traits_type::to_int_type(*__ninp_);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     streamsize sgetn(char_type* __s, streamsize __n)
     { return xsgetn(__s, __n); }
 
     // 27.6.2.2.4 Putback:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type sputbackc(char_type __c) {
         if (__binp_ == __ninp_ || !traits_type::eq(__c, __ninp_[-1]))
             return pbackfail(traits_type::to_int_type(__c));
         return traits_type::to_int_type(*--__ninp_);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type sungetc() {
         if (__binp_ == __ninp_)
           return pbackfail();
@@ -217,7 +217,7 @@ public:
     }
 
     // 27.6.2.2.5 Put area:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     int_type sputc(char_type __c) {
         if (__nout_ == __eout_)
             return overflow(traits_type::to_int_type(__c));
@@ -225,17 +225,19 @@ public:
         return traits_type::to_int_type(__c);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     streamsize sputn(const char_type* __s, streamsize __n)
     { return xsputn(__s, __n); }
 
 protected:
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_streambuf();
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+  basic_streambuf();
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
   basic_streambuf(const basic_streambuf& __rhs);
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_streambuf&
-  operator=(const basic_streambuf& __rhs);
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+  _LIBCPP_EXTERN_INLINE
+      _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_streambuf&
+      operator=(const basic_streambuf& __rhs);
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
   swap(basic_streambuf& __rhs);
 
   // 27.6.2.3.2 Get area:
@@ -249,14 +251,14 @@ protected:
     return __einp_;
   }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-    void gbump(int __n) { __ninp_ += __n; }
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+  void gbump(int __n) { __ninp_ += __n; }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-    void setg(char_type* __gbeg, char_type* __gnext, char_type* __gend) {
-        __binp_ = __gbeg;
-        __ninp_ = __gnext;
-        __einp_ = __gend;
+  _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+  void setg(char_type* __gbeg, char_type* __gnext, char_type* __gend) {
+    __binp_ = __gbeg;
+    __ninp_ = __gnext;
+    __einp_ = __gend;
     }
 
     // 27.6.2.3.3 Put area:
@@ -270,13 +272,13 @@ protected:
       return __eout_;
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     void pbump(int __n) { __nout_ += __n; }
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     void __pbump(streamsize __n) { __nout_ += __n; }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     void setp(char_type* __pbeg, char_type* __pend) {
         __bout_ = __nout_ = __pbeg;
         __eout_ = __pend;
@@ -284,38 +286,50 @@ protected:
 
     // 27.6.2.4 virtual functions:
     // 27.6.2.4.1 Locales:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual void
     imbue(const locale& __loc);
 
     // 27.6.2.4.2 Buffer management and positioning:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual basic_streambuf*
-    setbuf(char_type* __s, streamsize __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pos_type
-    seekoff(off_type __off, ios_base::seekdir __way,
-            ios_base::openmode __which = ios_base::in | ios_base::out);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pos_type
-    seekpos(pos_type __sp,
-            ios_base::openmode __which = ios_base::in | ios_base::out);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int sync();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual basic_streambuf*
+        setbuf(char_type* __s, streamsize __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pos_type
+        seekoff(off_type __off, ios_base::seekdir __way,
+                ios_base::openmode __which = ios_base::in | ios_base::out);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual pos_type
+        seekpos(pos_type __sp,
+                ios_base::openmode __which = ios_base::in | ios_base::out);
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int
+    sync();
 
     // 27.6.2.4.3 Get area:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
-    showmanyc();
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
-    xsgetn(char_type* __s, streamsize __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
-    underflow();
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type uflow();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
+        showmanyc();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
+        xsgetn(char_type* __s, streamsize __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
+        underflow();
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
+        uflow();
 
     // 27.6.2.4.4 Putback:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
-    pbackfail(int_type __c = traits_type::eof());
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
+        pbackfail(int_type __c = traits_type::eof());
 
     // 27.6.2.4.5 Put area:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
-    xsputn(const char_type* __s, streamsize __n);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
-    overflow(int_type __c = traits_type::eof());
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual streamsize
+        xsputn(const char_type* __s, streamsize __n);
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual int_type
+        overflow(int_type __c = traits_type::eof());
 
   private:
     locale __loc_;

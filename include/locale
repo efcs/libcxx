@@ -372,20 +372,20 @@ template <class _CharT>
 struct __num_get
     : protected __num_get_base
 {
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static string
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static string
   __stage2_float_prep(ios_base& __iob, _CharT* __atoms, _CharT& __decimal_point,
                       _CharT& __thousands_sep);
 
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static int
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static int
   __stage2_float_loop(_CharT __ct, bool& __in_units, char& __exp, char* __a,
                       char*& __a_end, _CharT __decimal_point,
                       _CharT __thousands_sep, const string& __grouping,
                       unsigned* __g, unsigned*& __g_end, unsigned& __dc,
                       _CharT* __atoms);
 #ifndef _LIBCPP_ABI_OPTIMIZED_LOCALE_NUM_GET
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static string
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static string
   __stage2_int_prep(ios_base& __iob, _CharT* __atoms, _CharT& __thousands_sep);
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static int
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static int
   __stage2_int_loop(_CharT __ct, int __base, char* __a, char*& __a_end,
                     unsigned& __dc, _CharT __thousands_sep,
                     const string& __grouping, unsigned* __g, unsigned*& __g_end,
@@ -683,9 +683,10 @@ protected:
                             (iter_type __b, iter_type __e, ios_base& __iob,
                              ios_base::iostate& __err, _Unsigned& __v) const;
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get(iter_type __b, iter_type __e, ios_base& __iob,
-           ios_base::iostate& __err, bool& __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get(iter_type __b, iter_type __e, ios_base& __iob,
+               ios_base::iostate& __err, bool& __v) const;
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
     do_get(iter_type __b, iter_type __e, ios_base& __iob,
@@ -741,9 +742,10 @@ protected:
       return this->__do_get_floating_point(__b, __e, __iob, __err, __v);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get(iter_type __b, iter_type __e, ios_base& __iob,
-           ios_base::iostate& __err, void*& __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get(iter_type __b, iter_type __e, ios_base& __iob,
+               ios_base::iostate& __err, void*& __v) const;
 };
 
 template <class _CharT, class _InputIterator>
@@ -1141,10 +1143,10 @@ template <class _CharT>
 struct __num_put
     : protected __num_put_base
 {
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
   __widen_and_group_int(char* __nb, char* __np, char* __ne, _CharT* __ob,
                         _CharT*& __op, _CharT*& __oe, const locale& __loc);
-  inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
+  _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
   __widen_and_group_float(char* __nb, char* __np, char* __ne, _CharT* __ob,
                           _CharT*& __op, _CharT*& __oe, const locale& __loc);
 };
@@ -1351,25 +1353,36 @@ protected:
     _LIBCPP_ALWAYS_INLINE
     ~num_put() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl, bool __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl, long __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl, long long __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl, unsigned long) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl,
-           unsigned long long) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl, double __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl,
-           long double __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base& __iob, char_type __fl,
-           const void* __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl, bool __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl, long __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               long long __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               unsigned long) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               unsigned long long) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               double __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               long double __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base& __iob, char_type __fl,
+               const void* __v) const;
 };
 
 template <class _CharT, class _OutputIterator>
@@ -1850,7 +1863,7 @@ public:
         return do_get(__b, __e, __iob, __err, __tm, __fmt, __mod);
     }
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
     get(iter_type __b, iter_type __e, ios_base& __iob, ios_base::iostate& __err,
         tm* __tm, const char_type* __fmtb, const char_type* __fmte) const;
 
@@ -1860,74 +1873,82 @@ protected:
     _LIBCPP_ALWAYS_INLINE
     ~time_get() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual dateorder
-    do_date_order() const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get_time(iter_type __b, iter_type __e, ios_base& __iob,
-                ios_base::iostate& __err, tm* __tm) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get_date(iter_type __b, iter_type __e, ios_base& __iob,
-                ios_base::iostate& __err, tm* __tm) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get_weekday(iter_type __b, iter_type __e, ios_base& __iob,
-                   ios_base::iostate& __err, tm* __tm) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get_monthname(iter_type __b, iter_type __e, ios_base& __iob,
-                     ios_base::iostate& __err, tm* __tm) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get_year(iter_type __b, iter_type __e, ios_base& __iob,
-                ios_base::iostate& __err, tm* __tm) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get(iter_type __b, iter_type __e, ios_base& __iob,
-           ios_base::iostate& __err, tm* __tm, char __fmt, char __mod) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual dateorder
+        do_date_order() const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get_time(iter_type __b, iter_type __e, ios_base& __iob,
+                    ios_base::iostate& __err, tm* __tm) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get_date(iter_type __b, iter_type __e, ios_base& __iob,
+                    ios_base::iostate& __err, tm* __tm) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get_weekday(iter_type __b, iter_type __e, ios_base& __iob,
+                       ios_base::iostate& __err, tm* __tm) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get_monthname(iter_type __b, iter_type __e, ios_base& __iob,
+                         ios_base::iostate& __err, tm* __tm) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get_year(iter_type __b, iter_type __e, ios_base& __iob,
+                    ios_base::iostate& __err, tm* __tm) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get(iter_type __b, iter_type __e, ios_base& __iob,
+               ios_base::iostate& __err, tm* __tm, char __fmt,
+               char __mod) const;
 
   private:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_white_space(iter_type& __b, iter_type __e, ios_base::iostate& __err,
                       const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_percent(iter_type& __b, iter_type __e, ios_base::iostate& __err,
                   const ctype<char_type>& __ct) const;
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_weekdayname(int& __m, iter_type& __b, iter_type __e,
                       ios_base::iostate& __err,
                       const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_monthname(int& __m, iter_type& __b, iter_type __e,
                     ios_base::iostate& __err,
                     const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_day(int& __d, iter_type& __b, iter_type __e, ios_base::iostate& __err,
               const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_month(int& __m, iter_type& __b, iter_type __e,
                 ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_year(int& __y, iter_type& __b, iter_type __e,
                ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_year4(int& __y, iter_type& __b, iter_type __e,
                 ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_hour(int& __d, iter_type& __b, iter_type __e,
                ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_12_hour(int& __h, iter_type& __b, iter_type __e,
                   ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_am_pm(int& __h, iter_type& __b, iter_type __e,
                 ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_minute(int& __m, iter_type& __b, iter_type __e,
                  ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_second(int& __s, iter_type& __b, iter_type __e,
                  ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_weekday(int& __w, iter_type& __b, iter_type __e,
                   ios_base::iostate& __err, const ctype<char_type>& __ct) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
     __get_day_year_num(int& __w, iter_type& __b, iter_type __e,
                        ios_base::iostate& __err,
                        const ctype<char_type>& __ct) const;
@@ -2507,7 +2528,7 @@ public:
     explicit time_put(size_t __refs = 0)
         : locale::facet(__refs) {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iter_type
     put(iter_type __s, ios_base& __iob, char_type __fl, const tm* __tm,
         const char_type* __pb, const char_type* __pe) const;
 
@@ -2523,9 +2544,10 @@ public:
 protected:
     _LIBCPP_ALWAYS_INLINE
     ~time_put() {}
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, ios_base&, char_type, const tm* __tm, char __fmt,
-           char __mod) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, ios_base&, char_type, const tm* __tm, char __fmt,
+               char __mod) const;
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     explicit time_put(const char* __nm, size_t __refs)
@@ -2827,7 +2849,7 @@ protected:
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __money_get() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
     __gather_info(bool __intl, const locale& __loc, money_base::pattern& __pat,
                   char_type& __dp, char_type& __ts, string& __grp,
                   string_type& __sym, string_type& __psn, string_type& __nsn,
@@ -2908,15 +2930,17 @@ protected:
     _LIBCPP_ALWAYS_INLINE
     ~money_get() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
-           ios_base::iostate& __err, long double& __v) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
-           ios_base::iostate& __err, string_type& __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
+               ios_base::iostate& __err, long double& __v) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_get(iter_type __b, iter_type __e, bool __intl, ios_base& __iob,
+               ios_base::iostate& __err, string_type& __v) const;
 
   private:
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static bool
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static bool
     __do_get(iter_type& __b, iter_type __e, bool __intl, const locale& __loc,
              ios_base::fmtflags __flags, ios_base::iostate& __err, bool& __neg,
              const ctype<char_type>& __ct,
@@ -3267,12 +3291,12 @@ protected:
 
     _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __money_put() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
     __gather_info(bool __intl, bool __neg, const locale& __loc,
                   money_base::pattern& __pat, char_type& __dp, char_type& __ts,
                   string& __grp, string_type& __sym, string_type& __sn,
                   int& __fd);
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY static void
     __format(char_type* __mb, char_type*& __mi, char_type*& __me,
              ios_base::fmtflags __flags, const char_type* __db,
              const char_type* __de, const ctype<char_type>& __ct, bool __neg,
@@ -3464,12 +3488,14 @@ protected:
     _LIBCPP_ALWAYS_INLINE
     ~money_put() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
-           long double __units) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
-    do_put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
-           const string_type& __digits) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
+               long double __units) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual iter_type
+        do_put(iter_type __s, bool __intl, ios_base& __iob, char_type __fl,
+               const string_type& __digits) const;
 };
 
 template <class _CharT, class _OutputIterator>
@@ -3633,11 +3659,14 @@ protected:
     _LIBCPP_ALWAYS_INLINE
     ~messages() {}
 
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual catalog
-    do_open(const basic_string<char>&, const locale&) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
-    do_get(catalog, int __set, int __msgid, const string_type& __dflt) const;
-    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual void
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual catalog
+        do_open(const basic_string<char>&, const locale&) const;
+    _LIBCPP_EXTERN_INLINE
+        _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual string_type
+        do_get(catalog, int __set, int __msgid,
+               const string_type& __dflt) const;
+    _LIBCPP_EXTERN_INLINE _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY virtual void
         do_close(catalog) const;
 };
 
