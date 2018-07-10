@@ -1,0 +1,8 @@
+---
+Checks:          '-*,libcxx-extern-template'
+WarningsAsErrors: ''
+HeaderFilterRegex: 'libcxx/include/*'
+AnalyzeTemporaryDtors: false
+FormatStyle:     file
+...
+

@@ -604,80 +604,106 @@ public:
         return !fail() ? &__cxx03_bool::__true_value : nullptr;
     }
 #else
-    _LIBCPP_ALWAYS_INLINE
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     _LIBCPP_EXPLICIT operator bool() const {return !fail();}
 #endif
 
-    _LIBCPP_ALWAYS_INLINE bool operator!() const    {return  fail();}
-    _LIBCPP_ALWAYS_INLINE iostate rdstate() const   {return ios_base::rdstate();}
-    _LIBCPP_ALWAYS_INLINE void clear(iostate __state = goodbit) {ios_base::clear(__state);}
-    _LIBCPP_ALWAYS_INLINE void setstate(iostate __state) {ios_base::setstate(__state);}
-    _LIBCPP_ALWAYS_INLINE bool good() const {return ios_base::good();}
-    _LIBCPP_ALWAYS_INLINE bool eof() const  {return ios_base::eof();}
-    _LIBCPP_ALWAYS_INLINE bool fail() const {return ios_base::fail();}
-    _LIBCPP_ALWAYS_INLINE bool bad() const  {return ios_base::bad();}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool operator!() const {
+      return fail();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iostate rdstate() const {
+      return ios_base::rdstate();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    clear(iostate __state = goodbit) {
+      ios_base::clear(__state);
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void setstate(iostate __state) {
+      ios_base::setstate(__state);
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool good() const {
+      return ios_base::good();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool eof() const {
+      return ios_base::eof();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool fail() const {
+      return ios_base::fail();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY bool bad() const {
+      return ios_base::bad();
+    }
 
-    _LIBCPP_ALWAYS_INLINE iostate exceptions() const {return ios_base::exceptions();}
-    _LIBCPP_ALWAYS_INLINE void exceptions(iostate __iostate) {ios_base::exceptions(__iostate);}
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY iostate exceptions() const {
+      return ios_base::exceptions();
+    }
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+    exceptions(iostate __iostate) {
+      ios_base::exceptions(__iostate);
+    }
 
     // 27.5.4.1 Constructor/destructor:
-    _LIBCPP_INLINE_VISIBILITY
-    explicit basic_ios(basic_streambuf<char_type,traits_type>* __sb);
-    virtual ~basic_ios();
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY explicit basic_ios(
+        basic_streambuf<char_type, traits_type>* __sb);
+    inline virtual ~basic_ios();
 
     // 27.5.4.2 Members:
-    _LIBCPP_INLINE_VISIBILITY 
-    basic_ostream<char_type, traits_type>* tie() const;
-    _LIBCPP_INLINE_VISIBILITY 
-    basic_ostream<char_type, traits_type>* tie(basic_ostream<char_type, traits_type>* __tiestr);
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+        basic_ostream<char_type, traits_type>*
+        tie() const;
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+        basic_ostream<char_type, traits_type>*
+        tie(basic_ostream<char_type, traits_type>* __tiestr);
 
-    _LIBCPP_INLINE_VISIBILITY 
-    basic_streambuf<char_type, traits_type>* rdbuf() const;
-    _LIBCPP_INLINE_VISIBILITY 
-    basic_streambuf<char_type, traits_type>* rdbuf(basic_streambuf<char_type, traits_type>* __sb);
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+        basic_streambuf<char_type, traits_type>*
+        rdbuf() const;
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+        basic_streambuf<char_type, traits_type>*
+        rdbuf(basic_streambuf<char_type, traits_type>* __sb);
 
-    basic_ios& copyfmt(const basic_ios& __rhs);
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY basic_ios&
+    copyfmt(const basic_ios& __rhs);
 
-    _LIBCPP_INLINE_VISIBILITY 
-    char_type fill() const;
-    _LIBCPP_INLINE_VISIBILITY 
-    char_type fill(char_type __ch);
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char_type fill() const;
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char_type
+    fill(char_type __ch);
 
-    _LIBCPP_INLINE_VISIBILITY 
-    locale imbue(const locale& __loc);
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY locale
+    imbue(const locale& __loc);
 
-    _LIBCPP_INLINE_VISIBILITY 
-    char narrow(char_type __c, char __dfault) const;
-    _LIBCPP_INLINE_VISIBILITY 
-    char_type widen(char __c) const;
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char
+    narrow(char_type __c, char __dfault) const;
+    inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY char_type
+    widen(char __c) const;
 
-protected:
-    _LIBCPP_ALWAYS_INLINE
+  protected:
+    _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
     basic_ios() {// purposefully does no initialization
                 }
-    _LIBCPP_INLINE_VISIBILITY 
-    void init(basic_streambuf<char_type, traits_type>* __sb);
+                inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+                init(basic_streambuf<char_type, traits_type>* __sb);
 
-    _LIBCPP_INLINE_VISIBILITY 
-    void move(basic_ios& __rhs);
+                inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+                move(basic_ios& __rhs);
 #ifndef _LIBCPP_CXX03_LANG
-    _LIBCPP_ALWAYS_INLINE
-    void move(basic_ios&& __rhs) {move(__rhs);}
+                _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
+                void move(basic_ios&& __rhs) { move(__rhs); }
 #endif
-    _LIBCPP_INLINE_VISIBILITY 
-    void swap(basic_ios& __rhs) _NOEXCEPT;
-    _LIBCPP_INLINE_VISIBILITY 
-    void set_rdbuf(basic_streambuf<char_type, traits_type>* __sb);
-private:
-    basic_ostream<char_type, traits_type>* __tie_;
-    mutable int_type __fill_;
+                inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+                swap(basic_ios& __rhs) _NOEXCEPT;
+                inline _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY void
+                set_rdbuf(basic_streambuf<char_type, traits_type>* __sb);
+
+              private:
+                basic_ostream<char_type, traits_type>* __tie_;
+                mutable int_type __fill_;
 };
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-basic_ios<_CharT, _Traits>::basic_ios(basic_streambuf<char_type,traits_type>* __sb)
-{
-    init(__sb);
+inline basic_ios<_CharT, _Traits>::basic_ios(
+    basic_streambuf<char_type, traits_type>* __sb) {
+  init(__sb);
 }
 
 template <class _CharT, class _Traits>
@@ -686,97 +712,73 @@ basic_ios<_CharT, _Traits>::~basic_ios()
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-void
-basic_ios<_CharT, _Traits>::init(basic_streambuf<char_type, traits_type>* __sb)
-{
-    ios_base::init(__sb);
-    __tie_ = 0;
-    __fill_ = traits_type::eof();
+inline void basic_ios<_CharT, _Traits>::init(
+    basic_streambuf<char_type, traits_type>* __sb) {
+  ios_base::init(__sb);
+  __tie_ = 0;
+  __fill_ = traits_type::eof();
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-basic_ostream<_CharT, _Traits>*
-basic_ios<_CharT, _Traits>::tie() const
-{
-    return __tie_;
+inline basic_ostream<_CharT, _Traits>* basic_ios<_CharT, _Traits>::tie() const {
+  return __tie_;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-basic_ostream<_CharT, _Traits>*
-basic_ios<_CharT, _Traits>::tie(basic_ostream<char_type, traits_type>* __tiestr)
-{
-    basic_ostream<char_type, traits_type>* __r = __tie_;
-    __tie_ = __tiestr;
-    return __r;
+inline basic_ostream<_CharT, _Traits>* basic_ios<_CharT, _Traits>::tie(
+    basic_ostream<char_type, traits_type>* __tiestr) {
+  basic_ostream<char_type, traits_type>* __r = __tie_;
+  __tie_ = __tiestr;
+  return __r;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-basic_streambuf<_CharT, _Traits>*
-basic_ios<_CharT, _Traits>::rdbuf() const
-{
-    return static_cast<basic_streambuf<char_type, traits_type>*>(ios_base::rdbuf());
+inline basic_streambuf<_CharT, _Traits>*
+basic_ios<_CharT, _Traits>::rdbuf() const {
+  return static_cast<basic_streambuf<char_type, traits_type>*>(
+      ios_base::rdbuf());
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-basic_streambuf<_CharT, _Traits>*
-basic_ios<_CharT, _Traits>::rdbuf(basic_streambuf<char_type, traits_type>* __sb)
-{
-    basic_streambuf<char_type, traits_type>* __r = rdbuf();
-    ios_base::rdbuf(__sb);
-    return __r;
+inline basic_streambuf<_CharT, _Traits>* basic_ios<_CharT, _Traits>::rdbuf(
+    basic_streambuf<char_type, traits_type>* __sb) {
+  basic_streambuf<char_type, traits_type>* __r = rdbuf();
+  ios_base::rdbuf(__sb);
+  return __r;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-locale
-basic_ios<_CharT, _Traits>::imbue(const locale& __loc)
-{
-    locale __r = getloc();
-    ios_base::imbue(__loc);
-    if (rdbuf())
-        rdbuf()->pubimbue(__loc);
-    return __r;
+inline locale basic_ios<_CharT, _Traits>::imbue(const locale& __loc) {
+  locale __r = getloc();
+  ios_base::imbue(__loc);
+  if (rdbuf())
+    rdbuf()->pubimbue(__loc);
+  return __r;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-char
-basic_ios<_CharT, _Traits>::narrow(char_type __c, char __dfault) const
-{
-    return use_facet<ctype<char_type> >(getloc()).narrow(__c, __dfault);
+inline char basic_ios<_CharT, _Traits>::narrow(char_type __c,
+                                               char __dfault) const {
+  return use_facet<ctype<char_type> >(getloc()).narrow(__c, __dfault);
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-_CharT
-basic_ios<_CharT, _Traits>::widen(char __c) const
-{
-    return use_facet<ctype<char_type> >(getloc()).widen(__c);
+inline _CharT basic_ios<_CharT, _Traits>::widen(char __c) const {
+  return use_facet<ctype<char_type> >(getloc()).widen(__c);
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-_CharT
-basic_ios<_CharT, _Traits>::fill() const
-{
-    if (traits_type::eq_int_type(traits_type::eof(), __fill_))
-        __fill_ = widen(' ');
-    return __fill_;
+inline _CharT basic_ios<_CharT, _Traits>::fill() const {
+  if (traits_type::eq_int_type(traits_type::eof(), __fill_))
+    __fill_ = widen(' ');
+  return __fill_;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-_CharT
-basic_ios<_CharT, _Traits>::fill(char_type __ch)
-{
-    char_type __r = __fill_;
-    __fill_ = __ch;
-    return __r;
+inline _CharT basic_ios<_CharT, _Traits>::fill(char_type __ch) {
+  char_type __r = __fill_;
+  __fill_ = __ch;
+  return __r;
 }
 
 template <class _CharT, class _Traits>
@@ -796,32 +798,24 @@ basic_ios<_CharT, _Traits>::copyfmt(const basic_ios& __rhs)
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-void
-basic_ios<_CharT, _Traits>::move(basic_ios& __rhs)
-{
-    ios_base::move(__rhs);
-    __tie_ = __rhs.__tie_;
-    __rhs.__tie_ = 0;
-    __fill_ = __rhs.__fill_;
+inline void basic_ios<_CharT, _Traits>::move(basic_ios& __rhs) {
+  ios_base::move(__rhs);
+  __tie_ = __rhs.__tie_;
+  __rhs.__tie_ = 0;
+  __fill_ = __rhs.__fill_;
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-void
-basic_ios<_CharT, _Traits>::swap(basic_ios& __rhs) _NOEXCEPT
-{
-    ios_base::swap(__rhs);
-    _VSTD::swap(__tie_, __rhs.__tie_);
-    _VSTD::swap(__fill_, __rhs.__fill_);
+inline void basic_ios<_CharT, _Traits>::swap(basic_ios& __rhs) _NOEXCEPT {
+  ios_base::swap(__rhs);
+  _VSTD::swap(__tie_, __rhs.__tie_);
+  _VSTD::swap(__fill_, __rhs.__fill_);
 }
 
 template <class _CharT, class _Traits>
-inline _LIBCPP_INLINE_VISIBILITY
-void
-basic_ios<_CharT, _Traits>::set_rdbuf(basic_streambuf<char_type, traits_type>* __sb)
-{
-    ios_base::set_rdbuf(__sb);
+inline void basic_ios<_CharT, _Traits>::set_rdbuf(
+    basic_streambuf<char_type, traits_type>* __sb) {
+  ios_base::set_rdbuf(__sb);
 }
 
 inline _LIBCPP_INLINE_VISIBILITY
