@@ -779,8 +779,16 @@ namespace std {
 #  endif
 #endif
 
+#ifndef _LIBCPP_EXTERN_INLINE
+#  define _LIBCPP_EXTERN_INLINE inline
+#endif
+
 #ifndef _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY
-#  if !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
+#  if defined(_LIBCPP_BUILDING_LIBRARY)
+#    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__visibility__("default")))
+#  elif !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS) && __has_attribute(__internal_linkage__)
+#    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__visibility__("hidden"), __internal_linkage__))
+#  elif !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
 #    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__visibility__("default"), __always_inline__))
 #  else
 #    define _LIBCPP_EXTERN_TEMPLATE_INLINE_VISIBILITY __attribute__((__always_inline__))
