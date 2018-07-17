@@ -2188,7 +2188,12 @@ private:
     }
 
     _LIBCPP_FUNC_VIS
-    void __refresh(error_code *__ec = nullptr);
+    void __do_refresh(error_code *__ec);
+
+    _LIBCPP_INLINE_VISIBILITY
+    void __refresh(error_code *__ec = nullptr) {
+      __do_refresh(__ec);
+    }
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_sym_ft(error_code *__ec = nullptr) const {
