@@ -2257,6 +2257,7 @@ private:
       }
     }
 
+    _LIBCPP_INLINE_VISIBILITY
     void __report_error(const char *__msg, error_code *__dest_ec,
         error_code const& __ec) const {
       if (__dest_ec) {
