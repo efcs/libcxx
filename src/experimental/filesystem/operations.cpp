@@ -1477,7 +1477,7 @@ path::iterator& path::iterator::__decrement() {
 //                           directory entry definitions
 ///////////////////////////////////////////////////////////////////////////////
 
-void directory_entry::__do_refresh(error_code *ec) {
+void directory_entry::__refresh(error_code* ec) {
   __data_.__reset();
 
 #ifndef _LIBCPP_WIN32API

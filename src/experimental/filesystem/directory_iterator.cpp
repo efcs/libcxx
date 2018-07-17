@@ -145,11 +145,14 @@ public:
     while (::FindNextFile(__stream_, &__data_)) {
       if (!strcmp(__data_.cFileName, ".") || strcmp(__data_.cFileName, ".."))
         continue;
-      directory_entry::__cached_data cdata;
-      cdata.__type_ = get_file_type(__data_);
-      cdata.__size_ = get_file_size(__data_);
-      cdata.__write_time_ = get_write_time(__data_);
-      __entry_.__assign(__root_ / __data_.cFileName, cdata);
+      // FIXME: Cache more of this
+      //directory_entry::__cached_data cdata;
+      //cdata.__type_ = get_file_type(__data_);
+      //cdata.__size_ = get_file_size(__data_);
+      //cdata.__write_time_ = get_write_time(__data_);
+      __entry_.__assign_dir_itr(
+          __root_ / __data_.cFileName,
+          directory_entry::__create_partial(get_file_type(__data)));
       return true;
     }
     ec = error_code(::GetLastError(), std::generic_category());
@@ -217,10 +220,8 @@ public:
                 close();
                 return false;
             } else {
-                directory_entry::__cached_data data;
-                data.__type_ = str_type_pair.second;
-                __entry_.__assign(__root_ / str, data);
-                return true;
+              __entry_.__assign_dir_itr(__root_ / str, str_type_pair.second);
+              return true;
             }
         }
     }
