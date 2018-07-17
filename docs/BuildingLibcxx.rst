@@ -222,6 +222,18 @@ libc++ specific options
 
   Define libc++ destination prefix.
 
+
+.. _libcxx filesystem specific options:
+
+libc++ Filesystem Specific Options
+-----------------------------------
+
+.. option:: LIBCXX_ENABLE_FILESYSTEM:BOOL
+
+  **Default**: ``ON``
+
+  Build filesystem as part of libc++fs.a.
+
 .. _libc++experimental options:
 
 libc++experimental Specific Options
@@ -238,14 +250,6 @@ libc++experimental Specific Options
   **Default**: ``LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY AND LIBCXX_INSTALL_LIBRARY``
 
   Install libc++experimental.a alongside libc++.
-
-
-.. option:: LIBCXX_ENABLE_FILESYSTEM:BOOL
-
-  **Default**: ``LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY``
-
-  Build filesystem as part of libc++experimental.a. This allows filesystem
-  to be disabled without turning off the entire experimental library.
 
 
 .. _ABI Library Specific Options:

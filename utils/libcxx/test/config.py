@@ -722,7 +722,7 @@ class Configuration(object):
             return
         self.config.available_features.add('c++filesystem')
         static_env = os.path.join(self.libcxx_src_root, 'test', 'std',
-                                  'experimental', 'filesystem', 'Inputs', 'static_test_env')
+                                  'input.output', 'filesystems', 'Inputs', 'static_test_env')
         static_env = os.path.realpath(static_env)
         assert os.path.isdir(static_env)
         self.cxx.compile_flags += ['-DLIBCXX_FILESYSTEM_STATIC_TEST_ROOT="%s"' % static_env]

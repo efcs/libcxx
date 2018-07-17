@@ -288,6 +288,28 @@ endif()
 # Add a meta-target for both libraries.
 add_custom_target(cxx DEPENDS cxx-headers ${LIBCXX_TARGETS})
 
+
+if (LIBCXX_ENABLE_FILESYSTEM)
+  file(GLOB LIBCXX_FILESYSTEM_SOURCES ../src/filesystem/*.cpp)
+  add_library(cxx_filesystem STATIC ${LIBCXX_FILESYSTEM_SOURCES})
+  if (LIBCXX_ENABLE_SHARED)
+    target_link_libraries(cxx_filesystem cxx_shared)
+  else()
+    target_link_libraries(cxx_filesystem cxx_static)
+  endif()
+
+  set(filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
+  check_flag_supported(-std=c++14)
+  if (NOT MSVC AND LIBCXX_SUPPORTS_STD_EQ_CXX14_FLAG)
+    string(REPLACE "-std=c++11" "-std=c++14" filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
+  endif()
+  set_target_properties(cxx_filesystem
+    PROPERTIES
+      COMPILE_FLAGS "${filesystem_flags}"
+      OUTPUT_NAME   "c++fs"
+  )
+endif()
+
 if (LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY)
   file(GLOB LIBCXX_EXPERIMENTAL_SOURCES ../src/experimental/*.cpp)
   add_library(cxx_experimental STATIC ${LIBCXX_EXPERIMENTAL_SOURCES} ${LIBCXX_FILESYSTEM_SOURCES})
@@ -309,25 +331,20 @@ if (LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY)
   )
 endif()
 
-if (LIBCXX_ENABLE_FILESYSTEM)
-  file(GLOB LIBCXX_FILESYSTEM_SOURCES ../src/filesystem/*.cpp)
-  add_library(cxx_filesystem STATIC ${LIBCXX_FILESYSTEM_SOURCES})
-  if (LIBCXX_ENABLE_SHARED)
-    target_link_libraries(cxx_filesystem cxx_shared)
-  else()
-    target_link_libraries(cxx_filesystem cxx_static)
-  endif()
-
-  set(filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
-  check_flag_supported(-std=c++14)
-  if (NOT MSVC AND LIBCXX_SUPPORTS_STD_EQ_CXX14_FLAG)
-    string(REPLACE "-std=c++11" "-std=c++14" filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
-  endif()
-  set_target_properties(cxx_filesystem
-    PROPERTIES
-      COMPILE_FLAGS "${filesystem_flags}"
-      OUTPUT_NAME   "c++fs"
-  )
+# Merge libc++fs.a into libc++experimental.a so that users can continue
+# using -lc++experimental when compiling code with filesystem.
+if (LIBCXX_ENABLE_FILESYSTEM AND LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY)
+  add_dependencies(cxx_experimental cxx_filesystem)
+  add_custom_command(TARGET cxx_experimental POST_BUILD
+    COMMAND
+      ${PYTHON_EXECUTABLE} ${LIBCXX_SOURCE_DIR}/utils/merge_archives.py
+    ARGS
+      -o $<TARGET_LINKER_FILE:cxx_experimental>
+      --ar "${CMAKE_AR}"
+      "$<TARGET_LINKER_FILE:cxx_experimental>"
+      "$<TARGET_LINKER_FILE:cxx_filesystem>"
+    WORKING_DIRECTORY ${LIBCXX_BUILD_DIR}
+    )
 endif()
 
 if (LIBCXX_BUILD_EXTERNAL_THREAD_LIBRARY)
@@ -380,7 +397,10 @@ if (LIBCXX_INSTALL_LIBRARY)
   if (LIBCXX_INSTALL_EXPERIMENTAL_LIBRARY)
     set(experimental_lib cxx_experimental)
   endif()
-  install(TARGETS ${LIBCXX_TARGETS} ${experimental_lib}
+  if (LIBCXX_ENABLE_FILESYSTEM)
+    set(filesystem_lib cxx_filesystem)
+  endif()
+  install(TARGETS ${LIBCXX_TARGETS} ${experimental_lib} ${filesystem_lib}
     LIBRARY DESTINATION ${LIBCXX_INSTALL_PREFIX}lib${LIBCXX_LIBDIR_SUFFIX} COMPONENT cxx
     ARCHIVE DESTINATION ${LIBCXX_INSTALL_PREFIX}lib${LIBCXX_LIBDIR_SUFFIX} COMPONENT cxx
     )

@@ -23,18 +23,21 @@
 #include <experimental/__config>
 #include <__filesystem>
 
-#include <__debug>
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
 #pragma GCC system_header
 #endif
 
-#define __cpp_lib_experimental_filesystem 201406
+#ifndef _LIBCPP_CXX03_LANG
 
 _LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+
+#define __cpp_lib_experimental_filesystem 201406
 
 using namespace _VSTD_FS;
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+
+#endif // !defined(_LIBCPP_CXX03_LANG)
 
 #endif // _LIBCPP_EXPERIMENTAL_FILESYSTEM

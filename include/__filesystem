@@ -251,6 +251,7 @@
 #endif
 
 _LIBCPP_BEGIN_NAMESPACE_STD_FILESYSTEM_IMP
+#ifndef _LIBCPP_CXX03_LANG
 
 typedef chrono::time_point<std::chrono::system_clock>  file_time_type;
 
@@ -2264,6 +2265,7 @@ recursive_directory_iterator end(const recursive_directory_iterator&) _NOEXCEPT 
     return recursive_directory_iterator();
 }
 
+#endif // !defined(_LIBCPP_CXX03_LANG)
 _LIBCPP_END_NAMESPACE_STD_FILESYSTEM_IMP
 
 #endif // _LIBCPP___FILESYSTEM

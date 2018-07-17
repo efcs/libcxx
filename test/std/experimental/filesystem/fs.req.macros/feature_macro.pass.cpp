@@ -7,18 +7,24 @@
 //
 //===----------------------------------------------------------------------===//
 
-// UNSUPPORTED: c++98, c++03
-
 // <experimental/filesystem>
 
 // #define __cpp_lib_experimental_filesystem 201406L
 
-#include "filesystem_include.hpp"
+#include <experimental/filesystem>
+#include "test_macros.h"
 
-#ifndef __cpp_lib_experimental_filesystem
-#error Filesystem feature test macro is not defined  (__cpp_lib_experimental_filesystem)
-#elif __cpp_lib_experimental_filesystem != 201406L
-#error Filesystem feature test macro has an incorrect value (__cpp_lib_experimental_filesystem)
+// We only provide <experimental/filesystem> in C++11 or newer.
+#if TEST_STD_VER >= 11
+# ifndef __cpp_lib_experimental_filesystem
+#   error Filesystem feature test macro is not defined  (__cpp_lib_experimental_filesystem)
+# elif __cpp_lib_experimental_filesystem != 201406L
+#   error Filesystem feature test macro has an incorrect value (__cpp_lib_experimental_filesystem)
+# endif
+#else
+# ifdef __cpp_lib_experimental_filesystem
+#   error Filesystem feature test macro should not be defined (__cpp_lib_experimental_filesystem)
+# endif
 #endif
 
 int main() { }
