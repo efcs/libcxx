@@ -1486,24 +1486,35 @@ void directory_entry::__refresh(error_code *ec) {
   if (ec && *ec && !_VSTD_FS::status_known(st))
     return set_or_throw(ec, "directory_entry::refresh", __p_);
 
-  __data_.__type_ = st.type();
-  __data_.__perms_ = st.permissions();
+  if (_VSTD_FS::is_symlink(st)) {
+    __data_.__sym_perms_ = st.permissions();
+    st = detail::posix_stat(__p_, full_st, ec);
+    if (ec && *ec && !_VSTD_FS::status_known(st))
+      return set_or_throw(ec, "directory_entry::refresh", __p_);
+    __data_.__type_ = st.type();
+    __data_.__non_sym_perms_ = st.permissions();
+    __data_.__cache_type_ = directory_entry::_FullSymlink;
+  } else {
+    __data_.__cache_type_ = directory_entry::_FullNonSymlink;
+    __data_.__type_ = st.type();
+    __data_.__non_sym_perms_ = st.permissions();
+  }
+
   if (_VSTD_FS::is_regular_file(st))
     __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
 
   error_code m_ec;
-  if (_VSTD_FS::exists(st) && !_VSTD_FS::is_symlink(st)) {
+  if (_VSTD_FS::exists(st)) {
     __data_.__nlink_ = static_cast<uintptr_t>(full_st.st_nlink);
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &m_ec);
-    if (m_ec)
+    if (m_ec) {
+      __data_.__reset();
       return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
+    }
   }
   return;
 #else
-  file_status st = __symlink_status(__p_, ec);
-   __data_.__type_ = st.type();
-   __data_.__perms_ = st.permissions();
-  // FIXME set the last write time and file size attributes
+  // FIXME: cache something here.
 #endif
 }
 
