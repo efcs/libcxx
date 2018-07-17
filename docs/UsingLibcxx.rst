@@ -205,15 +205,6 @@ thread safety annotations.
   replacement scenarios from working, e.g. replacing `operator new` and
   expecting a non-replaced `operator new[]` to call the replaced `operator new`.
 
-**_LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_CACHING**:
-  The ``filesystem::directory_entry`` type is allowed to cache information about
-  the entity it references, including the file type, permissions, size, etc.
-  However, this caching can hide TOCTOU issues in user code, since the cache
-  may not be fully populated when created during directory iteration.
-
-  This macro can be used to disable all caching in ``directory_entry`` for
-  users who prefer that behavior.
-
 C++17 Specific Configuration Macros
 -----------------------------------
 **_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES**:
