@@ -464,6 +464,13 @@ namespace std {
   }
 }
 
+#define _LIBCPP_BEGIN_NAMESPACE_STD_FILESYSTEM_IMP \
+  _LIBCPP_BEGIN_NAMESPACE_STD namespace __fs {
+#define _LIBCPP_END_NAMESPACE_STD_FILESYSTEM_IMP \
+  _LIBCPP_END_NAMESPACE_STD }
+#define _VSTD_FS std::_LIBCPP_NAMESPACE::__fs
+
+
 #if !defined(_LIBCPP_HAS_NO_ASAN) && !__has_feature(address_sanitizer)
 #define _LIBCPP_HAS_NO_ASAN
 #endif

@@ -7,8 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "experimental/filesystem"
-#include "__config"
+#include "__filesystem"
 #if defined(_LIBCPP_WIN32API)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -17,7 +16,7 @@
 #endif
 #include <errno.h>
 
-_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_BEGIN_NAMESPACE_STD_FILESYSTEM_IMP
 
 namespace { namespace detail {
 
@@ -339,4 +338,4 @@ bool recursive_directory_iterator::__try_recursion(error_code *ec) {
 }
 
 
-_LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_END_NAMESPACE_STD_FILESYSTEM_IMP

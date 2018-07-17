@@ -290,9 +290,6 @@ add_custom_target(cxx DEPENDS cxx-headers ${LIBCXX_TARGETS})
 
 if (LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY)
   file(GLOB LIBCXX_EXPERIMENTAL_SOURCES ../src/experimental/*.cpp)
-  if (LIBCXX_ENABLE_FILESYSTEM)
-    file(GLOB LIBCXX_FILESYSTEM_SOURCES ../src/experimental/filesystem/*.cpp)
-  endif()
   add_library(cxx_experimental STATIC ${LIBCXX_EXPERIMENTAL_SOURCES} ${LIBCXX_FILESYSTEM_SOURCES})
   if (LIBCXX_ENABLE_SHARED)
     target_link_libraries(cxx_experimental cxx_shared)
@@ -309,6 +306,27 @@ if (LIBCXX_ENABLE_EXPERIMENTAL_LIBRARY)
     PROPERTIES
       COMPILE_FLAGS "${experimental_flags}"
       OUTPUT_NAME   "c++experimental"
+  )
+endif()
+
+if (LIBCXX_ENABLE_FILESYSTEM)
+  file(GLOB LIBCXX_FILESYSTEM_SOURCES ../src/filesystem/*.cpp)
+  add_library(cxx_filesystem STATIC ${LIBCXX_FILESYSTEM_SOURCES})
+  if (LIBCXX_ENABLE_SHARED)
+    target_link_libraries(cxx_filesystem cxx_shared)
+  else()
+    target_link_libraries(cxx_filesystem cxx_static)
+  endif()
+
+  set(filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
+  check_flag_supported(-std=c++14)
+  if (NOT MSVC AND LIBCXX_SUPPORTS_STD_EQ_CXX14_FLAG)
+    string(REPLACE "-std=c++11" "-std=c++14" filesystem_flags "${LIBCXX_COMPILE_FLAGS}")
+  endif()
+  set_target_properties(cxx_filesystem
+    PROPERTIES
+      COMPILE_FLAGS "${filesystem_flags}"
+      OUTPUT_NAME   "c++fs"
   )
 endif()
 

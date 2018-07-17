@@ -10,7 +10,7 @@
 #ifndef FILESYSTEM_TIME_HELPER_H
 #define FILESYSTEM_TIME_HELPER_H
 
-#include "experimental/__config"
+#include "__config"
 #include "chrono"
 #include "cstdlib"
 #include "climits"
@@ -21,7 +21,7 @@
 #include <sys/time.h> // for ::utimes as used in __last_write_time
 #endif
 
-_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_BEGIN_NAMESPACE_STD_FILESYSTEM_IMP
 
 namespace time_detail { namespace {
 
@@ -168,6 +168,6 @@ public:
 
 using time_detail::fs_time_util;
 
-_LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_END_NAMESPACE_STD_FILESYSTEM_IMP
 
 #endif // FILESYSTEM_TIME_HELPER_H

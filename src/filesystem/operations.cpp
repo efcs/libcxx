@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "experimental/filesystem"
+#include "__filesystem"
 #include "iterator"
 #include "fstream"
 #include "random"  /* for unique_path */
@@ -54,7 +54,7 @@
 #include <sys/time.h> // for ::utimes as used in __last_write_time
 #endif
 
-_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_BEGIN_NAMESPACE_STD_FILESYSTEM_IMP
 
 filesystem_error::~filesystem_error() {}
 
@@ -321,7 +321,7 @@ void set_or_throw(std::error_code const& m_ec, std::error_code* ec,
     if (ec) {
         *ec = m_ec;
     } else {
-        string msg_s("std::experimental::filesystem::");
+        string msg_s("std::filesystem::");
         msg_s += msg;
         __throw_filesystem_error(msg_s, p, p2, m_ec);
     }
@@ -1469,4 +1469,4 @@ path::iterator& path::iterator::__decrement() {
 }
 
 
-_LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_END_NAMESPACE_STD_FILESYSTEM_IMP
