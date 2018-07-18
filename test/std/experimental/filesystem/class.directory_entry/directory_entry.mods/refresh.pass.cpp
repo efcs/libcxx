@@ -184,6 +184,52 @@ TEST_CASE(refresh_cannot_resolve) {
 #endif
 }
 
+TEST_CASE(refresh_doesnt_throw_on_dne_but_reports_it) {
+  using namespace fs;
+  scoped_test_env env;
+
+  const path file = env.create_file("file1", 42);
+  const path sym = env.create_symlink("file1", "sym");
+
+  {
+    directory_entry ent(file);
+    TEST_CHECK(ent.file_size() == 42);
+
+    remove(file);
+
+    std::error_code ec = GetTestEC();
+    ent.refresh(ec);
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
+
+    ec = GetTestEC();
+    TEST_CHECK(ent.file_size(ec) == uintmax_t(-1));
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
+
+    // doesn't throw!
+    TEST_CHECK(ent.file_size() == uintmax_t(-1));
+  }
+  env.create_file("file1", 99);
+  {
+    directory_entry ent(sym);
+    TEST_CHECK(ent.is_symlink());
+    TEST_CHECK(ent.is_regular_file());
+    TEST_CHECK(ent.file_size() == 99);
+
+    remove(file);
+
+    std::error_code ec = GetTestEC();
+    ent.refresh(ec);
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
+
+    ec = GetTestEC();
+    TEST_CHECK(ent.file_size(ec) == uintmax_t(-1));
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
+
+    // doesn't throw!
+    TEST_CHECK(ent.file_size() == uintmax_t(-1));
+  }
+}
+
 TEST_CASE(access_cache_after_refresh_fails) {
   using namespace fs;
   scoped_test_env env;

@@ -2197,16 +2197,21 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_sym_ft(error_code *__ec = nullptr) const {
-      if (__ec)
-        __ec->clear();
       switch (__data_.__cache_type_) {
       case _Empty:
         return __symlink_status(__p_, __ec).type();
       case _PartialSymlink:
       case _FullSymlink:
+        if (__ec)
+          __ec->clear();
         return file_type::symlink;
       case _PartialNonSymlink:
       case _FullNonSymlink:
+        file_status __st(__data_.__type_);
+        if (!_VSTD_FS::exists(__st) && __ec) {
+          *__ec = make_error_code(errc::no_such_file_or_directory);
+        } else if (__ec)
+          __ec->clear();
         return __data_.__type_;
       }
     }
@@ -2238,9 +2243,7 @@ private:
         return __status(__p_, __ec);
       case _FullNonSymlink:
       case _FullSymlink:
-        if (__ec)
-          __ec->clear();
-        return file_status(__data_.__type_, __data_.__non_sym_perms_);
+        return file_status(__get_ft(__ec), __data_.__non_sym_perms_);
       }
     }
 
@@ -2252,13 +2255,9 @@ private:
       case _PartialSymlink:
         return __symlink_status(__p_, __ec);
       case _FullNonSymlink:
-        if (__ec)
-          __ec->clear();
-        return file_status(__data_.__type_, __data_.__non_sym_perms_);
+        return file_status(__get_sym_ft(__ec), __data_.__non_sym_perms_);
       case _FullSymlink:
-        if (__ec)
-          __ec->clear();
-        return file_status(file_type::symlink, __data_.__sym_perms_);
+        return file_status(__get_sym_ft(__ec), __data_.__sym_perms_);
       }
     }
 
@@ -2280,14 +2279,14 @@ private:
       case _PartialSymlink:
         return _VSTD_FS::__file_size(__p_, __ec);
       case _FullSymlink:
-      case _FullNonSymlink:
-        file_status __st(__get_ft());
-        if (!_VSTD_FS::exists(__st) || !_VSTD_FS::is_regular_file(__st)) {
+      case _FullNonSymlink: {
+        file_status __st(__get_ft(__ec));
+        if (_VSTD_FS::exists(__st) && !_VSTD_FS::is_regular_file(__st)) {
           __report_error("directory_entry::file_size", __ec,
               make_error_code(errc::not_supported));
-        } else if (__ec)
-          __ec->clear();
+        }
         return __data_.__size_;
+      }
       }
     }
 
@@ -2300,12 +2299,7 @@ private:
         return _VSTD_FS::__hard_link_count(__p_, __ec);
       case _FullSymlink:
       case _FullNonSymlink: {
-        error_code __m_ec;
-        (void)__get_ft(&__m_ec);
-        if (__m_ec)
-          __report_error("directory_entry::hard_link_count", __ec, __m_ec);
-        else if (__ec)
-          __ec->clear();
+        (void)__get_ft(__ec);
         return __data_.__nlink_;
       }
       }
@@ -2320,12 +2314,7 @@ private:
         return _VSTD_FS::__last_write_time(__p_, __ec);
       case _FullSymlink:
       case _FullNonSymlink: {
-        error_code __m_ec;
-        (void)__get_ft(&__m_ec);
-        if (__m_ec)
-          __report_error("directory_entry::last_write_time", __ec, __m_ec);
-        else if (__ec)
-          __ec->clear();
+        (void)__get_ft(__ec);
         return __data_.__write_time_;
       }
       }
