@@ -364,8 +364,6 @@ bool SetTimeStructTo(TimeStruct& TS, file_time_type NewTime) {
 } // namespace
 } // end namespace detail
 
-using detail::fs_time_util;
-
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
 
 #if defined(__GNUC__)

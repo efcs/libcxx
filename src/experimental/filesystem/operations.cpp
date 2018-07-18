@@ -686,11 +686,12 @@ bool __fs_is_empty(const path& p, std::error_code *ec)
     _LIBCPP_UNREACHABLE();
 }
 
-using detail::FSTime;
+
 
 static file_time_type __extract_last_write_time(path const& p,
                                                 const struct ::stat& st,
                                                 error_code *ec) {
+  using detail::FSTime;
   auto ts = detail::extract_mtime(st);
   if (!FSTime::is_representable(ts)) {
       set_or_throw(error_code(EOVERFLOW, generic_category()), ec,
