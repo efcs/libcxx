@@ -304,25 +304,16 @@ using FSTime = fs_time_util<file_time_type, time_t, struct timespec>;
 
 #if defined(__APPLE__)
 TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
-__attribute__((unused)) // Suppress warning
-TimeSpec
-extract_atime(StatT const& st) {
-  return st.st_atimespec;
-}
+TimeSpec extract_atime(StatT const& st) { return st.st_atimespec; }
 #else
 TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
-__attribute__((unused)) // Suppress warning
-TimeSpec
-extract_atime(StatT const& st) {
-  return st.st_atim;
-}
+TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 #endif
 
 #if !defined(_LIBCXX_USE_UTIMENSAT)
 using TimeStruct = struct ::timeval;
 using TimeStructArray = TimeStruct[2];
 #else
-
 using TimeStruct = struct ::timespec;
 using TimeStructArray = TimeStruct[2];
 #endif
@@ -335,8 +326,7 @@ bool SetFileTimes(const path& p, TimeStructArray const& TS,
   if (::utimensat(AT_FDCWD, p.c_str(), TS, 0) == -1)
 #endif
   {
-    _LIBCPP_ASSERT(errno, "Expected errno to be non-zero");
-    ec = std::error_code(errno, std::generic_category());
+    ec = capture_errno();
     return true;
   }
   return false;
