@@ -381,12 +381,24 @@ bool checkCollectionsEqualBackwards(
 // We often need to test that the error_code was cleared if no error occurs
 // this function returns an error_code which is set to an error that will
 // never be returned by the filesystem functions.
-inline std::error_code GetTestEC() {
-    return std::make_error_code(std::errc::address_family_not_supported);
-}
-
-inline std::error_code GetOtherTestEC() {
-  return std::make_error_code(std::errc::address_not_available);
+inline std::error_code GetTestEC(unsigned Idx = 0) {
+  using std::errc;
+  auto GetErrc = [&]() {
+    switch (Idx) {
+    case 0:
+      return errc::address_family_not_supported;
+    case 1:
+      return errc::address_not_available;
+    case 2:
+      return errc::address_in_use;
+    case 3:
+      return errc::argument_list_too_long;
+    default:
+      assert(false && "Idx out of range");
+      std::abort();
+    }
+  };
+  return std::make_error_code(GetErrc());
 }
 
 inline bool ErrorIs(const std::error_code& ec, std::errc val) {

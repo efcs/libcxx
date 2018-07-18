@@ -39,7 +39,7 @@ TEST_CASE(test_basic) {
                       StaticEnv::DNE};
   for (const auto& p : TestCases) {
     const directory_entry e(p);
-    std::error_code pec = GetTestEC(), eec = GetOtherTestEC();
+    std::error_code pec = GetTestEC(), eec = GetTestEC(1);
     file_status ps = fs::status(p, pec);
     file_status es = e.status(eec);
     TEST_CHECK(ps.type() == es.type());

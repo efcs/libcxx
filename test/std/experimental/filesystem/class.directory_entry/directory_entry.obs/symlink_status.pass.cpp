@@ -39,7 +39,7 @@ TEST_CASE(test_signature) {
                       StaticEnv::DNE};
   for (const auto& p : TestCases) {
     const directory_entry e(p);
-    std::error_code pec = GetTestEC(), eec = GetOtherTestEC();
+    std::error_code pec = GetTestEC(), eec = GetTestEC(1);
     file_status ps = fs::symlink_status(p, pec);
     file_status es = e.symlink_status(eec);
     TEST_CHECK(ps.type() == es.type());
