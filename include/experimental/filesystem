@@ -1921,9 +1921,12 @@ public:
     explicit directory_entry(_Path const& __p) : __p_(__p) {
       __refresh();
     }
+
     _LIBCPP_INLINE_VISIBILITY
     directory_entry(_Path const& __p, error_code &__ec) : __p_(__p) {
       __refresh(&__ec);
+      if (__data_.__empty())
+        __p_ = _Path{};
     }
 
     ~directory_entry() {}
@@ -2166,6 +2169,9 @@ private:
 
       _LIBCPP_INLINE_VISIBILITY
       __cached_data() noexcept {}
+
+      _LIBCPP_INLINE_VISIBILITY
+      bool __empty() const { return __cache_type_ == _Empty; }
 
       _LIBCPP_INLINE_VISIBILITY
       void __reset() {

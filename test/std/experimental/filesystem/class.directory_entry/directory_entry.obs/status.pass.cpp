@@ -25,8 +25,7 @@
 
 TEST_SUITE(directory_entry_status_testsuite)
 
-TEST_CASE(signatures)
-{
+TEST_CASE(test_basic) {
   using namespace fs;
   {
     const fs::directory_entry e("foo");
@@ -36,29 +35,24 @@ TEST_CASE(signatures)
     static_assert(noexcept(e.status()) == false, "");
     static_assert(noexcept(e.status(ec)) == true, "");
   }
-}
-
-TEST_CASE(basic) {
-  using namespace fs;
-  using fs::path;
-  using fs::directory_entry;
-  using fs::file_status;
-  auto TestFn = [](path const& p) {
+  path TestCases[] = {StaticEnv::File, StaticEnv::Dir, StaticEnv::SymlinkToFile,
+                      StaticEnv::DNE};
+  for (const auto& p : TestCases) {
     const directory_entry e(p);
-    std::error_code pec, eec;
+    std::error_code pec = GetTestEC(), eec = GetOtherTestEC();
     file_status ps = fs::status(p, pec);
     file_status es = e.status(eec);
-    return ps.type() == es.type() &&
-           ps.permissions() == es.permissions() &&
-           pec == eec;
-  };
-  {
-    TEST_CHECK(TestFn(StaticEnv::File));
-    TEST_CHECK(TestFn(StaticEnv::Dir));
-    TEST_CHECK(TestFn(StaticEnv::SymlinkToFile));
-    TEST_CHECK(TestFn(StaticEnv::DNE));
+    TEST_CHECK(ps.type() == es.type());
+    TEST_CHECK(ps.permissions() == es.permissions());
+    TEST_CHECK(pec == eec);
+  }
+  for (const auto& p : TestCases) {
+    const directory_entry e(p);
+    file_status ps = fs::status(p);
+    file_status es = e.status();
+    TEST_CHECK(ps.type() == es.type());
+    TEST_CHECK(ps.permissions() == es.permissions());
   }
 }
-
 
 TEST_SUITE_END()

@@ -123,6 +123,37 @@ TEST_CASE(path_ctor_calls_refresh) {
   }
 }
 
+TEST_CASE(path_ctor_dne) {
+  using namespace fs;
+
+  {
+    std::error_code ec = GetTestEC();
+    fs::directory_entry ent(StaticEnv::DNE, ec);
+    TEST_CHECK(ec);
+    TEST_CHECK(ec != GetTestEC());
+    TEST_CHECK(ec ==
+               std::make_error_code(std::errc::no_such_file_or_directory));
+    TEST_CHECK(ent.path() == StaticEnv::DNE);
+  }
+  {
+    std::error_code ec = GetTestEC();
+    fs::directory_entry ent(StaticEnv::BadSymlink, ec);
+    TEST_CHECK(ec);
+    TEST_CHECK(ec != GetTestEC());
+    TEST_CHECK(ec ==
+               std::make_error_code(std::errc::no_such_file_or_directory));
+    TEST_CHECK(ent.path() == StaticEnv::BadSymlink);
+  }
+  // DNE does not cause the constructor to throw
+  {
+    directory_entry ent(StaticEnv::DNE);
+    TEST_CHECK(ent.path() == StaticEnv::DNE);
+
+    directory_entry ent_two(StaticEnv::BadSymlink);
+    TEST_CHECK(ent_two.path() == StaticEnv::BadSymlink);
+  }
+}
+
 TEST_CASE(path_ctor_cannot_resolve) {
   using namespace fs;
   scoped_test_env env;
@@ -137,7 +168,7 @@ TEST_CASE(path_ctor_cannot_resolve) {
     TEST_CHECK(ec);
     TEST_CHECK(ec != GetTestEC());
     TEST_CHECK(ec == std::make_error_code(std::errc::permission_denied));
-    TEST_CHECK(ent.path() == file);
+    TEST_CHECK(ent.path() == path{});
   }
   {
     std::error_code ec = GetTestEC();
@@ -145,7 +176,7 @@ TEST_CASE(path_ctor_cannot_resolve) {
     TEST_CHECK(ec);
     TEST_CHECK(ec != GetTestEC());
     TEST_CHECK(ec == std::make_error_code(std::errc::permission_denied));
-    TEST_CHECK(ent.path() == sym);
+    TEST_CHECK(ent.path() == path{});
   }
 #ifndef TEST_HAS_NO_EXCEPTIONS
   {

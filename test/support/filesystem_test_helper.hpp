@@ -385,6 +385,10 @@ inline std::error_code GetTestEC() {
     return std::make_error_code(std::errc::address_family_not_supported);
 }
 
+inline std::error_code GetOtherTestEC() {
+  return std::make_error_code(std::errc::address_not_available);
+}
+
 inline bool ErrorIs(const std::error_code& ec, std::errc val) {
   return ec == std::make_error_code(val);
 }
