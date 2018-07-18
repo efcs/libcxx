@@ -686,8 +686,6 @@ bool __fs_is_empty(const path& p, std::error_code *ec)
     _LIBCPP_UNREACHABLE();
 }
 
-
-
 static file_time_type __extract_last_write_time(path const& p,
                                                 const struct ::stat& st,
                                                 error_code *ec) {
