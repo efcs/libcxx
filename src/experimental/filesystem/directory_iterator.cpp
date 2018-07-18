@@ -17,29 +17,12 @@
 #endif
 #include <errno.h>
 
+#include "filesystem_common.h"
+
 _LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
 
-namespace { namespace detail {
-
-#if !defined(_LIBCPP_WIN32API)
-inline error_code capture_errno() {
-    _LIBCPP_ASSERT(errno, "Expected errno to be non-zero");
-    return error_code{errno, std::generic_category()};
-}
-#endif
-
-template <class ...Args>
-inline bool set_or_throw(std::error_code& my_ec,
-                               std::error_code* user_ec,
-                               const char* msg, Args&&... args)
-{
-    if (user_ec) {
-        *user_ec = my_ec;
-        return true;
-    }
-    __throw_filesystem_error(msg, std::forward<Args>(args)..., my_ec);
-    return false;
-}
+namespace detail {
+namespace {
 
 #if !defined(_LIBCPP_WIN32API)
 template <class DirEntT, class = decltype(DirEntT::d_type)>
@@ -102,10 +85,10 @@ static file_time_type get_write_time(const WIN32_FIND_DATA& data) {
 
 #endif
 
-}}                                                       // namespace detail
+} // namespace
+} // namespace detail
 
 using detail::set_or_throw;
-
 
 #if defined(_LIBCPP_WIN32API)
 class __dir_stream {
@@ -220,7 +203,9 @@ public:
                 close();
                 return false;
             } else {
-              __entry_.__assign_dir_itr(__root_ / str, str_type_pair.second);
+              __entry_.__assign_dir_itr(
+                  __root_ / str,
+                  directory_entry::__create_partial(str_type_pair.second));
               return true;
             }
         }

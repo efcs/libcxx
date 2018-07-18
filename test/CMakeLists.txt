@@ -92,7 +92,6 @@ if (LIBCXX_GENERATE_COVERAGE)
   setup_lcov_test_target_coverage("cxx" "${output_dir}" "${capture_dirs}" "${extract_dirs}")
 endif()
 
-
 if (LIBCXX_CONFIGURE_IDE)
   # Create dummy targets for each of the tests in the test suite, this allows
   # IDE's such as CLion to correctly highlight the tests because it knows

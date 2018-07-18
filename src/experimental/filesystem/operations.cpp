@@ -17,43 +17,13 @@
 #include "cstdlib"
 #include "climits"
 
-#include "filesystem_time_helper.h"
+#include "filesystem_common.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <fcntl.h>  /* values for fchmodat */
 #include <experimental/filesystem>
-
-#if (__APPLE__)
-#if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101300
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 110000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__ >= 110000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__ >= 40000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#endif // __ENVIRONMENT_.*_VERSION_MIN_REQUIRED__
-#else
-// We can use the presence of UTIME_OMIT to detect platforms that provide
-// utimensat.
-#if defined(UTIME_OMIT)
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#endif // __APPLE__
-
-#if !defined(_LIBCXX_USE_UTIMENSAT)
-#include <sys/time.h> // for ::utimes as used in __last_write_time
-#endif
 
 _LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
 
@@ -311,97 +281,6 @@ namespace detail { namespace  {
 using value_type = path::value_type;
 using string_type = path::string_type;
 
-inline std::error_code capture_errno() {
-  _LIBCPP_ASSERT(errno, "Expected errno to be non-zero");
-  return std::error_code(errno, std::generic_category());
-}
-
-void set_or_throw(std::error_code const& m_ec, std::error_code* ec,
-                  const char* msg, path const& p = {}, path const& p2 = {})
-{
-    if (ec) {
-        *ec = m_ec;
-    } else {
-        string msg_s("std::experimental::filesystem::");
-        msg_s += msg;
-        __throw_filesystem_error(msg_s, p, p2, m_ec);
-    }
-}
-
-void set_or_throw(std::error_code* ec, const char* msg,
-                  path const& p = {}, path const& p2 = {})
-{
-    return set_or_throw(capture_errno(), ec, msg, p, p2);
-}
-
-perms posix_get_perms(const struct ::stat & st) noexcept {
-    return static_cast<perms>(st.st_mode) & perms::mask;
-}
-
-::mode_t posix_convert_perms(perms prms) {
-    return static_cast< ::mode_t>(prms & perms::mask);
-}
-
-file_status create_file_status(std::error_code& m_ec, path const& p,
-                               struct ::stat& path_stat,
-                               std::error_code* ec)
-{
-    if (ec) *ec = m_ec;
-    if (m_ec && (m_ec.value() == ENOENT || m_ec.value() == ENOTDIR)) {
-        return file_status(file_type::not_found);
-    }
-    else if (m_ec) {
-        set_or_throw(m_ec, ec, "posix_stat", p);
-        return file_status(file_type::none);
-    }
-    // else
-
-    file_status fs_tmp;
-    auto const mode = path_stat.st_mode;
-    if      (S_ISLNK(mode))  fs_tmp.type(file_type::symlink);
-    else if (S_ISREG(mode))  fs_tmp.type(file_type::regular);
-    else if (S_ISDIR(mode))  fs_tmp.type(file_type::directory);
-    else if (S_ISBLK(mode))  fs_tmp.type(file_type::block);
-    else if (S_ISCHR(mode))  fs_tmp.type(file_type::character);
-    else if (S_ISFIFO(mode)) fs_tmp.type(file_type::fifo);
-    else if (S_ISSOCK(mode)) fs_tmp.type(file_type::socket);
-    else                     fs_tmp.type(file_type::unknown);
-
-    fs_tmp.permissions(detail::posix_get_perms(path_stat));
-    return fs_tmp;
-}
-
-file_status posix_stat(path const & p, struct ::stat& path_stat,
-                       std::error_code* ec)
-{
-    std::error_code m_ec;
-    if (::stat(p.c_str(), &path_stat) == -1)
-        m_ec = detail::capture_errno();
-    return create_file_status(m_ec, p, path_stat, ec);
-}
-
-file_status posix_stat(path const & p, std::error_code* ec) {
-    struct ::stat path_stat;
-    return posix_stat(p, path_stat, ec);
-}
-
-file_status posix_lstat(path const & p, struct ::stat & path_stat,
-                        std::error_code* ec)
-{
-    std::error_code m_ec;
-    if (::lstat(p.c_str(), &path_stat) == -1)
-        m_ec = detail::capture_errno();
-    return create_file_status(m_ec, p, path_stat, ec);
-}
-
-file_status posix_lstat(path const & p, std::error_code* ec) {
-    struct ::stat path_stat;
-    return posix_lstat(p, path_stat, ec);
-}
-
-bool stat_equivalent(struct ::stat& st1, struct ::stat& st2) {
-    return (st1.st_dev == st2.st_dev && st1.st_ino == st2.st_ino);
-}
 
 //                           DETAIL::MISC
 
@@ -807,25 +686,7 @@ bool __fs_is_empty(const path& p, std::error_code *ec)
     _LIBCPP_UNREACHABLE();
 }
 
-
-namespace detail { namespace {
-
-using TimeSpec = struct timespec;
-using StatT =  struct stat;
-
-#if defined(__APPLE__)
-TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
-__attribute__((unused)) // Suppress warning
-TimeSpec extract_atime(StatT const& st) { return st.st_atimespec; }
-#else
-TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
-__attribute__((unused)) // Suppress warning
-TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
-#endif
-
-}} // end namespace detail
-
-using FSTime = fs_time_util<file_time_type, time_t, struct timespec>;
+using detail::FSTime;
 
 static file_time_type __extract_last_write_time(path const& p,
                                                 const struct ::stat& st,
@@ -857,8 +718,10 @@ void __last_write_time(const path& p, file_time_type new_time,
                        std::error_code *ec)
 {
     using namespace std::chrono;
-    std::error_code m_ec;
+    using namespace detail;
 
+    std::error_code m_ec;
+    TimeStructArray tbuf;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
     // This implementation has a race condition between determining the
     // last access time and attempting to set it to the same value using
@@ -869,37 +732,18 @@ void __last_write_time(const path& p, file_time_type new_time,
         set_or_throw(m_ec, ec, "last_write_time", p);
         return;
     }
-    auto atime = detail::extract_atime(st);
-    struct ::timeval tbuf[2];
-    tbuf[0].tv_sec = atime.tv_sec;
-    tbuf[0].tv_usec = duration_cast<microseconds>(nanoseconds(atime.tv_nsec)).count();
-    const bool overflowed = !FSTime::set_times_checked<microseconds>(
-        &tbuf[1].tv_sec, &tbuf[1].tv_usec, new_time);
-
-    if (overflowed) {
-        set_or_throw(make_error_code(errc::invalid_argument), ec,
-                     "last_write_time", p);
-        return;
-    }
-    if (::utimes(p.c_str(), tbuf) == -1) {
-        m_ec = detail::capture_errno();
-    }
+    SetTimeStructTo(tbuf[0], detail::extract_atime(st));
 #else
-    struct ::timespec tbuf[2];
     tbuf[0].tv_sec = 0;
     tbuf[0].tv_nsec = UTIME_OMIT;
-
-    const bool overflowed = !FSTime::set_times_checked<nanoseconds>(
-        &tbuf[1].tv_sec, &tbuf[1].tv_nsec, new_time);
-    if (overflowed) {
-        set_or_throw(make_error_code(errc::invalid_argument),
-            ec, "last_write_time", p);
-        return;
-    }
-    if (::utimensat(AT_FDCWD, p.c_str(), tbuf, 0) == -1) {
-        m_ec = detail::capture_errno();
-    }
 #endif
+    if (SetTimeStructTo(tbuf[1], new_time)) {
+      set_or_throw(make_error_code(errc::invalid_argument), ec,
+                   "last_write_time", p);
+      return;
+    }
+
+    SetFileTimes(p, tbuf, m_ec);
     if (m_ec)
         set_or_throw(m_ec, ec, "last_write_time", p);
     else if (ec)
@@ -1479,42 +1323,54 @@ path::iterator& path::iterator::__decrement() {
 
 void directory_entry::__refresh(error_code* ec) {
   __data_.__reset();
-
+  error_code m_ec;
+  auto ReportError = [&]() {
+    __data_.__reset();
+    return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
+  };
 #ifndef _LIBCPP_WIN32API
-  struct ::stat full_st;
-  file_status st = detail::posix_lstat(__p_, full_st, ec);
-  if (ec && *ec && !_VSTD_FS::status_known(st))
-    return set_or_throw(ec, "directory_entry::refresh", __p_);
 
-  if (_VSTD_FS::is_symlink(st)) {
-    __data_.__sym_perms_ = st.permissions();
-    st = detail::posix_stat(__p_, full_st, ec);
-    if (ec && *ec && !_VSTD_FS::status_known(st))
-      return set_or_throw(ec, "directory_entry::refresh", __p_);
-    __data_.__type_ = st.type();
-    __data_.__non_sym_perms_ = st.permissions();
-    __data_.__cache_type_ = directory_entry::_FullSymlink;
-  } else {
+  struct ::stat full_st;
+  file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
+  if (m_ec && !_VSTD_FS::status_known(st))
+    return ReportError();
+
+  if (!_VSTD_FS::exists(st) || !_VSTD_FS::is_symlink(st)) {
+    if (ec)
+      *ec = m_ec;
     __data_.__cache_type_ = directory_entry::_FullNonSymlink;
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
+  } else { // we have a symlink
+    __data_.__sym_perms_ = st.permissions();
+    st = detail::posix_stat(__p_, full_st, &m_ec);
+    if (m_ec && !_VSTD_FS::status_known(st))
+      return ReportError();
+    if (ec)
+      *ec = m_ec;
+    __data_.__type_ = st.type();
+    __data_.__non_sym_perms_ = st.permissions();
+    __data_.__cache_type_ = directory_entry::_FullSymlink;
   }
 
   if (_VSTD_FS::is_regular_file(st))
     __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
 
-  error_code m_ec;
   if (_VSTD_FS::exists(st)) {
     __data_.__nlink_ = static_cast<uintptr_t>(full_st.st_nlink);
-    __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &m_ec);
-    if (m_ec) {
-      __data_.__reset();
-      return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
+
+    std::error_code time_ec;
+    __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &time_ec);
+    if (time_ec) {
+      m_ec = time_ec;
+      return ReportError();
     }
   }
   return;
 #else
-  // FIXME: cache something here.
+  if (__ec)
+    __ec->clear();
+    // FIXME: cache something here.
 #endif
 }
 

@@ -1961,9 +1961,7 @@ public:
     }
 
     _LIBCPP_INLINE_VISIBILITY
-    void refresh(error_code &__ec) {
-      __refresh(&__ec);
-    }
+    void refresh(error_code& __ec) _NOEXCEPT { __refresh(&__ec); }
 
     _LIBCPP_INLINE_VISIBILITY
     _Path const& path() const _NOEXCEPT {
@@ -2167,7 +2165,7 @@ private:
       _CacheType __cache_type_ = _Empty;
 
       _LIBCPP_INLINE_VISIBILITY
-      __cached_data() = default;
+      __cached_data() noexcept {}
 
       _LIBCPP_INLINE_VISIBILITY
       void __reset() {
@@ -2183,21 +2181,19 @@ private:
     static __cached_data __create_partial(file_type __ft) {
       __cached_data __data;
       __data.__type_ = __ft;
-      __data_.__cache_type_ =
+      __data.__cache_type_ =
           __ft == file_type::symlink ? _PartialSymlink : _PartialNonSymlink;
       return __data;
     }
 
     _LIBCPP_INLINE_VISIBILITY
-    void __assign_dir_itr(_Path&& __p, file_type __ft) {
+    void __assign_dir_itr(_Path&& __p, __cached_data __dt) {
       __p_ = std::move(__p);
-      __data_ = __cached_data::__create_for_dir_iter(__ft);
+      __data_ = __dt;
     }
 
-    _LIBCPP_INLINE_VISIBILITY
-
     _LIBCPP_FUNC_VIS
-    void __refresh(error_code* __ec);
+    void __refresh(error_code* __ec = nullptr);
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_sym_ft(error_code *__ec = nullptr) const {
@@ -2323,7 +2319,7 @@ private:
       case _PartialSymlink:
         return _VSTD_FS::__last_write_time(__p_, __ec);
       case _FullSymlink:
-      case _FullNonSymlink:
+      case _FullNonSymlink: {
         error_code __m_ec;
         (void)__get_ft(&__m_ec);
         if (__m_ec)
@@ -2331,6 +2327,7 @@ private:
         else if (__ec)
           __ec->clear();
         return __data_.__write_time_;
+      }
       }
     }
 private:
