@@ -13,11 +13,6 @@
 
 // class directory_entry
 
-// directory_entry& operator=(directory_entry const&) = default;
-// directory_entry& operator=(directory_entry&&) noexcept = default;
-// void assign(path const&);
-// void replace_filename(path const&);
-
 // RUN: %build -I%libcxx_src_root/src/experimental/filesystem
 // RUN: %run
 
@@ -71,22 +66,19 @@ TEST_CASE(last_write_time_not_representable_error) {
   }
 
   if (!IsRepresentable) {
-    std::error_code dummy_ec;
-    ent.refresh(dummy_ec);
-
     std::error_code ec = GetTestEC();
-    TEST_CHECK(ent.last_write_time(ec) == file_time_type::min());
-    TEST_CHECK(ErrorIs(ec, std::errc::invalid_argument));
+    ent.refresh(ec);
+    TEST_CHECK(ec);
+    TEST_CHECK(ec != GetTestEC());
 
 #ifndef TEST_HAS_NO_EXCEPTIONS
-    { TEST_CHECK_THROW(fs::filesystem_error, ent.last_write_time()); }
+    { TEST_CHECK_THROW(fs::filesystem_error, ent.refresh()); }
 #endif
   } else {
-    ent.refresh();
-
     std::error_code ec = GetTestEC();
-    TEST_CHECK(ent.last_write_time(ec) == rep_value);
+    ent.refresh(ec);
     TEST_CHECK(!ec);
+    TEST_CHECK(ent.last_write_time() == rep_value);
   }
 }
 
