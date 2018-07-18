@@ -502,7 +502,6 @@ void __copy_symlink(const path& existing_symlink, const path& new_symlink,
     __create_symlink(real_path, new_symlink, ec);
 }
 
-
 bool __create_directories(const path& p, std::error_code *ec)
 {
     std::error_code m_ec;
