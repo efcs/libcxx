@@ -13,8 +13,8 @@
 
 // class directory_entry
 
-// file_status status() const;
-// file_status status(error_code const&) const noexcept;
+// uintmax_t hard_link_count() const;
+// uintmax_t hard_link_count(error_code const&) const noexcept;
 
 #include "filesystem_include.hpp"
 #include <type_traits>
@@ -23,37 +23,77 @@
 #include "filesystem_test_helper.hpp"
 #include "rapid-cxx-test.hpp"
 
-TEST_SUITE(directory_entry_status_testsuite)
+TEST_SUITE(directory_entry_obs_testsuite)
 
-TEST_CASE(test_basic) {
+TEST_CASE(signatures) {
   using namespace fs;
   {
     const fs::directory_entry e("foo");
     std::error_code ec;
-    static_assert(std::is_same<decltype(e.status()), fs::file_status>::value,
+    static_assert(std::is_same<decltype(e.hard_link_count()), uintmax_t>::value, "");
+    static_assert(std::is_same<decltype(e.hard_link_count(ec)), uintmax_t>::value,
                   "");
-    static_assert(std::is_same<decltype(e.status(ec)), fs::file_status>::value,
-                  "");
-    static_assert(noexcept(e.status()) == false, "");
-    static_assert(noexcept(e.status(ec)) == true, "");
+    static_assert(noexcept(e.hard_link_count()) == false, "");
+    static_assert(noexcept(e.hard_link_count(ec)) == true, "");
   }
-  path TestCases[] = {StaticEnv::File, StaticEnv::Dir, StaticEnv::SymlinkToFile,
-                      StaticEnv::DNE};
-  for (const auto& p : TestCases) {
-    const directory_entry e(p);
-    std::error_code pec = GetTestEC(), eec = GetTestEC(1);
-    file_status ps = fs::status(p, pec);
-    file_status es = e.status(eec);
-    TEST_CHECK(ps.type() == es.type());
-    TEST_CHECK(ps.permissions() == es.permissions());
-    TEST_CHECK(pec == eec);
+}
+
+TEST_CASE(basic) {
+  using namespace fs;
+
+  scoped_test_env env;
+  const path file = env.create_file("file", 42);
+  const path dir = env.create_dir("dir");
+  const path sym = env.create_symlink("file", "sym");
+
+  {
+    directory_entry ent(file);
+    remove(file);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == 1);
+    TEST_CHECK(!ec);
   }
-  for (const auto& p : TestCases) {
-    const directory_entry e(p);
-    file_status ps = fs::status(p);
-    file_status es = e.status();
-    TEST_CHECK(ps.type() == es.type());
-    TEST_CHECK(ps.permissions() == es.permissions());
+  {
+    directory_entry ent(dir);
+    remove(dir);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == 101);
+    TEST_CHECK(!ec);
+  }
+  env.create_file("file", 99);
+  {
+    directory_entry ent(sym);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == 99);
+    TEST_CHECK(!ec);
+  }
+}
+
+TEST_CASE(not_regular_file) {
+  using namespace fs;
+
+  scoped_test_env env;
+  const path dir = env.create_dir("dir");
+  const path fifo = env.create_fifo("fifo");
+  const path sym_to_dir = env.create_symlink("dir", "sym");
+
+  {
+    directory_entry ent(dir);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == uintmax_t(-1));
+    TEST_CHECK(ErrorIs(ec, std::errc::not_supported));
+  }
+  {
+    directory_entry ent(fifo);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == uintmax_t(-1));
+    TEST_CHECK(ErrorIs(ec, std::errc::not_supported));
+  }
+  {
+    directory_entry ent(sym_to_dir);
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.hard_link_count(ec) == uintmax_t(-1));
+    TEST_CHECK(ErrorIs(ec, std::errc::not_supported));
   }
 }
 

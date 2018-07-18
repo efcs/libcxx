@@ -13,8 +13,8 @@
 
 // class directory_entry
 
-// file_status status() const;
-// file_status status(error_code const&) const noexcept;
+// file_time_type last_write_time() const;
+// file_time_type last_write_time(error_code const&) const noexcept;
 
 #include "filesystem_include.hpp"
 #include <type_traits>
@@ -23,37 +23,19 @@
 #include "filesystem_test_helper.hpp"
 #include "rapid-cxx-test.hpp"
 
-TEST_SUITE(directory_entry_status_testsuite)
+TEST_SUITE(directory_entry_obs_testsuite)
 
-TEST_CASE(test_basic) {
+TEST_CASE(signatures) {
   using namespace fs;
   {
     const fs::directory_entry e("foo");
     std::error_code ec;
-    static_assert(std::is_same<decltype(e.status()), fs::file_status>::value,
+    static_assert(std::is_same<decltype(e.last_write_time()), file_time_type>::value,
                   "");
-    static_assert(std::is_same<decltype(e.status(ec)), fs::file_status>::value,
+    static_assert(std::is_same<decltype(e.last_write_time(ec)), file_time_type>::value,
                   "");
-    static_assert(noexcept(e.status()) == false, "");
-    static_assert(noexcept(e.status(ec)) == true, "");
-  }
-  path TestCases[] = {StaticEnv::File, StaticEnv::Dir, StaticEnv::SymlinkToFile,
-                      StaticEnv::DNE};
-  for (const auto& p : TestCases) {
-    const directory_entry e(p);
-    std::error_code pec = GetTestEC(), eec = GetTestEC(1);
-    file_status ps = fs::status(p, pec);
-    file_status es = e.status(eec);
-    TEST_CHECK(ps.type() == es.type());
-    TEST_CHECK(ps.permissions() == es.permissions());
-    TEST_CHECK(pec == eec);
-  }
-  for (const auto& p : TestCases) {
-    const directory_entry e(p);
-    file_status ps = fs::status(p);
-    file_status es = e.status();
-    TEST_CHECK(ps.type() == es.type());
-    TEST_CHECK(ps.permissions() == es.permissions());
+    static_assert(noexcept(e.last_write_time()) == false, "");
+    static_assert(noexcept(e.last_write_time(ec)) == true, "");
   }
 }
 
