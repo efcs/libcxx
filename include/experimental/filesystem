@@ -2318,9 +2318,14 @@ private:
       case _PartialSymlink:
         return _VSTD_FS::__last_write_time(__p_, __ec);
       case _FullSymlink:
-      case _FullNonSymlink:
-        (void)__get_ft(__ec);
+      case _FullNonSymlink: {
+        file_status __st(__get_ft(__ec));
+        if (_VSTD_FS::exists(__st) &&
+            __data_.__write_time_ == file_time_type::min())
+          __report_error("directory_entry::last_write_time", __ec,
+                         make_error_code(errc::value_too_large));
         return __data_.__write_time_;
+      }
       }
     }
 private:

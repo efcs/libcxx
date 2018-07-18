@@ -1357,11 +1357,10 @@ void directory_entry::__refresh(error_code* ec) {
     __data_.__nlink_ = static_cast<uintmax_t>(full_st.st_nlink);
 
     std::error_code time_ec;
+    // Attempt to extract the mtime, and fail if it's not representable using
+    // file_time_type. For now we ignore the error, as we'll report it when
+    // the value is actually used.
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &time_ec);
-    if (time_ec) {
-      m_ec = time_ec;
-      return ReportError();
-    }
   }
   return;
 #else
