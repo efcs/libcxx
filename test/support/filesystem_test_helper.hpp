@@ -385,6 +385,10 @@ inline std::error_code GetTestEC() {
     return std::make_error_code(std::errc::address_family_not_supported);
 }
 
+inline bool ErrorIs(const std::error_code& ec, std::errc val) {
+  return ec == std::make_error_code(val);
+}
+
 // Provide our own Sleep routine since std::this_thread::sleep_for is not
 // available in single-threaded mode.
 void SleepFor(std::chrono::seconds dur) {

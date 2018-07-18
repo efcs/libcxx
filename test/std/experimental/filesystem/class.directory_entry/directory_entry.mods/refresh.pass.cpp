@@ -26,11 +26,6 @@
 #include "rapid-cxx-test.hpp"
 #include "filesystem_test_helper.hpp"
 
-#define CHECK_EC(EC, Expect)                                                   \
-  TEST_CHECK(ec);                                                              \
-  TEST_CHECK(ec != GetTestEC());                                               \
-  TEST_CHECK(ec == std::make_error_code(std::errc::Expect))
-
 TEST_SUITE(directory_entry_mods_suite)
 
 TEST_CASE(test_refresh_method) {
@@ -62,7 +57,7 @@ TEST_CASE(test_refresh_ec_method) {
     directory_entry e;
     std::error_code ec = GetTestEC();
     e.refresh(ec);
-    CHECK_EC(ec, no_such_file_or_directory);
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
   }
 }
 
@@ -94,7 +89,7 @@ TEST_CASE(refresh_on_file_dne) {
 
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
-    CHECK_EC(ec, no_such_file_or_directory);
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
 
     fs::permissions(dir, perms::none);
     TEST_CHECK(!ent.exists());
@@ -136,7 +131,7 @@ TEST_CASE(refresh_on_bad_symlink) {
 
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
-    CHECK_EC(ec, no_such_file_or_directory);
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
 
     fs::permissions(dir, perms::none);
     TEST_CHECK(!ent.exists());
@@ -161,7 +156,7 @@ TEST_CASE(refresh_cannot_resolve) {
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
 
-    CHECK_EC(ec, permission_denied);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
     TEST_CHECK(ent.path() == file);
   }
   fs::permissions(dir, old_perms);
@@ -173,7 +168,7 @@ TEST_CASE(refresh_cannot_resolve) {
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
 
-    CHECK_EC(ec, permission_denied);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
     TEST_CHECK(ent.path() == sym);
   }
   fs::permissions(dir, old_perms);
@@ -203,7 +198,7 @@ TEST_CASE(access_cache_after_refresh_fails) {
 #define CHECK_ACCESS(func, expect)                                             \
   ec = GetTestEC();                                                            \
   TEST_CHECK(ent.func(ec) == expect);                                          \
-  CHECK_EC(ec, permission_denied)
+  TEST_CHECK(ErrorIs(ec, std::errc::permission_denied))
 
   // test file doesn't exist
   {
@@ -216,7 +211,7 @@ TEST_CASE(access_cache_after_refresh_fails) {
     fs::permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
-    CHECK_EC(ec, permission_denied);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
 
     CHECK_ACCESS(exists, false);
     CHECK_ACCESS(is_symlink, false);
@@ -233,7 +228,7 @@ TEST_CASE(access_cache_after_refresh_fails) {
     fs::permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
-    CHECK_EC(ec, permission_denied);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
 
     CHECK_ACCESS(exists, false);
     CHECK_ACCESS(is_symlink, false);
@@ -250,7 +245,7 @@ TEST_CASE(access_cache_after_refresh_fails) {
     fs::permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
-    CHECK_EC(ec, permission_denied);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
 
     TEST_CHECK(ent.is_symlink());
 
