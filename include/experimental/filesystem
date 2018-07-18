@@ -2159,16 +2159,16 @@ private:
     };
 
     struct __cached_data {
-      uintmax_t __size_ = -1;
-      uintmax_t __nlink_ = -1;
-      file_time_type __write_time_ = file_time_type::min();
-      perms __sym_perms_ = perms::unknown;
-      perms __non_sym_perms_ = perms::unknown;
-      file_type __type_ = file_type::unknown;
-      _CacheType __cache_type_ = _Empty;
+      uintmax_t __size_;
+      uintmax_t __nlink_;
+      file_time_type __write_time_;
+      perms __sym_perms_;
+      perms __non_sym_perms_;
+      file_type __type_;
+      _CacheType __cache_type_;
 
       _LIBCPP_INLINE_VISIBILITY
-      __cached_data() noexcept {}
+      __cached_data() noexcept { __reset(); }
 
       _LIBCPP_INLINE_VISIBILITY
       bool __empty() const { return __cache_type_ == _Empty; }
@@ -2214,9 +2214,9 @@ private:
       case _PartialNonSymlink:
       case _FullNonSymlink:
         file_status __st(__data_.__type_);
-        if (!_VSTD_FS::exists(__st) && __ec) {
+        if (!_VSTD_FS::exists(__st) && __ec)
           *__ec = make_error_code(errc::no_such_file_or_directory);
-        } else if (__ec)
+        else if (__ec)
           __ec->clear();
         return __data_.__type_;
       }
@@ -2232,9 +2232,9 @@ private:
       case _FullNonSymlink:
       case _FullSymlink:
         file_status __st(__data_.__type_);
-        if (!_VSTD_FS::exists(__st) && __ec) {
+        if (!_VSTD_FS::exists(__st) && __ec)
           *__ec = make_error_code(errc::no_such_file_or_directory);
-        } else if (__ec)
+        else if (__ec)
           __ec->clear();
         return __data_.__type_;
       }
@@ -2304,10 +2304,9 @@ private:
       case _PartialSymlink:
         return _VSTD_FS::__hard_link_count(__p_, __ec);
       case _FullSymlink:
-      case _FullNonSymlink: {
+      case _FullNonSymlink:
         (void)__get_ft(__ec);
         return __data_.__nlink_;
-      }
       }
     }
 
@@ -2319,10 +2318,9 @@ private:
       case _PartialSymlink:
         return _VSTD_FS::__last_write_time(__p_, __ec);
       case _FullSymlink:
-      case _FullNonSymlink: {
+      case _FullNonSymlink:
         (void)__get_ft(__ec);
         return __data_.__write_time_;
-      }
       }
     }
 private:

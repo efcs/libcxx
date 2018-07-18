@@ -1327,10 +1327,9 @@ void directory_entry::__refresh(error_code* ec) {
     return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
   };
 #ifndef _LIBCPP_WIN32API
-
   struct ::stat full_st;
   file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
-  if (m_ec && !_VSTD_FS::status_known(st))
+  if (m_ec && !status_known(st))
     return ReportError();
 
   if (!_VSTD_FS::exists(st) || !_VSTD_FS::is_symlink(st)) {
@@ -1342,7 +1341,7 @@ void directory_entry::__refresh(error_code* ec) {
   } else { // we have a symlink
     __data_.__sym_perms_ = st.permissions();
     st = detail::posix_stat(__p_, full_st, &m_ec);
-    if (m_ec && !_VSTD_FS::status_known(st))
+    if (m_ec && !status_known(st))
       return ReportError();
     if (ec)
       *ec = m_ec;
@@ -1355,7 +1354,7 @@ void directory_entry::__refresh(error_code* ec) {
     __data_.__size_ = static_cast<uintmax_t>(full_st.st_size);
 
   if (_VSTD_FS::exists(st)) {
-    __data_.__nlink_ = static_cast<uintptr_t>(full_st.st_nlink);
+    __data_.__nlink_ = static_cast<uintmax_t>(full_st.st_nlink);
 
     std::error_code time_ec;
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &time_ec);
