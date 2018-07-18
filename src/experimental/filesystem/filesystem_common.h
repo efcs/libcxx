@@ -160,6 +160,8 @@ bool stat_equivalent(struct ::stat& st1, struct ::stat& st2) {
   return (st1.st_dev == st2.st_dev && st1.st_ino == st2.st_ino);
 }
 
+namespace time_util {
+
 using namespace chrono;
 
 template <class FileTimeT,
@@ -297,10 +299,13 @@ public:
   }
 };
 
+} // namespace time_util
+
+
 using TimeSpec = struct timespec;
 using StatT = struct stat;
 
-using FSTime = fs_time_util<file_time_type, time_t, struct timespec>;
+using FSTime = time_util::fs_time_util<file_time_type, time_t, struct timespec>;
 
 #if defined(__APPLE__)
 TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
@@ -333,6 +338,7 @@ bool SetFileTimes(const path& p, TimeStructArray const& TS,
 }
 
 void SetTimeStructTo(TimeStruct& TS, TimeSpec ToTS) {
+  using namespace chrono;
   TS.tv_sec = ToTS.tv_sec;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
   TS.tv_usec = duration_cast<microseconds>(nanoseconds(ToTS.tv_nsec)).count();
@@ -342,6 +348,7 @@ void SetTimeStructTo(TimeStruct& TS, TimeSpec ToTS) {
 }
 
 bool SetTimeStructTo(TimeStruct& TS, file_time_type NewTime) {
+  using namespace chrono;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
   return !FSTime::set_times_checked<microseconds>(&TS.tv_sec, &TS.tv_usec,
                                                   NewTime);
