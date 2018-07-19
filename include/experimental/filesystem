@@ -2250,7 +2250,7 @@ private:
       case _IterNonSymlink:
       case _RefreshNonSymlink:
         file_status __st(__data_.__type_);
-        if (!_VSTD_FS::exists(__st))
+        if (__ec && !_VSTD_FS::exists(__st))
           *__ec = make_error_code(errc::no_such_file_or_directory);
         else if (__ec)
           __ec->clear();
@@ -2269,7 +2269,7 @@ private:
       case _RefreshNonSymlink:
       case _RefreshSymlink:
         file_status __st(__data_.__type_);
-        if (!_VSTD_FS::exists(__st) && __ec)
+        if (__ec && !_VSTD_FS::exists(__st))
           *__ec = make_error_code(errc::no_such_file_or_directory);
         else if (__ec)
           __ec->clear();
