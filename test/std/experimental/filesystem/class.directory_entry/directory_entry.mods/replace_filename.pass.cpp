@@ -123,9 +123,12 @@ TEST_CASE(test_replace_filename_propagates_error) {
   scoped_test_env env;
   const path dir = env.create_dir("dir");
   const path file = env.create_file("dir/file", 42);
-  const path file_two = env.create_file("dir/file_two", 101);
-  const path sym = env.create_symlink("dir/file", "sym");
-  const path sym_two = env.create_symlink("dir/file_two", "sym_two");
+  const path file_two = env.create_file("dir/file_two", 99);
+  const path file_out_of_dir = env.create_file("file_three", 101);
+  const path sym_out_of_dir = env.create_symlink("dir/file", "sym");
+  const path sym_out_of_dir_two = env.create_symlink("dir/file", "sym_two");
+  const path sym_in_dir = env.create_symlink("file_two", "dir/sym_three");
+  const path sym_in_dir_two = env.create_symlink("file_two", "dir/sym_four");
 
   const perms old_perms = status(dir).permissions();
 
@@ -138,10 +141,22 @@ TEST_CASE(test_replace_filename_propagates_error) {
   }
   permissions(dir, old_perms);
   {
-    fs::directory_entry ent(sym);
+    fs::directory_entry ent(sym_in_dir);
     permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
-    ent.replace_filename(sym_two.filename(), ec);
+    ent.replace_filename(sym_in_dir_two.filename(), ec);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
+  }
+  permissions(dir, old_perms);
+  {
+    directory_entry ent(sym_out_of_dir);
+    permissions(dir, perms::none);
+    std::error_code ec = GetTestEC();
+    ent.replace_filename(sym_out_of_dir_two.filename(), ec);
+    TEST_CHECK(!ec);
+    TEST_CHECK(ent.is_symlink());
+    ec = GetTestEC();
+    TEST_CHECK(!ent.exists(ec));
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
   }
 }

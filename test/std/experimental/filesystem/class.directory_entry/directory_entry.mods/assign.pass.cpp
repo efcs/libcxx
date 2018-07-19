@@ -98,7 +98,9 @@ TEST_CASE(test_assign_propagates_error) {
   scoped_test_env env;
   const path dir = env.create_dir("dir");
   const path file = env.create_file("dir/file", 42);
-  const path sym = env.create_symlink("dir/file", "sym");
+  const path sym_out_of_dir = env.create_symlink("dir/file", "sym");
+  const path file_out_of_dir = env.create_file("file1");
+  const path sym_in_dir = env.create_symlink("file1", "dir/sym1");
 
   permissions(dir, perms::none);
 
@@ -111,8 +113,14 @@ TEST_CASE(test_assign_propagates_error) {
   {
     fs::directory_entry ent;
     std::error_code ec = GetTestEC();
-    ent.assign(sym, ec);
+    ent.assign(sym_in_dir, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
+  }
+  {
+    directory_entry ent;
+    std::error_code ec = GetTestEC();
+    ent.assign(sym_out_of_dir, ec);
+    TEST_CHECK(!ec);
   }
 }
 

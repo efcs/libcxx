@@ -2221,12 +2221,13 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     void __maybe_report_error(const char* __msg, error_code* __dest_ec,
-                              error_code const& __ec) const {
+                              error_code const& __ec,
+                              bool __allow_acceptable = true) const {
       if (__dest_ec) {
         *__dest_ec = __ec;
         return;
       }
-      if (!__is_acceptable_error(__ec))
+      if (__ec && (!__allow_acceptable || !__is_acceptable_error(__ec)))
         __throw_filesystem_error(__msg, __p_, _Path{}, __ec);
     }
 
@@ -2318,7 +2319,8 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         file_status __st(__get_ft(&__m_ec));
-        __maybe_report_error("file_size", __ec, __m_ec);
+        __maybe_report_error("file_size", __ec, __m_ec,
+                             /* allow_acceptable*/ false);
         if (_VSTD_FS::exists(__st) && !_VSTD_FS::is_regular_file(__st)) {
           __maybe_report_error("directory_entry::file_size", __ec,
                                make_error_code(errc::not_supported));
@@ -2340,7 +2342,8 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         (void)__get_ft(&__m_ec);
-        __maybe_report_error("hard_link_count", __ec, __m_ec);
+        __maybe_report_error("hard_link_count", __ec, __m_ec,
+                             /*allow_acceptable*/ false);
         return __data_.__nlink_;
       }
       }
@@ -2358,7 +2361,8 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         file_status __st(__get_ft(&__m_ec));
-        __maybe_report_error("last_write_time", __ec, __m_ec);
+        __maybe_report_error("last_write_time", __ec, __m_ec,
+                             /*allow_acceptable*/ false);
         if (_VSTD_FS::exists(__st) &&
             __data_.__write_time_ == file_time_type::min())
           __maybe_report_error("directory_entry::last_write_time", __ec,

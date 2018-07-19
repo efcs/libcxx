@@ -1347,7 +1347,7 @@ error_code directory_entry::__do_refresh() noexcept {
 
     // If we failed to resolve the link, then only partially populate the
     // cache.
-    if (m_ec && !status_known(st)) {
+    if (!status_known(st)) {
       __data_.__cache_type_ = directory_entry::_RefreshSymlinkUnresolved;
       return m_ec;
     }
