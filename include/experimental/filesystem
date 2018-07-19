@@ -2222,7 +2222,8 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     void __maybe_report_error(const char* __msg, error_code* __dest_ec,
-                              error_code const& __ec) const {
+                              error_code const& __ec,
+                              bool __allow_acceptable) const {
       if (__dest_ec) {
         *__dest_ec = __ec;
         return;
@@ -2233,7 +2234,8 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     void __refresh(error_code* __ec = nullptr) {
-      __maybe_report_error("refresh", __ec, __do_refresh());
+      __maybe_report_error("refresh", __ec, __do_refresh(),
+                           /*allow_acceptable*/ true);
     }
 
     _LIBCPP_INLINE_VISIBILITY
