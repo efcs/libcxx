@@ -80,12 +80,8 @@ TEST_CASE(last_write_time_not_representable_error) {
     TEST_CHECK(last_write_time(file, ec) == file_time_type::min());
     TEST_CHECK(ErrorIs(ec, expected_err));
 
-    auto CheckError = [&](filesystem_error const& err) {
-      TEST_CHECK(ErrorIs(err.code(), expected_err));
-      TEST_CHECK(err.path1() == file);
-    };
-
-    TEST_CHECK_THROW_RESULT(fs::filesystem_error, CheckError,
+    ExceptionChecker CheckExcept(file, expected_err);
+    TEST_CHECK_THROW_RESULT(fs::filesystem_error, CheckExcept,
                             ent.last_write_time());
 
   } else {

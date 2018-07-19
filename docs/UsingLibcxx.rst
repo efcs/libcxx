@@ -205,7 +205,7 @@ thread safety annotations.
   replacement scenarios from working, e.g. replacing `operator new` and
   expecting a non-replaced `operator new[]` to call the replaced `operator new`.
 
-**_LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING**:
+**_LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING**:
   The current specification for ``filesystem::directory_entry`` requires the
   constructors, ``assign``, ``replace_filename``, and ``refresh`` to throw
   an exception when the entity the directory entry refers to doesn't exist,
@@ -217,62 +217,57 @@ thread safety annotations.
 
   .. code-block:: cpp
 
-    void print_filesystem_entry_info(path p) {
-      directory_entry ent(p); // THROWS!
-      if (!ent.exists()) {
-        cout << "Not Found: " << ent << "\n";
-      } else {
-        if (ent.is_directory()) {
-          cout << "Directory: " << ent << "\n";
-        } if (ent.is_regular_file()) {
-          cout << "Regular File: " << ent << "\n";
-          cout << "  Size: " << ent.file_size() << "\n";
-        } else {
-          cout << "Other File: " << ent << "\n";
-        }
-      }
+void print_filesystem_entry_info(path p) {
+  directory_entry ent(p); // THROWS!
+  if (!ent.exists()) {
+    cout << "Not Found: " << ent << "\n";
+  } else {
+    if (ent.is_directory()) {
+      cout << "Directory: " << ent << "\n";
+    } if (ent.is_regular_file()) {
+      cout << "Regular File: " << ent << "\n";
+      cout << "  Size: " << ent.file_size() << "\n";
+    } else {
+      cout << "Other File: " << ent << "\n";
     }
+  }
+}
 
-    void canonicalize_extensions_in_dir(path dir) {
-      for (auto ent : directory_iterator(dir)) {
-        if (ent.is_directory())
-          continue;
-        const path old_name = ent;
-        path new_name = old_name.filename();
-        new_name.replace_extension(ToUpperCase(new_name.extension()));
-        ent.replace_filename(new_name); // BOOM
-        if (ent.exists())
-          return report_error("cannot canonicalize extension");
-        copy_file(old_name, ent);
-      }
-    }
+void canonicalize_extensions_in_dir(path dir) {
+  for (auto ent : directory_iterator(dir)) {
+    if (ent.is_directory())
+      continue;
+    const path old_name = ent;
+    path new_name = old_name.filename();
+    new_name.replace_extension(ToUpperCase(new_name.extension()));
+    ent.replace_filename(new_name); // BOOM
+    if (ent.exists())
+      return report_error("cannot canonicalize extension");
+    copy_file(old_name, ent);
+  }
+}
 
-    void copy_files_in_directory(path dir, path new_dir) {
-      for (auto ent : directory_iterator(dir)) {
-        if (ent.is_directory())
-          continue;
-        const path old_name = ent;
-        ent.assign(new_dir / old_name.filename()); // BOOM
-        if (!ent.exists())
-          copy_file(old_name, ent);
-      }
-    }
+void copy_files_in_directory(path dir, path new_dir) {
+  for (auto ent : directory_iterator(dir)) {
+    if (ent.is_directory())
+      continue;
+    const path old_name = ent;
+    ent.assign(new_dir / old_name.filename()); // BOOM
+    if (!ent.exists())
+      copy_file(old_name, ent);
+  }
+}
 
-  By default, libc++ implements the strict error reporting required by the
-  standard. This behavior can be disabled using the
-  ``_LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING``
-  macro. The goal is to make `directory_entry` safer to use, especially in
-  contexts where exceptions are disabled.
+  By default, libc++ does not implement the strict error reporting required by the
+  standard. This behavior can be enabled using the
+  ``_LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING``
+  macro.
 
-  When disabled libc++'s ``directory_entry`` does not throw when it is made
-  to reference an entity which doesn't exist. If the constructor or member
-  function is given an ``error_code`` it will still be updated to reflect the
-  error condition. However, the versions which don't take an error code
-  will not report a "hard" error by throwing an exception. This allows
-  users to later determine if the entry exists by calling the
+  When disabled libc++ does not treat cases when the entry doesn't exist as
+  a "hard" error, and instead allows users to determine this by calling the
   ``directory_entry::exists()`` function, which was seemingly provided for
-  this purpose.
-
+  this purpose. The goal is to make `directory_entry` safer to use, especially
+  in contexts where exceptions are disabled.
 
 C++17 Specific Configuration Macros
 -----------------------------------

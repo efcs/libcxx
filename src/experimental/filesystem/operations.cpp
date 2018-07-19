@@ -1322,29 +1322,37 @@ path::iterator& path::iterator::__decrement() {
 error_code directory_entry::__do_refresh() noexcept {
   __data_.__reset();
   error_code m_ec;
-  auto ReportError = [&]() {
-    __data_.__reset();
-    return m_ec;
-  };
 #ifndef _LIBCPP_WIN32API
   struct ::stat full_st;
   file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
-  if (m_ec && !status_known(st))
-    return ReportError();
+  if (m_ec && !status_known(st)) {
+    __data_.__reset();
+    return m_ec;
+  }
 
   if (!_VSTD_FS::exists(st) || !_VSTD_FS::is_symlink(st)) {
-    __data_.__cache_type_ = directory_entry::_FullNonSymlink;
+    __data_.__cache_type_ = directory_entry::_RefreshNonSymlink;
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
   } else { // we have a symlink
     __data_.__sym_perms_ = st.permissions();
     // Get the information about the linked entity.
     st = detail::posix_stat(__p_, full_st, &m_ec);
-    if (m_ec && !status_known(st))
-      return ReportError();
+    // Ignore errors from stat, since we don't want errors regarding symlink
+    // resolution to be reported to the user.
+    m_ec.clear();
+
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
-    __data_.__cache_type_ = directory_entry::_FullSymlink;
+
+    // If we failed to resolve the link, then only partially populate the
+    // cache.
+    if (m_ec && !status_known(st)) {
+      __data_.__cache_type_ = directory_entry::_RefreshSymlinkUnresolved;
+      return m_ec;
+    }
+    // Otherwise, we resolved the link as not existing. That's OK.
+    __data_.__cache_type_ = directory_entry::_RefreshSymlink;
   }
 
   if (_VSTD_FS::is_regular_file(st))

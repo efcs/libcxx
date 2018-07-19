@@ -9,6 +9,8 @@
 #include <random>
 #include <chrono>
 
+#include "rapid-cxx-test.hpp"
+
 // static test helpers
 
 #ifndef LIBCXX_FILESYSTEM_STATIC_TEST_ROOT
@@ -422,5 +424,23 @@ void SleepFor(std::chrono::seconds dur) {
 inline bool PathEq(fs::path const& LHS, fs::path const& RHS) {
   return LHS.native() == RHS.native();
 }
+
+struct ExceptionChecker {
+  std::errc expected_err;
+  fs::path expected_path1;
+  fs::path expected_path2;
+
+  explicit ExceptionChecker(fs::path p, std::errc expected_err)
+      : expected_err(expected_err), expected_path1(p) {}
+
+  explicit ExceptionChecker(fs::path p1, fs::path p2, std::errc expected_err)
+      : expected_err(expected_err), expected_path1(p1), expected_path2(p2) {}
+
+  void operator()(fs::filesystem_error const& Err) const {
+    TEST_CHECK(ErrorIs(Err.code(), expected_err));
+    TEST_CHECK(Err.path1() == expected_path1);
+    TEST_CHECK(Err.path2() == expected_path2);
+  }
+};
 
 #endif /* FILESYSTEM_TEST_HELPER_HPP */

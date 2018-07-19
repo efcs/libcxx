@@ -72,10 +72,7 @@ TEST_CASE(path_ec_ctor) {
     std::error_code ec = GetTestEC();
     const directory_entry e(p, ec);
     TEST_CHECK(e.path() == p);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
-    TEST_CHECK(ec ==
-               std::make_error_code(std::errc::no_such_file_or_directory));
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
   }
 }
 
@@ -129,19 +126,14 @@ TEST_CASE(path_ctor_dne) {
   {
     std::error_code ec = GetTestEC();
     fs::directory_entry ent(StaticEnv::DNE, ec);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
-    TEST_CHECK(ec ==
-               std::make_error_code(std::errc::no_such_file_or_directory));
+    TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
     TEST_CHECK(ent.path() == StaticEnv::DNE);
   }
+  // don't report dead symlinks as an error.
   {
     std::error_code ec = GetTestEC();
     fs::directory_entry ent(StaticEnv::BadSymlink, ec);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
-    TEST_CHECK(ec ==
-               std::make_error_code(std::errc::no_such_file_or_directory));
+    TEST_CHECK(!ec);
     TEST_CHECK(ent.path() == StaticEnv::BadSymlink);
   }
   // DNE does not cause the constructor to throw
@@ -159,31 +151,34 @@ TEST_CASE(path_ctor_cannot_resolve) {
   scoped_test_env env;
   const path dir = env.create_dir("dir");
   const path file = env.create_file("dir/file", 42);
-  const path sym = env.create_symlink("dir/file", "sym");
+  const path file_out_of_dir = env.create_file("file1", 101);
+  const path sym_out_of_dir = env.create_symlink("dir/file", "sym");
+  const path sym_in_dir = env.create_symlink("dir/file1", "dir/sym2");
   permissions(dir, perms::none);
 
   {
     std::error_code ec = GetTestEC();
     fs::directory_entry ent(file, ec);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
-    TEST_CHECK(ec == std::make_error_code(std::errc::permission_denied));
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
     TEST_CHECK(ent.path() == path{});
   }
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(sym, ec);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
-    TEST_CHECK(ec == std::make_error_code(std::errc::permission_denied));
+    fs::directory_entry ent(sym_in_dir, ec);
+    TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
     TEST_CHECK(ent.path() == path{});
   }
-#ifndef TEST_HAS_NO_EXCEPTIONS
+  {
+    std::error_code ec = GetTestEC();
+    fs::directory_entry ent(sym_out_of_dir, ec);
+    TEST_CHECK(!ec);
+    TEST_CHECK(ent.path() == sym_out_of_dir);
+  }
   {
     TEST_CHECK_THROW(fs::filesystem_error, fs::directory_entry(file));
-    TEST_CHECK_THROW(fs::filesystem_error, fs::directory_entry(sym));
+    TEST_CHECK_THROW(fs::filesystem_error, fs::directory_entry(sym_in_dir));
+    TEST_CHECK_NO_THROW(directory_entry(sym_out_of_dir));
   }
-#endif
 }
 
 TEST_SUITE_END()
