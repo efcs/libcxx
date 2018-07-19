@@ -99,19 +99,24 @@ TEST_CASE(test_replace_filename_calls_refresh) {
   const path sym_two = env.create_symlink("dir/file_two", "sym_two");
 
   {
-    fs::directory_entry ent(file);
+    directory_entry ent(file);
     ent.replace_filename(file_two.filename());
     TEST_REQUIRE(ent.path() == file_two);
-    LIBCPP_ONLY(fs::remove(file_two));
+
+    // removing the file demonstrates that the values where cached previously.
+    LIBCPP_ONLY(remove(file_two));
+
     TEST_CHECK(ent.file_size() == 101);
   }
   env.create_file("dir/file_two", 99);
   {
-    fs::directory_entry ent(sym);
+    directory_entry ent(sym);
     ent.replace_filename(sym_two.filename());
     TEST_REQUIRE(ent.path() == sym_two);
-    LIBCPP_ONLY(fs::remove(file_two));
-    LIBCPP_ONLY(fs::remove(sym_two));
+
+    LIBCPP_ONLY(remove(file_two));
+    LIBCPP_ONLY(remove(sym_two));
+
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
     TEST_CHECK(ent.file_size() == 99);
@@ -133,7 +138,7 @@ TEST_CASE(test_replace_filename_propagates_error) {
   const perms old_perms = status(dir).permissions();
 
   {
-    fs::directory_entry ent(file);
+    directory_entry ent(file);
     permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
     ent.replace_filename(file_two.filename(), ec);
@@ -141,7 +146,7 @@ TEST_CASE(test_replace_filename_propagates_error) {
   }
   permissions(dir, old_perms);
   {
-    fs::directory_entry ent(sym_in_dir);
+    directory_entry ent(sym_in_dir);
     permissions(dir, perms::none);
     std::error_code ec = GetTestEC();
     ent.replace_filename(sym_in_dir_two.filename(), ec);
