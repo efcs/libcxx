@@ -1394,13 +1394,14 @@ path::iterator& path::iterator::__decrement() {
 
 error_code directory_entry::__do_refresh() noexcept {
   __data_.__reset();
-  error_code m_ec;
+
 #ifndef _LIBCPP_WIN32API
+  error_code failure_ec;
   struct ::stat full_st;
-  file_status st = detail::posix_lstat(__p_, full_st, &m_ec);
-  if (m_ec && !status_known(st)) {
+  file_status st = detail::posix_lstat(__p_, full_st, &failure_ec);
+  if (!status_known(st)) {
     __data_.__reset();
-    return m_ec;
+    return failure_ec;
   }
 
   if (!_VSTD_FS::exists(st) || !_VSTD_FS::is_symlink(st)) {
@@ -1410,10 +1411,10 @@ error_code directory_entry::__do_refresh() noexcept {
   } else { // we have a symlink
     __data_.__sym_perms_ = st.permissions();
     // Get the information about the linked entity.
-    st = detail::posix_stat(__p_, full_st, &m_ec);
     // Ignore errors from stat, since we don't want errors regarding symlink
     // resolution to be reported to the user.
-    m_ec.clear();
+    error_code ignored_ec;
+    st = detail::posix_stat(__p_, full_st, &ignored_ec);
 
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
@@ -1422,7 +1423,7 @@ error_code directory_entry::__do_refresh() noexcept {
     // cache.
     if (!status_known(st)) {
       __data_.__cache_type_ = directory_entry::_RefreshSymlinkUnresolved;
-      return m_ec;
+      return error_code{};
     }
     // Otherwise, we resolved the link as not existing. That's OK.
     __data_.__cache_type_ = directory_entry::_RefreshSymlink;
@@ -1437,13 +1438,14 @@ error_code directory_entry::__do_refresh() noexcept {
     // Attempt to extract the mtime, and fail if it's not representable using
     // file_time_type. For now we ignore the error, as we'll report it when
     // the value is actually used.
-    std::error_code time_ec;
-    __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &time_ec);
+    error_code ignored_ec;
+    __data_.__write_time_ =
+        __extract_last_write_time(__p_, full_st, &ignored_ec);
   }
 #else
     // FIXME: cache something here.
 #endif
-  return m_ec;
+  return error_code{};
 }
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM

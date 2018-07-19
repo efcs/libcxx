@@ -102,7 +102,7 @@ TEST_CASE(test_replace_filename_calls_refresh) {
     fs::directory_entry ent(file);
     ent.replace_filename(file_two.filename());
     TEST_REQUIRE(ent.path() == file_two);
-    fs::remove(file_two);
+    LIBCPP_ONLY(fs::remove(file_two));
     TEST_CHECK(ent.file_size() == 101);
   }
   env.create_file("dir/file_two", 99);
@@ -110,8 +110,8 @@ TEST_CASE(test_replace_filename_calls_refresh) {
     fs::directory_entry ent(sym);
     ent.replace_filename(sym_two.filename());
     TEST_REQUIRE(ent.path() == sym_two);
-    fs::remove(file_two);
-    fs::remove(sym_two);
+    LIBCPP_ONLY(fs::remove(file_two));
+    LIBCPP_ONLY(fs::remove(sym_two));
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
     TEST_CHECK(ent.file_size() == 99);

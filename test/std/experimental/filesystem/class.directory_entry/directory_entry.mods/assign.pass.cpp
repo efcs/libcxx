@@ -79,15 +79,19 @@ TEST_CASE(test_assign_calls_refresh) {
   {
     fs::directory_entry ent;
     ent.assign(file);
-    fs::remove(file);
+
+    LIBCPP_ONLY(remove(file));
+
     TEST_CHECK(ent.is_regular_file());
   }
   env.create_file("dir/file", 101);
   {
     fs::directory_entry ent;
     ent.assign(sym);
-    fs::remove(file);
-    fs::remove(sym);
+
+    LIBCPP_ONLY(fs::remove(file));
+    LIBCPP_ONLY(fs::remove(sym));
+
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
   }
