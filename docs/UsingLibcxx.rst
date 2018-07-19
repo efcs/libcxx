@@ -205,7 +205,7 @@ thread safety annotations.
   replacement scenarios from working, e.g. replacing `operator new` and
   expecting a non-replaced `operator new[]` to call the replaced `operator new`.
 
-**_LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING**:
+**_LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING**:
   The current specification for ``filesystem::directory_entry`` requires the
   constructors, ``assign``, ``replace_filename``, and ``refresh`` to throw
   an exception when the entity the directory entry refers to doesn't exist,
@@ -258,15 +258,21 @@ thread safety annotations.
       }
     }
 
-  By default, libc++ does not treat cases when the entry doesn't exist as
-  a "hard" error, and instead allows users to determine this by calling the
-  ``directory_entry::exists()`` function, which was seemingly provided for
-  this purpose. The goal is to make `directory_entry` safer to use, especially
-  in contexts where exceptions are disabled.
+  By default, libc++ implements the strict error reporting required by the
+  standard. This behavior can be disabled using the
+  ``_LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING``
+  macro. The goal is to make `directory_entry` safer to use, especially in
+  contexts where exceptions are disabled.
 
-  Users wanting strictly conforming error reporting may enable it by defining
-  the ``_LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING``
-  macro.
+  When disabled libc++'s ``directory_entry`` does not throw when it is made
+  to reference an entity which doesn't exist. If the constructor or member
+  function is given an ``error_code`` it will still be updated to reflect the
+  error condition. However, the versions which don't take an error code
+  will not report a "hard" error by throwing an exception. This allows
+  users to later determine if the entry exists by calling the
+  ``directory_entry::exists()`` function, which was seemingly provided for
+  this purpose.
+
 
 C++17 Specific Configuration Macros
 -----------------------------------

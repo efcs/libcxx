@@ -13,6 +13,9 @@
 
 // class directory_entry
 
+// MODULES_DEFINES: _LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING
+#define _LIBCPP_DISABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING
+
 #include "filesystem_include.hpp"
 #include <type_traits>
 #include <cassert>
@@ -20,10 +23,6 @@
 #include "test_macros.h"
 #include "rapid-cxx-test.hpp"
 #include "filesystem_test_helper.hpp"
-
-#ifdef _LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING
-#error macro should not be defined by default
-#endif
 
 TEST_SUITE(directory_entry_refresh_suite)
 
