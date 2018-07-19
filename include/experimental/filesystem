@@ -2343,8 +2343,7 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         (void)__get_ft(&__m_ec);
-        __handle_error("hard_link_count", __ec, __m_ec,
-                       /*allow_dne*/ false);
+        __handle_error("hard_link_count", __ec, __m_ec);
         return __data_.__nlink_;
       }
       }

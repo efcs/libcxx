@@ -298,7 +298,7 @@ file_status create_file_status(std::error_code& m_ec, path const& p,
                                struct ::stat& path_stat, std::error_code* ec) {
   if (ec)
     *ec = m_ec;
-  assert(m_ec.value() != ENOTDIR);
+  // assert(m_ec.value() != ENOTDIR);
   if (m_ec && (m_ec.value() == ENOENT || m_ec.value() == ENOTDIR)) {
     return file_status(file_type::not_found);
   } else if (m_ec) {
@@ -1399,9 +1399,9 @@ path::iterator& path::iterator::__decrement() {
 
 error_code directory_entry::__do_refresh() noexcept {
   __data_.__reset();
-
-#ifndef _LIBCPP_WIN32API
   error_code failure_ec;
+#ifndef _LIBCPP_WIN32API
+
   struct ::stat full_st;
   file_status st = detail::posix_lstat(__p_, full_st, &failure_ec);
   if (!status_known(st)) {
@@ -1450,7 +1450,7 @@ error_code directory_entry::__do_refresh() noexcept {
 #else
     // FIXME: cache something here.
 #endif
-  return error_code{};
+  return failure_ec;
 }
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM

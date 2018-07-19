@@ -119,6 +119,7 @@ TEST_CASE(error_reporting) {
 
     std::error_code ec = GetTestEC();
     ent.assign(StaticEnv::DNE, ec);
+    TEST_CHECK(ec);
     TEST_REQUIRE(ent.path() == StaticEnv::DNE);
     TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
 
