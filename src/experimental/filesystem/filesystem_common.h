@@ -208,7 +208,6 @@ public:
   template <class SubSecDurT, class SubSecT>
   static bool set_times_checked(TimeT* sec_out, SubSecT* subsec_out,
                                 FileTimeT tp) {
-    using namespace chrono;
     auto dur = tp.time_since_epoch();
     auto sec_dur = duration_cast<seconds>(dur);
     auto subsec_dur = duration_cast<SubSecDurT>(dur - sec_dur);

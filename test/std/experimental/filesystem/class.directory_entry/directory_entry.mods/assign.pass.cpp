@@ -77,20 +77,21 @@ TEST_CASE(test_assign_calls_refresh) {
   const path sym = env.create_symlink("dir/file", "sym");
 
   {
-    fs::directory_entry ent;
+    directory_entry ent;
     ent.assign(file);
 
+    // removing the file demonstrates that the values where cached previously.
     LIBCPP_ONLY(remove(file));
 
     TEST_CHECK(ent.is_regular_file());
   }
   env.create_file("dir/file", 101);
   {
-    fs::directory_entry ent;
+    directory_entry ent;
     ent.assign(sym);
 
-    LIBCPP_ONLY(fs::remove(file));
-    LIBCPP_ONLY(fs::remove(sym));
+    LIBCPP_ONLY(remove(file));
+    LIBCPP_ONLY(remove(sym));
 
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
@@ -109,13 +110,13 @@ TEST_CASE(test_assign_propagates_error) {
   permissions(dir, perms::none);
 
   {
-    fs::directory_entry ent;
+    directory_entry ent;
     std::error_code ec = GetTestEC();
     ent.assign(file, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
   }
   {
-    fs::directory_entry ent;
+    directory_entry ent;
     std::error_code ec = GetTestEC();
     ent.assign(sym_in_dir, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));

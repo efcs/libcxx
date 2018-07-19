@@ -764,9 +764,9 @@ static file_time_type __extract_last_write_time(path const& p,
   using detail::FSTime;
   auto ts = detail::extract_mtime(st);
   if (!FSTime::is_representable(ts)) {
-      set_or_throw(error_code(EOVERFLOW, generic_category()), ec,
-                     "last_write_time", p);
-      return file_time_type::min();
+    set_or_throw(make_error_code(errc::value_too_large), ec, "last_write_time",
+                 p);
+    return file_time_type::min();
   }
   return FSTime::convert_timespec(ts);
 }
