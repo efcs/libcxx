@@ -2204,7 +2204,6 @@ private:
     static bool __is_dne_error(error_code const& __ec) {
       if (!__ec)
         return true;
-#ifndef _LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING
       switch (static_cast<errc>(__ec.value())) {
       case errc::no_such_file_or_directory:
       case errc::not_a_directory:
@@ -2212,9 +2211,6 @@ private:
       default:
         return false;
       }
-#else
-      return false;
-#endif
     }
 
     _LIBCPP_INLINE_VISIBILITY
