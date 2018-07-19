@@ -2173,12 +2173,9 @@ private:
       __cached_data() noexcept { __reset(); }
 
       _LIBCPP_INLINE_VISIBILITY
-      bool __empty() const { return __cache_type_ == _Empty; }
-
-      _LIBCPP_INLINE_VISIBILITY
       void __reset() {
         __cache_type_ = _Empty;
-        __type_ = file_type::unknown;
+        __type_ = file_type::none;
         __sym_perms_ = __non_sym_perms_ = perms::unknown;
         __size_ = __nlink_ = -1;
         __write_time_ = file_time_type::min();
