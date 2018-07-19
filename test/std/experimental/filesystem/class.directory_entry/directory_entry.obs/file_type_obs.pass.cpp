@@ -201,7 +201,8 @@ TEST_CASE(test_with_ec_cannot_resolve) {
   scoped_test_env env;
   const path dir = env.create_dir("dir");
   const path file = env.create_file("dir/file", 42);
-  const path sym = env.create_symlink("dir/file", "sym");
+  const path file_out_of_dir = env.create_file("file2", 99);
+  const path sym = env.create_symlink("file2", "dir/sym");
 
   perms old_perms = fs::status(dir).permissions();
 
