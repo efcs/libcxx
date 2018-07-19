@@ -66,19 +66,34 @@ TEST_CASE(last_write_time_not_representable_error) {
   }
 
   if (!IsRepresentable) {
-    std::error_code ec = GetTestEC();
-    ent.refresh(ec);
-    TEST_CHECK(ec);
-    TEST_CHECK(ec != GetTestEC());
+    std::error_code rec = GetTestEC();
+    ent.refresh(rec);
+    TEST_CHECK(!rec);
 
-#ifndef TEST_HAS_NO_EXCEPTIONS
-    { TEST_CHECK_THROW(fs::filesystem_error, ent.refresh()); }
-#endif
-  } else {
+    const std::errc expected_err = std::errc::value_too_large;
+
     std::error_code ec = GetTestEC();
-    ent.refresh(ec);
+    TEST_CHECK(ent.last_write_time(ec) == file_time_type::min());
+    TEST_CHECK(ErrorIs(ec, expected_err));
+
+    ec = GetTestEC();
+    TEST_CHECK(last_write_time(file, ec) == file_time_type::min());
+    TEST_CHECK(ErrorIs(ec, expected_err));
+
+    auto CheckError = [&](filesystem_error const& err) {
+      TEST_CHECK(ErrorIs(err.code(), expected_err));
+      TEST_CHECK(err.path1() == file);
+    };
+
+    TEST_CHECK_THROW_RESULT(fs::filesystem_error, CheckError,
+                            ent.last_write_time());
+
+  } else {
+    ent.refresh();
+
+    std::error_code ec = GetTestEC();
+    TEST_CHECK(ent.last_write_time(ec) == rep_value);
     TEST_CHECK(!ec);
-    TEST_CHECK(ent.last_write_time() == rep_value);
   }
 }
 

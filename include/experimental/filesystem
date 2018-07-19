@@ -2192,10 +2192,9 @@ private:
       return __data;
     }
 
-
     _LIBCPP_INLINE_VISIBILITY
-    void __report_error(const char *__msg, error_code *__dest_ec,
-        error_code const& __ec) const {
+    void __report_error(const char* __msg, error_code* __dest_ec,
+                        error_code const& __ec) const {
       if (__dest_ec) {
         *__dest_ec = __ec;
         return;
@@ -2230,7 +2229,7 @@ private:
     }
 
     _LIBCPP_INLINE_VISIBILITY
-    void __refresh(error_code *__ec = nullptr) {
+    void __refresh(error_code* __ec = nullptr) {
       error_code __m_ec = __do_refresh();
       if (!__is_acceptable_error(__m_ec) && !__ec)
         __throw_filesystem_error("refresh", __p_, _Path{}, __m_ec);

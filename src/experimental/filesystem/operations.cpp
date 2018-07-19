@@ -1362,7 +1362,7 @@ error_code directory_entry::__do_refresh() noexcept {
 #else
     // FIXME: cache something here.
 #endif
-    return m_ec;
+  return m_ec;
 }
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM

@@ -30,8 +30,9 @@ struct Checker {
   std::errc expected_err;
   fs::path expected_path;
 
-  explicit Checker(fs::path p, std::errc expected_err = std::errc::no_such_file_or_directory)
-    : expected_err(expected_err), expected_path(p) {}
+  explicit Checker(
+      fs::path p, std::errc expected_err = std::errc::no_such_file_or_directory)
+      : expected_err(expected_err), expected_path(p) {}
 
   void operator()(fs::filesystem_error const& Err) const {
     TEST_CHECK(ErrorIs(Err.code(), expected_err));
@@ -67,7 +68,6 @@ TEST_CASE(assign_throws_dne) {
   }
 }
 
-
 TEST_CASE(replace_filename_throws_dne) {
   using namespace fs;
   const path good_file = StaticEnv::File;
@@ -85,10 +85,10 @@ TEST_CASE(replace_filename_throws_dne) {
 
     e = directory_entry{good_file};
     Checker CheckExcept(full_path);
-    TEST_CHECK_THROW_RESULT(filesystem_error, CheckExcept, e.replace_filename(fname));
+    TEST_CHECK_THROW_RESULT(filesystem_error, CheckExcept,
+                            e.replace_filename(fname));
   }
 }
-
 
 TEST_CASE(refresh_throws_dne) {
   using namespace fs;
