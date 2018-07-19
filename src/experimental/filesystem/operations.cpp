@@ -1319,12 +1319,12 @@ path::iterator& path::iterator::__decrement() {
 //                           directory entry definitions
 ///////////////////////////////////////////////////////////////////////////////
 
-void directory_entry::__refresh(error_code* ec) {
+error_code directory_entry::__do_refresh() noexcept {
   __data_.__reset();
   error_code m_ec;
   auto ReportError = [&]() {
     __data_.__reset();
-    return set_or_throw(m_ec, ec, "directory_entry::refresh", __p_);
+    return m_ec;
   };
 #ifndef _LIBCPP_WIN32API
   struct ::stat full_st;
@@ -1333,18 +1333,15 @@ void directory_entry::__refresh(error_code* ec) {
     return ReportError();
 
   if (!_VSTD_FS::exists(st) || !_VSTD_FS::is_symlink(st)) {
-    if (ec)
-      *ec = m_ec;
     __data_.__cache_type_ = directory_entry::_FullNonSymlink;
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
   } else { // we have a symlink
     __data_.__sym_perms_ = st.permissions();
+    // Get the information about the linked entity.
     st = detail::posix_stat(__p_, full_st, &m_ec);
     if (m_ec && !status_known(st))
       return ReportError();
-    if (ec)
-      *ec = m_ec;
     __data_.__type_ = st.type();
     __data_.__non_sym_perms_ = st.permissions();
     __data_.__cache_type_ = directory_entry::_FullSymlink;
@@ -1356,18 +1353,16 @@ void directory_entry::__refresh(error_code* ec) {
   if (_VSTD_FS::exists(st)) {
     __data_.__nlink_ = static_cast<uintmax_t>(full_st.st_nlink);
 
-    std::error_code time_ec;
     // Attempt to extract the mtime, and fail if it's not representable using
     // file_time_type. For now we ignore the error, as we'll report it when
     // the value is actually used.
+    std::error_code time_ec;
     __data_.__write_time_ = __extract_last_write_time(__p_, full_st, &time_ec);
   }
-  return;
 #else
-  if (__ec)
-    __ec->clear();
     // FIXME: cache something here.
 #endif
+    return m_ec;
 }
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM

@@ -2192,6 +2192,17 @@ private:
       return __data;
     }
 
+
+    _LIBCPP_INLINE_VISIBILITY
+    void __report_error(const char *__msg, error_code *__dest_ec,
+        error_code const& __ec) const {
+      if (__dest_ec) {
+        *__dest_ec = __ec;
+        return;
+      }
+      __throw_filesystem_error(__msg, __p_, _Path{}, __ec);
+    }
+
     _LIBCPP_INLINE_VISIBILITY
     void __assign_dir_itr(_Path&& __p, __cached_data __dt) {
       __p_ = std::move(__p);
@@ -2199,7 +2210,33 @@ private:
     }
 
     _LIBCPP_FUNC_VIS
-    void __refresh(error_code* __ec = nullptr);
+    error_code __do_refresh() noexcept;
+
+    _LIBCPP_INLINE_VISIBILITY
+    static bool __is_acceptable_error(error_code const& __ec) {
+      if (!__ec)
+        return true;
+#ifndef _LIBCPP_ENABLE_FILESYSTEM_DIRECTORY_ENTRY_STRICT_ERROR_REPORTING
+      switch (static_cast<errc>(__ec.value())) {
+      case errc::no_such_file_or_directory:
+      case errc::not_a_directory:
+        return true;
+      default:
+        return false;
+      }
+#else
+      return false;
+#endif
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    void __refresh(error_code *__ec = nullptr) {
+      error_code __m_ec = __do_refresh();
+      if (!__is_acceptable_error(__m_ec) && !__ec)
+        __throw_filesystem_error("refresh", __p_, _Path{}, __m_ec);
+      if (__ec)
+        *__ec = __m_ec;
+    }
 
     _LIBCPP_INLINE_VISIBILITY
     file_type __get_sym_ft(error_code *__ec = nullptr) const {
@@ -2267,15 +2304,6 @@ private:
       }
     }
 
-    _LIBCPP_INLINE_VISIBILITY
-    void __report_error(const char *__msg, error_code *__dest_ec,
-        error_code const& __ec) const {
-      if (__dest_ec) {
-        *__dest_ec = __ec;
-        return;
-      }
-      __throw_filesystem_error(__msg, __p_, _Path{}, __ec);
-    }
 
     _LIBCPP_INLINE_VISIBILITY
     uintmax_t __get_size(error_code *__ec = nullptr) const {
