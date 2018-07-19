@@ -13,10 +13,8 @@
 
 // class directory_entry
 
-//          directory_entry() noexcept = default;
-//          directory_entry(const directory_entry&) = default;
-//          directory_entry(directory_entry&&) noexcept = default;
 // explicit directory_entry(const path);
+// directory_entry(const path&, error_code& ec);
 
 #include "filesystem_include.hpp"
 #include <type_traits>
@@ -84,12 +82,12 @@ TEST_CASE(path_ctor_calls_refresh) {
   const path sym = env.create_symlink("dir/file", "sym");
 
   {
-    fs::directory_entry ent(file);
+    directory_entry ent(file);
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent_ec(file, ec);
+    directory_entry ent_ec(file, ec);
     TEST_CHECK(!ec);
 
-    fs::remove(file);
+    remove(file);
 
     TEST_CHECK(ent.exists());
     TEST_CHECK(ent_ec.exists());
@@ -101,13 +99,13 @@ TEST_CASE(path_ctor_calls_refresh) {
   env.create_file("dir/file", 101);
 
   {
-    fs::directory_entry ent(sym);
+    directory_entry ent(sym);
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent_ec(sym, ec);
+    directory_entry ent_ec(sym, ec);
     TEST_CHECK(!ec);
 
-    fs::remove(file);
-    fs::remove(sym);
+    remove(file);
+    remove(sym);
 
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent_ec.is_symlink());
@@ -125,14 +123,14 @@ TEST_CASE(path_ctor_dne) {
 
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(StaticEnv::DNE, ec);
+    directory_entry ent(StaticEnv::DNE, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::no_such_file_or_directory));
     TEST_CHECK(ent.path() == StaticEnv::DNE);
   }
   // don't report dead symlinks as an error.
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(StaticEnv::BadSymlink, ec);
+    directory_entry ent(StaticEnv::BadSymlink, ec);
     TEST_CHECK(!ec);
     TEST_CHECK(ent.path() == StaticEnv::BadSymlink);
   }
@@ -158,25 +156,25 @@ TEST_CASE(path_ctor_cannot_resolve) {
 
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(file, ec);
+    directory_entry ent(file, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
-    TEST_CHECK(ent.path() == path{});
+    TEST_CHECK(ent.path() == file);
   }
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(sym_in_dir, ec);
+    directory_entry ent(sym_in_dir, ec);
     TEST_CHECK(ErrorIs(ec, std::errc::permission_denied));
-    TEST_CHECK(ent.path() == path{});
+    TEST_CHECK(ent.path() == sym_in_dir);
   }
   {
     std::error_code ec = GetTestEC();
-    fs::directory_entry ent(sym_out_of_dir, ec);
+    directory_entry ent(sym_out_of_dir, ec);
     TEST_CHECK(!ec);
     TEST_CHECK(ent.path() == sym_out_of_dir);
   }
   {
-    TEST_CHECK_THROW(fs::filesystem_error, fs::directory_entry(file));
-    TEST_CHECK_THROW(fs::filesystem_error, fs::directory_entry(sym_in_dir));
+    TEST_CHECK_NO_THROW(directory_entry(file));
+    TEST_CHECK_NO_THROW(directory_entry(sym_in_dir));
     TEST_CHECK_NO_THROW(directory_entry(sym_out_of_dir));
   }
 }

@@ -1919,14 +1919,13 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     explicit directory_entry(_Path const& __p) : __p_(__p) {
-      __refresh();
+      error_code __ec;
+      __refresh(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
     directory_entry(_Path const& __p, error_code &__ec) : __p_(__p) {
       __refresh(&__ec);
-      if (__data_.__empty())
-        __p_ = _Path{};
     }
 
     ~directory_entry() {}
@@ -1937,7 +1936,8 @@ public:
     _LIBCPP_INLINE_VISIBILITY
     void assign(_Path const& __p) {
         __p_ = __p;
-        __refresh();
+        error_code __ec;
+        __refresh(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -1948,8 +1948,9 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     void replace_filename(_Path const& __p) {
-        __p_ = __p_.parent_path() / __p;
-        __refresh();
+      __p_.replace_filename(__p);
+      error_code __ec;
+      __refresh(&__ec);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2221,8 +2222,7 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     void __maybe_report_error(const char* __msg, error_code* __dest_ec,
-                              error_code const& __ec,
-                              bool __allow_acceptable = true) const {
+                              error_code const& __ec) const {
       if (__dest_ec) {
         *__dest_ec = __ec;
         return;

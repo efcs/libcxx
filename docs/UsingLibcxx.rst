@@ -217,46 +217,46 @@ thread safety annotations.
 
   .. code-block:: cpp
 
-void print_filesystem_entry_info(path p) {
-  directory_entry ent(p); // THROWS!
-  if (!ent.exists()) {
-    cout << "Not Found: " << ent << "\n";
-  } else {
-    if (ent.is_directory()) {
-      cout << "Directory: " << ent << "\n";
-    } if (ent.is_regular_file()) {
-      cout << "Regular File: " << ent << "\n";
-      cout << "  Size: " << ent.file_size() << "\n";
-    } else {
-      cout << "Other File: " << ent << "\n";
+    void print_filesystem_entry_info(path p) {
+      directory_entry ent(p); // THROWS!
+      if (!ent.exists()) {
+        cout << "Not Found: " << ent << "\n";
+      } else {
+        if (ent.is_directory()) {
+          cout << "Directory: " << ent << "\n";
+        } if (ent.is_regular_file()) {
+          cout << "Regular File: " << ent << "\n";
+          cout << "  Size: " << ent.file_size() << "\n";
+        } else {
+          cout << "Other File: " << ent << "\n";
+        }
+      }
     }
-  }
-}
 
-void canonicalize_extensions_in_dir(path dir) {
-  for (auto ent : directory_iterator(dir)) {
-    if (ent.is_directory())
-      continue;
-    const path old_name = ent;
-    path new_name = old_name.filename();
-    new_name.replace_extension(ToUpperCase(new_name.extension()));
-    ent.replace_filename(new_name); // BOOM
-    if (ent.exists())
-      return report_error("cannot canonicalize extension");
-    copy_file(old_name, ent);
-  }
-}
+    void canonicalize_extensions_in_dir(path dir) {
+      for (auto ent : directory_iterator(dir)) {
+        if (ent.is_directory())
+          continue;
+        const path old_name = ent;
+        path new_name = old_name.filename();
+        new_name.replace_extension(ToUpperCase(new_name.extension()));
+        ent.replace_filename(new_name); // BOOM
+        if (ent.exists())
+          return report_error("cannot canonicalize extension");
+        copy_file(old_name, ent);
+      }
+    }
 
-void copy_files_in_directory(path dir, path new_dir) {
-  for (auto ent : directory_iterator(dir)) {
-    if (ent.is_directory())
-      continue;
-    const path old_name = ent;
-    ent.assign(new_dir / old_name.filename()); // BOOM
-    if (!ent.exists())
-      copy_file(old_name, ent);
-  }
-}
+    void copy_files_in_directory(path dir, path new_dir) {
+      for (auto ent : directory_iterator(dir)) {
+        if (ent.is_directory())
+          continue;
+        const path old_name = ent;
+        ent.assign(new_dir / old_name.filename()); // BOOM
+        if (!ent.exists())
+          copy_file(old_name, ent);
+      }
+    }
 
   By default, libc++ does not implement the strict error reporting required by the
   standard. This behavior can be enabled using the
