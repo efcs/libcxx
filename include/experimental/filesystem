@@ -2177,7 +2177,7 @@ private:
         __cache_type_ = _Empty;
         __type_ = file_type::none;
         __sym_perms_ = __non_sym_perms_ = perms::unknown;
-        __size_ = __nlink_ = -1;
+        __size_ = __nlink_ = uintmax_t(-1);
         __write_time_ = file_time_type::min();
       }
     };
@@ -2227,8 +2227,7 @@ private:
 
     _LIBCPP_INLINE_VISIBILITY
     void __refresh(error_code* __ec = nullptr) {
-      __handle_error("refresh", __ec, __do_refresh(),
-                     /*allow_dne*/ true);
+      __handle_error("refresh", __ec, __do_refresh(), /*allow_dne*/ true);
     }
 
     _LIBCPP_INLINE_VISIBILITY
@@ -2262,13 +2261,14 @@ private:
         return __status(__p_, __ec).type();
       case _IterNonSymlink:
       case _RefreshNonSymlink:
-      case _RefreshSymlink:
+      case _RefreshSymlink: {
         file_status __st(__data_.__type_);
         if (__ec && !_VSTD_FS::exists(__st))
           *__ec = make_error_code(errc::no_such_file_or_directory);
         else if (__ec)
           __ec->clear();
         return __data_.__type_;
+      }
       }
     }
 
@@ -2314,7 +2314,7 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         file_status __st(__get_ft(&__m_ec));
-        __handle_error("file_size", __ec, __m_ec);
+        __handle_error("directory_entry::file_size", __ec, __m_ec);
         if (_VSTD_FS::exists(__st) && !_VSTD_FS::is_regular_file(__st)) {
           __handle_error("directory_entry::file_size", __ec,
                          make_error_code(errc::not_supported));
@@ -2336,7 +2336,7 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         (void)__get_ft(&__m_ec);
-        __handle_error("hard_link_count", __ec, __m_ec);
+        __handle_error("directory_entry::hard_link_count", __ec, __m_ec);
         return __data_.__nlink_;
       }
       }
@@ -2354,7 +2354,7 @@ private:
       case _RefreshNonSymlink: {
         error_code __m_ec;
         file_status __st(__get_ft(&__m_ec));
-        __handle_error("last_write_time", __ec, __m_ec);
+        __handle_error("directory_entry::last_write_time", __ec, __m_ec);
         if (_VSTD_FS::exists(__st) &&
             __data_.__write_time_ == file_time_type::min())
           __handle_error("directory_entry::last_write_time", __ec,
