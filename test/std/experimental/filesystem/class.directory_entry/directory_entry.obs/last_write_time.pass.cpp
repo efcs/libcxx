@@ -51,7 +51,9 @@ TEST_CASE(basic) {
     directory_entry ent(file);
     file_time_type expect = last_write_time(ent);
 
-    remove(file);
+    // Remove the file to show that the results were already in the cache.
+    LIBCPP_ONLY(remove(file));
+
     std::error_code ec = GetTestEC();
     TEST_CHECK(ent.last_write_time(ec) == expect);
     TEST_CHECK(!ec);
@@ -59,7 +61,9 @@ TEST_CASE(basic) {
   {
     directory_entry ent(dir);
     file_time_type expect = last_write_time(ent);
-    remove(dir);
+
+    LIBCPP_ONLY(remove(dir));
+
     std::error_code ec = GetTestEC();
     TEST_CHECK(ent.last_write_time(ec) == expect);
     TEST_CHECK(!ec);
