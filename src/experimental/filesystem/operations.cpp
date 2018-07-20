@@ -712,10 +712,12 @@ std::uintmax_t __file_size(const path& p, std::error_code *ec)
     struct ::stat st;
     file_status fst = detail::posix_stat(p, st, &m_ec);
     if (!exists(fst) || !is_regular_file(fst)) {
-        if (!m_ec)
-            m_ec = make_error_code(errc::not_supported);
-        set_or_throw(m_ec, ec, "file_size", p);
-        return static_cast<uintmax_t>(-1);
+      errc error_kind =
+          is_directory(fst) ? errc::is_a_directory : errc::not_supported;
+      if (!m_ec)
+        m_ec = make_error_code(error_kind);
+      set_or_throw(m_ec, ec, "file_size", p);
+      return static_cast<uintmax_t>(-1);
     }
     // is_regular_file(p) == true
     if (ec) ec->clear();

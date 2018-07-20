@@ -79,11 +79,16 @@ TEST_CASE(not_regular_file) {
   using namespace fs;
 
   scoped_test_env env;
-  const path dir = env.create_dir("dir");
-  const path fifo = env.create_fifo("fifo");
-  const path sym_to_dir = env.create_symlink("dir", "sym");
+  struct {
+    const path p;
+    std::errc expected_err;
+  } TestCases[] = {
+      {env.create_dir("dir"), std::errc::is_a_directory},
+      {env.create_fifo("fifo"), std::errc::not_supported},
+      {env.create_symlink("dir", "sym"), std::errc::is_a_directory}};
 
-  for (auto p : {dir, fifo, sym_to_dir}) {
+  for (auto const& TC : TestCases) {
+    const path& p = TC.p;
     directory_entry ent(p);
     TEST_CHECK(ent.path() == p);
     std::error_code ec = GetTestEC(0);
@@ -95,10 +100,9 @@ TEST_CASE(not_regular_file) {
     TEST_CHECK(got == expect);
     TEST_CHECK(got == uintmax_t(-1));
     TEST_CHECK(ec == other_ec);
-    TEST_CHECK(
-        ErrorIs(ec, std::errc::not_supported, std::errc::is_a_directory));
+    TEST_CHECK(ErrorIs(ec, TC.expected_err));
 
-    ExceptionChecker Checker(p, std::errc::not_supported);
+    ExceptionChecker Checker(p, TC.expected_err);
     TEST_CHECK_THROW_RESULT(filesystem_error, Checker, ent.file_size());
   }
 }

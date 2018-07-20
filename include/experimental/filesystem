@@ -2316,8 +2316,10 @@ private:
         file_status __st(__get_ft(&__m_ec));
         __handle_error("directory_entry::file_size", __ec, __m_ec);
         if (_VSTD_FS::exists(__st) && !_VSTD_FS::is_regular_file(__st)) {
+          errc __err_kind = _VSTD_FS::is_directory(__st) ? errc::is_a_directory
+                                                         : errc::not_supported;
           __handle_error("directory_entry::file_size", __ec,
-                         make_error_code(errc::not_supported));
+                         make_error_code(__err_kind));
         }
         return __data_.__size_;
       }
