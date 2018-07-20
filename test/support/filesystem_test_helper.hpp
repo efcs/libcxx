@@ -8,6 +8,7 @@
 #include <fstream>
 #include <random>
 #include <chrono>
+#include <vector>
 
 #include "rapid-cxx-test.hpp"
 
@@ -403,8 +404,19 @@ inline std::error_code GetTestEC(unsigned Idx = 0) {
   return std::make_error_code(GetErrc());
 }
 
-inline bool ErrorIs(const std::error_code& ec, std::errc val) {
-  return ec == std::make_error_code(val);
+inline bool ErrorIsImp(const std::error_code& ec,
+                       std::vector<std::errc> const& errors) {
+  for (auto errc : errors) {
+    if (ec == std::make_error_code(errc))
+      return true;
+  }
+  return false;
+}
+
+template <class... ErrcT>
+inline bool ErrorIs(const std::error_code& ec, std::errc First, ErrcT... Rest) {
+  std::vector<std::errc> errors = {First, Rest...};
+  return ErrorIsImp(ec, errors);
 }
 
 // Provide our own Sleep routine since std::this_thread::sleep_for is not
@@ -426,18 +438,22 @@ inline bool PathEq(fs::path const& LHS, fs::path const& RHS) {
 }
 
 struct ExceptionChecker {
-  std::errc expected_err;
+  std::vector<std::errc> expected_err_list;
   fs::path expected_path1;
   fs::path expected_path2;
 
-  explicit ExceptionChecker(fs::path p, std::errc expected_err)
-      : expected_err(expected_err), expected_path1(p) {}
+  template <class... ErrcT>
+  explicit ExceptionChecker(fs::path p, std::errc first_err, ErrcT... rest_err)
+      : expected_err_list({first_err, rest_err...}), expected_path1(p) {}
 
-  explicit ExceptionChecker(fs::path p1, fs::path p2, std::errc expected_err)
-      : expected_err(expected_err), expected_path1(p1), expected_path2(p2) {}
+  template <class... ErrcT>
+  explicit ExceptionChecker(fs::path p1, fs::path p2, std::errc first_err,
+                            ErrcT... rest_err)
+      : expected_err_list({first_err, rest_err...}), expected_path1(p1),
+        expected_path2(p2) {}
 
   void operator()(fs::filesystem_error const& Err) const {
-    TEST_CHECK(ErrorIs(Err.code(), expected_err));
+    TEST_CHECK(ErrorIsImp(Err.code(), expected_err_list));
     TEST_CHECK(Err.path1() == expected_path1);
     TEST_CHECK(Err.path2() == expected_path2);
   }

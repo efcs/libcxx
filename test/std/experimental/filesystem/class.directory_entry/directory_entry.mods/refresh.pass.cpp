@@ -96,6 +96,11 @@ TEST_CASE(refresh_on_file_dne) {
   }
 }
 
+void remove_if_exists(const fs::path& p) {
+  std::error_code ec;
+  remove(p, ec);
+}
+
 TEST_CASE(refresh_on_bad_symlink) {
   using namespace fs;
   scoped_test_env env;
@@ -108,14 +113,15 @@ TEST_CASE(refresh_on_bad_symlink) {
   // test file doesn't exist
   {
     directory_entry ent(sym);
-    remove(file);
+    LIBCPP_ONLY(remove(file));
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
     TEST_CHECK(ent.exists());
 
+    remove_if_exists(file);
     ent.refresh();
 
-    permissions(dir, perms::none);
+    LIBCPP_ONLY(permissions(dir, perms::none));
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(!ent.is_regular_file());
     TEST_CHECK(!ent.exists());
@@ -124,16 +130,18 @@ TEST_CASE(refresh_on_bad_symlink) {
   env.create_file("dir/file", 101);
   {
     directory_entry ent(sym);
-    remove(file);
+    LIBCPP_ONLY(remove(file));
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent.is_regular_file());
     TEST_CHECK(ent.exists());
+
+    remove_if_exists(file);
 
     std::error_code ec = GetTestEC();
     ent.refresh(ec);
     TEST_CHECK(!ec); // we don't report bad symlinks as an error.
 
-    permissions(dir, perms::none);
+    LIBCPP_ONLY(permissions(dir, perms::none));
     TEST_CHECK(!ent.exists());
   }
 }

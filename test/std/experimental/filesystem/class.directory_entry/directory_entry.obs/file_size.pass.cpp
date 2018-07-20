@@ -23,6 +23,8 @@
 #include "filesystem_test_helper.hpp"
 #include "rapid-cxx-test.hpp"
 
+#include <iostream>
+
 TEST_SUITE(directory_entry_obs_testsuite)
 
 TEST_CASE(signatures) {
@@ -51,7 +53,9 @@ TEST_CASE(basic) {
     uintmax_t expect = file_size(ent);
     TEST_CHECK(expect == 42);
 
-    remove(file);
+    // Remove the file to show that the results were already in the cache.
+    LIBCPP_ONLY(remove(file));
+
     std::error_code ec = GetTestEC();
     TEST_CHECK(ent.file_size(ec) == expect);
     TEST_CHECK(!ec);
@@ -63,7 +67,7 @@ TEST_CASE(basic) {
     uintmax_t expect = file_size(ent);
     TEST_CHECK(expect == 99);
 
-    remove(ent);
+    LIBCPP_ONLY(remove(ent));
 
     std::error_code ec = GetTestEC();
     TEST_CHECK(ent.file_size(ec) == 99);
@@ -91,7 +95,8 @@ TEST_CASE(not_regular_file) {
     TEST_CHECK(got == expect);
     TEST_CHECK(got == uintmax_t(-1));
     TEST_CHECK(ec == other_ec);
-    TEST_CHECK(ErrorIs(ec, std::errc::not_supported));
+    TEST_CHECK(
+        ErrorIs(ec, std::errc::not_supported, std::errc::is_a_directory));
 
     ExceptionChecker Checker(p, std::errc::not_supported);
     TEST_CHECK_THROW_RESULT(filesystem_error, Checker, ent.file_size());

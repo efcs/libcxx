@@ -87,7 +87,7 @@ TEST_CASE(path_ctor_calls_refresh) {
     directory_entry ent_ec(file, ec);
     TEST_CHECK(!ec);
 
-    remove(file);
+    LIBCPP_ONLY(remove(file));
 
     TEST_CHECK(ent.exists());
     TEST_CHECK(ent_ec.exists());
@@ -104,8 +104,8 @@ TEST_CASE(path_ctor_calls_refresh) {
     directory_entry ent_ec(sym, ec);
     TEST_CHECK(!ec);
 
-    remove(file);
-    remove(sym);
+    LIBCPP_ONLY(remove(file));
+    LIBCPP_ONLY(remove(sym));
 
     TEST_CHECK(ent.is_symlink());
     TEST_CHECK(ent_ec.is_symlink());
