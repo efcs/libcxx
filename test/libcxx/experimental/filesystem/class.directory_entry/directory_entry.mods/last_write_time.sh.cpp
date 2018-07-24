@@ -55,7 +55,7 @@ TEST_CASE(last_write_time_not_representable_error) {
   file_time_type rep_value;
   {
     std::error_code ec;
-    if (SetFileTimes(file, TS, ec)) {
+    if (set_file_times(file, TS, ec)) {
       TEST_REQUIRE(false && "unsupported");
     }
     ec.clear();
