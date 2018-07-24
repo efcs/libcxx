@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <time.h>
 #include <fcntl.h>  /* values for fchmodat */
 
 #if defined(__linux__)
@@ -35,6 +36,31 @@
 #include <copyfile.h>
 # define _LIBCPP_USE_COPYFILE
 #endif
+
+#if (__APPLE__)
+#if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
+#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101200
+#define _LIBCXX_USE_CLOCK_GETTIME
+#endif
+#elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
+#if __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 100000
+#define _LIBCXX_USE_CLOCK_GETTIME
+#endif
+#elif defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__)
+#if __ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__ >= 100000
+#define _LIBCXX_USE_CLOCK_GETTIME
+#endif
+#elif defined(__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__)
+#if __ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__ >= 30000
+#define _LIBCXX_USE_CLOCK_GETTIME
+#endif
+#endif // __ENVIRONMENT_.*_VERSION_MIN_REQUIRED__
+#else
+#define _LIBCXX_USE_CLOCK_GETTIME
+#endif // __APPLE__
+#if !defined(CLOCK_REALTIME) || !defined(_LIBCXX_USE_CLOCK_GETTIME)
+#include <sys/time.h> // for gettimeofday and timeval
+#endif                // !defined(CLOCK_REALTIME)
 
 #if defined(_LIBCPP_COMPILER_GCC)
 #if _GNUC_VER < 500
@@ -469,6 +495,24 @@ using parser::PathParser;
 using parser::string_view_t;
 
 const bool _FilesystemClock::is_steady;
+
+_FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
+  typedef chrono::duration<rep> __secs;
+  typedef chrono::duration<rep, nano> __nsecs;
+
+#if defined(_LIBCXX_USE_CLOCK_GETTIME) && defined(CLOCK_REALTIME)
+  struct timespec tp;
+  if (0 != clock_gettime(CLOCK_REALTIME, &tp))
+    __throw_system_error(errno, "clock_gettime(CLOCK_REALTIME) failed");
+  return time_point(__secs(tp.tv_sec) +
+                    chrono::duration_cast<duration>(__nsecs(tp.tv_nsec)));
+#else
+  typedef chrono::duration<rep, micro> __microsecs;
+  timeval tv;
+  gettimeofday(&tv, 0);
+  return time_point(__secs(tv.tv_sec) + __microsecs(tv.tv_usec));
+#endif // _LIBCXX_USE_CLOCK_GETTIME && CLOCK_REALTIME
+}
 
 void filesystem_error::__create_what(int __num_paths) {
   const char* derived_what = system_error::what();
