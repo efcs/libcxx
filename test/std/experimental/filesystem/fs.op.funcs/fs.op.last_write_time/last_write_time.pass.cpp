@@ -143,21 +143,6 @@ std::pair<TimeSpec, TimeSpec> GetSymlinkTimes(path const& p) {
 }
 
 namespace {
-bool TestSupportsNegativeTimes() {
-    using namespace std::chrono;
-    std::error_code ec;
-    TimeSpec old_write_time, new_write_time;
-    { // WARNING: Do not assert in this scope.
-        scoped_test_env env;
-        const path file = env.create_file("file", 42);
-        old_write_time = LastWriteTime(file);
-        file_time_type tp(seconds(-5));
-        fs::last_write_time(file, tp, ec);
-        new_write_time = LastWriteTime(file);
-    }
-
-    return !ec && new_write_time.tv_sec < 0;
-}
 
 // In some configurations, the comparison is tautological and the test is valid.
 // We disable the warning so that we can actually test it regardless. Also, that
@@ -169,54 +154,63 @@ bool TestSupportsNegativeTimes() {
 #pragma clang diagnostic ignored "-Wtautological-constant-compare"
 #endif
 
-bool TestSupportsMaxTime() {
-    using namespace std::chrono;
-    TimeSpec max_ts = {};
-    if (!ConvertToTimeSpec(max_ts, file_time_type::max()))
-      return false;
+static const bool SupportsNegativeTimes = [] {
+  using namespace std::chrono;
+  std::error_code ec;
+  TimeSpec old_write_time, new_write_time;
+  { // WARNING: Do not assert in this scope.
+    scoped_test_env env;
+    const path file = env.create_file("file", 42);
+    old_write_time = LastWriteTime(file);
+    file_time_type tp(seconds(-5));
+    fs::last_write_time(file, tp, ec);
+    new_write_time = LastWriteTime(file);
+  }
 
-    std::error_code ec;
-    TimeSpec old_write_time, new_write_time;
-    { // WARNING: Do not assert in this scope.
-        scoped_test_env env;
-        const path file = env.create_file("file", 42);
-        old_write_time = LastWriteTime(file);
-        file_time_type tp = file_time_type::max();
-        fs::last_write_time(file, tp, ec);
-        new_write_time = LastWriteTime(file);
-    }
-    return !ec && new_write_time.tv_sec > max_ts.tv_sec - 1;
-}
+  return !ec && new_write_time.tv_sec < 0;
+}();
 
-bool TestSupportsMinTime() {
-    using namespace std::chrono;
-    TimeSpec min_ts = {};
-    if (!ConvertToTimeSpec(min_ts, file_time_type::min()))
-      return false;
-    std::error_code ec;
-    TimeSpec old_write_time, new_write_time;
-    { // WARNING: Do not assert in this scope.
-      scoped_test_env env;
-      const path file = env.create_file("file", 42);
-      old_write_time = LastWriteTime(file);
-      file_time_type tp = file_time_type::min();
-      fs::last_write_time(file, tp, ec);
-      new_write_time = LastWriteTime(file);
-    }
-    return !ec && new_write_time.tv_sec < min_ts.tv_sec + 1;
-}
-
-constexpr bool TestSupportsMinRoundTrip() {
-  TimeSpec ts = {};
-  if (!ConvertToTimeSpec(ts, file_time_type::min()))
+static const bool SupportsMaxTime = [] {
+  using namespace std::chrono;
+  TimeSpec max_ts = {};
+  if (!ConvertToTimeSpec(max_ts, file_time_type::max()))
     return false;
-  file_time_type min_val = {};
-  if (!ConvertFromTimeSpec(min_val, ts))
-    return false;
-  return min_val == file_time_type::min();
-}
 
-bool TestFilesystemSupportsRoundTrip() {
+  std::error_code ec;
+  TimeSpec old_write_time, new_write_time;
+  { // WARNING: Do not assert in this scope.
+    scoped_test_env env;
+    const path file = env.create_file("file", 42);
+    old_write_time = LastWriteTime(file);
+    file_time_type tp = file_time_type::max();
+    fs::last_write_time(file, tp, ec);
+    new_write_time = LastWriteTime(file);
+  }
+  return !ec && new_write_time.tv_sec > max_ts.tv_sec - 1;
+}();
+
+static const bool SupportsMinTime = [] {
+  using namespace std::chrono;
+  TimeSpec min_ts = {};
+  if (!ConvertToTimeSpec(min_ts, file_time_type::min()))
+    return false;
+  std::error_code ec;
+  TimeSpec old_write_time, new_write_time;
+  { // WARNING: Do not assert in this scope.
+    scoped_test_env env;
+    const path file = env.create_file("file", 42);
+    old_write_time = LastWriteTime(file);
+    file_time_type tp = file_time_type::min();
+    fs::last_write_time(file, tp, ec);
+    new_write_time = LastWriteTime(file);
+  }
+  return !ec && new_write_time.tv_sec < min_ts.tv_sec + 1;
+}();
+
+static constexpr bool SupportsNanosecondResolution =
+    std::is_same<file_time_type::period, std::nano>::value;
+
+static const bool SupportsRoundTrip = [] {
   NanoSec ns(3);
 
   // Test if the file_time_type period is less than that of nanoseconds.
@@ -233,31 +227,19 @@ bool TestFilesystemSupportsRoundTrip() {
     last_write_time(p, ft);
     return last_write_time(p) == ft;
   }
-}
+}();
 
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
-
-static const bool SupportsNegativeTimes = TestSupportsNegativeTimes();
-static const bool SupportsMaxTime = TestSupportsMaxTime();
-static const bool SupportsMinTime = TestSupportsMinTime();
-static constexpr bool SupportsNanosecondResolution =
-    std::is_same<file_time_type::period, std::nano>::value;
-static const bool SupportsRoundTrip = TestFilesystemSupportsRoundTrip();
-static constexpr bool SupportsMinRoundTrip = TestSupportsMinRoundTrip();
+static const bool SupportsMinRoundTrip = [] {
+  TimeSpec ts = {};
+  if (!ConvertToTimeSpec(ts, file_time_type::min()))
+    return false;
+  file_time_type min_val = {};
+  if (!ConvertFromTimeSpec(min_val, ts))
+    return false;
+  return min_val == file_time_type::min();
+}();
 
 } // end namespace
-
-// In some configurations, the comparison is tautological and the test is valid.
-// We disable the warning so that we can actually test it regardless. Also, that
-// diagnostic is pretty new, so also don't fail if old clang does not support it
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
-#pragma clang diagnostic ignored "-Wunknown-pragmas"
-#pragma clang diagnostic ignored "-Wtautological-constant-compare"
-#endif
 
 static bool CompareTime(TimeSpec t1, TimeSpec t2) {
   if (SupportsRoundTrip && SupportsNanosecondResolution)
@@ -269,15 +251,18 @@ static bool CompareTime(TimeSpec t1, TimeSpec t2) {
 
   return diff < duration_cast<NanoSec>(MicroSec(2)).count();
 }
+
 static bool CompareTime(file_time_type t1, TimeSpec t2) {
   TimeSpec ts1 = {};
   if (!ConvertToTimeSpec(ts1, t1))
     return false;
   return CompareTime(ts1, t2);
 }
+
 static bool CompareTime(TimeSpec t1, file_time_type t2) {
   return CompareTime(t2, t1);
 }
+
 static bool CompareTime(file_time_type t1, file_time_type t2) {
   constexpr auto min_secs =
       duration_cast<Sec>(file_time_type::min().time_since_epoch());

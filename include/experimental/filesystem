@@ -270,16 +270,18 @@ struct _FilesystemClock {
 
   typedef chrono::duration<rep, period> duration;
   typedef chrono::time_point<_FilesystemClock> time_point;
+
   static _LIBCPP_CONSTEXPR_AFTER_CXX11 const bool is_steady = false;
 
-  _LIBCPP_FUNC_VIS
-  static time_point now() _NOEXCEPT;
+  _LIBCPP_FUNC_VIS static time_point now() _NOEXCEPT;
+
   _LIBCPP_INLINE_VISIBILITY
   static time_t to_time_t(const time_point& __t) _NOEXCEPT {
     typedef chrono::duration<rep> __secs;
     return time_t(
         chrono::duration_cast<__secs>(__t.time_since_epoch()).count());
   }
+
   _LIBCPP_INLINE_VISIBILITY
   static time_point from_time_t(time_t __t) _NOEXCEPT {
     typedef chrono::duration<rep> __secs;

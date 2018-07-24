@@ -23,33 +23,17 @@
 
 #include <experimental/filesystem>
 
-#if (__APPLE__)
-#if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101300
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 110000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__ >= 110000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#elif defined(__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__ >= 40000
-#define _LIBCXX_USE_UTIMENSAT
-#endif
-#endif // __ENVIRONMENT_.*_VERSION_MIN_REQUIRED__
-#else
+#include "../../include/apple_availability.h"
+
+#if !defined(__APPLE__)
 // We can use the presence of UTIME_OMIT to detect platforms that provide
 // utimensat.
 #if defined(UTIME_OMIT)
-#define _LIBCXX_USE_UTIMENSAT
+#define _LIBCPP_USE_UTIMENSAT
 #endif
-#endif // __APPLE__
+#endif
 
-#if !defined(_LIBCXX_USE_UTIMENSAT)
+#if !defined(_LIBCPP_USE_UTIMENSAT)
 #include <sys/time.h> // for ::utimes as used in __last_write_time
 #endif
 
@@ -393,7 +377,7 @@ public:
   }
 };
 
-using FSTime = time_util<file_time_type, time_t, struct timespec>;
+using fs_time = time_util<file_time_type, time_t, struct timespec>;
 
 #if defined(__APPLE__)
 TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
@@ -403,9 +387,9 @@ TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
 TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 #endif
 
-bool SetFileTimes(const path& p, std::array<TimeSpec, 2> const& TS,
-                  error_code& ec) {
-#if !defined(_LIBCXX_USE_UTIMENSAT)
+bool set_file_times(const path& p, std::array<TimeSpec, 2> const& TS,
+                    error_code& ec) {
+#if !defined(_LIBCPP_USE_UTIMENSAT)
   using namespace chrono;
   auto Convert = [](long nsec) {
     return duration_cast<microseconds>(nanoseconds(nsec)).count();
@@ -423,9 +407,9 @@ bool SetFileTimes(const path& p, std::array<TimeSpec, 2> const& TS,
   return false;
 }
 
-bool SetTimeSpecTo(TimeSpec& TS, file_time_type NewTime) {
+bool set_time_spec_to(TimeSpec& TS, file_time_type NewTime) {
   using namespace chrono;
-  return !FSTime::set_times_checked<typename FSTime::fs_nanoseconds>(
+  return !fs_time::set_times_checked<typename fs_time::fs_nanoseconds>(
       &TS.tv_sec, &TS.tv_nsec, NewTime);
 }
 
@@ -433,7 +417,5 @@ bool SetTimeSpecTo(TimeSpec& TS, file_time_type NewTime) {
 } // end namespace detail
 
 _LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
-
-
 
 #endif // FILESYSTEM_COMMON_H

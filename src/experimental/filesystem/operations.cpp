@@ -37,28 +37,11 @@
 # define _LIBCPP_USE_COPYFILE
 #endif
 
-#if (__APPLE__)
-#if defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101200
-#define _LIBCXX_USE_CLOCK_GETTIME
+#if !defined(__APPLE__)
+#define _LIBCPP_USE_CLOCK_GETTIME
 #endif
-#elif defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 100000
-#define _LIBCXX_USE_CLOCK_GETTIME
-#endif
-#elif defined(__ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_TV_OS_VERSION_MIN_REQUIRED__ >= 100000
-#define _LIBCXX_USE_CLOCK_GETTIME
-#endif
-#elif defined(__ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__)
-#if __ENVIRONMENT_WATCH_OS_VERSION_MIN_REQUIRED__ >= 30000
-#define _LIBCXX_USE_CLOCK_GETTIME
-#endif
-#endif // __ENVIRONMENT_.*_VERSION_MIN_REQUIRED__
-#else
-#define _LIBCXX_USE_CLOCK_GETTIME
-#endif // __APPLE__
-#if !defined(CLOCK_REALTIME) || !defined(_LIBCXX_USE_CLOCK_GETTIME)
+
+#if !defined(CLOCK_REALTIME) || !defined(_LIBCPP_USE_CLOCK_GETTIME)
 #include <sys/time.h> // for gettimeofday and timeval
 #endif                // !defined(CLOCK_REALTIME)
 
@@ -484,6 +467,7 @@ file_status FileDescriptor::refresh_status(error_code& ec) {
 using detail::capture_errno;
 using detail::ErrorHandler;
 using detail::StatT;
+using detail::TimeSpec;
 using parser::createView;
 using parser::PathParser;
 using parser::string_view_t;
@@ -492,7 +476,7 @@ const bool _FilesystemClock::is_steady;
 
 _FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
   typedef chrono::duration<rep> __secs;
-#if defined(_LIBCXX_USE_CLOCK_GETTIME) && defined(CLOCK_REALTIME)
+#if defined(_LIBCPP_USE_CLOCK_GETTIME) && defined(CLOCK_REALTIME)
   typedef chrono::duration<rep, nano> __nsecs;
   struct timespec tp;
   if (0 != clock_gettime(CLOCK_REALTIME, &tp))
@@ -504,7 +488,7 @@ _FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
   timeval tv;
   gettimeofday(&tv, 0);
   return time_point(__secs(tv.tv_sec) + __microsecs(tv.tv_usec));
-#endif // _LIBCXX_USE_CLOCK_GETTIME && CLOCK_REALTIME
+#endif // _LIBCPP_USE_CLOCK_GETTIME && CLOCK_REALTIME
 }
 
 filesystem_error::~filesystem_error() {}
@@ -1005,14 +989,14 @@ bool __fs_is_empty(const path& p, error_code *ec)
 
 static file_time_type __extract_last_write_time(const path& p, const StatT& st,
                                                 error_code* ec) {
-  using detail::FSTime;
+  using detail::fs_time;
   ErrorHandler<file_time_type> err("last_write_time", ec, &p);
 
   auto ts = detail::extract_mtime(st);
-  if (!FSTime::is_representable(ts))
+  if (!fs_time::is_representable(ts))
     return err.report(errc::value_too_large);
 
-  return FSTime::convert_from_timespec(ts);
+  return fs_time::convert_from_timespec(ts);
 }
 
 file_time_type __last_write_time(const path& p, error_code *ec)
@@ -1031,14 +1015,11 @@ file_time_type __last_write_time(const path& p, error_code *ec)
 void __last_write_time(const path& p, file_time_type new_time,
                        error_code *ec)
 {
-    using namespace chrono;
-    using namespace detail;
-
     ErrorHandler<void> err("last_write_time", ec, &p);
 
     error_code m_ec;
-    std::array<TimeSpec, 2> tbuf;
-#if !defined(_LIBCXX_USE_UTIMENSAT)
+    array<TimeSpec, 2> tbuf;
+#if !defined(_LIBCPP_USE_UTIMENSAT)
     // This implementation has a race condition between determining the
     // last access time and attempting to set it to the same value using
     // ::utimes
@@ -1051,10 +1032,10 @@ void __last_write_time(const path& p, file_time_type new_time,
     tbuf[0].tv_sec = 0;
     tbuf[0].tv_nsec = UTIME_OMIT;
 #endif
-    if (SetTimeSpecTo(tbuf[1], new_time))
+    if (detail::set_time_spec_to(tbuf[1], new_time))
       return err.report(errc::value_too_large);
 
-    SetFileTimes(p, tbuf, m_ec);
+    detail::set_file_times(p, tbuf, m_ec);
     if (m_ec)
       return err.report(m_ec);
 }
