@@ -55,9 +55,7 @@ TEST_CASE(last_write_time_not_representable_error) {
   file_time_type rep_value;
   {
     std::error_code ec;
-    if (set_file_times(file, TS, ec)) {
-      TEST_REQUIRE(false && "unsupported");
-    }
+    TEST_REQUIRE(!set_file_times(file, TS, ec));
     ec.clear();
     rep_value = last_write_time(file, ec);
     IsRepresentable = !bool(ec);
