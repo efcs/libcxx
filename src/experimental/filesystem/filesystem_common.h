@@ -395,7 +395,6 @@ public:
 
 } // namespace time_util
 
-
 using TimeSpec = struct ::timespec;
 using StatT = struct ::stat;
 
@@ -409,20 +408,23 @@ TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
 TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 #endif
 
-#if !defined(_LIBCXX_USE_UTIMENSAT)
-using TimeStruct = struct ::timeval;
-using TimeStructArray = TimeStruct[2];
-#else
-using TimeStruct = TimeSpec;
-using TimeStructArray = TimeStruct[2];
-#endif
-
-bool SetFileTimes(const path& p, TimeStructArray const& TS,
+bool SetFileTimes(const path& p, std::array<TimeSpec, 2> const& TS,
                   error_code& ec) {
 #if !defined(_LIBCXX_USE_UTIMENSAT)
-  if (::utimes(p.c_str(), TS) == -1)
+  using namespace chrono;
+  using TimeVal = struct ::timeval;
+
+  TimeVal ConvertedTS[2];
+  auto SetConverted = [&](TimeVal& Dest, const TimeSpec& From) {
+    Dest.tv_sec = From.tv_sec;
+    Dest.tv_usec =
+        duration_cast<microseconds>(nanoseconds(From.tv_nsec)).count();
+  };
+  SetConverted(ConvertedTS[0], TS[0]);
+  SetConverted(ConvertedTS[1], TS[1]);
+  if (::utimes(p.c_str(), ConvertedTS) == -1)
 #else
-  if (::utimensat(AT_FDCWD, p.c_str(), TS, 0) == -1)
+  if (::utimensat(AT_FDCWD, p.c_str(), TS.data(), 0) == -1)
 #endif
   {
     ec = capture_errno();
@@ -431,29 +433,11 @@ bool SetFileTimes(const path& p, TimeStructArray const& TS,
   return false;
 }
 
-void SetTimeStructTo(TimeStruct& TS, TimeSpec ToTS) {
+bool SetTimeSpecTo(TimeSpec& TS, file_time_type NewTime) {
   using namespace chrono;
   using namespace time_util;
-  TS.tv_sec = ToTS.tv_sec;
-#if !defined(_LIBCXX_USE_UTIMENSAT)
-  TS.tv_usec = duration_cast<typename FSTime::fs_microseconds>(
-                   typename FSTime::fs_nanoseconds(ToTS.tv_nsec))
-                   .count();
-#else
-  TS.tv_nsec = ToTS.tv_nsec;
-#endif
-}
-
-bool SetTimeStructTo(TimeStruct& TS, file_time_type NewTime) {
-  using namespace chrono;
-  using namespace time_util;
-#if !defined(_LIBCXX_USE_UTIMENSAT)
-  return !FSTime::set_times_checked<typename FSTime::fs_microseconds>(
-      &TS.tv_sec, &TS.tv_usec, NewTime);
-#else
   return !FSTime::set_times_checked<typename FSTime::fs_nanoseconds>(
       &TS.tv_sec, &TS.tv_nsec, NewTime);
-#endif
 }
 
 } // namespace

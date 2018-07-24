@@ -1041,7 +1041,7 @@ void __last_write_time(const path& p, file_time_type new_time,
     ErrorHandler<void> err("last_write_time", ec, &p);
 
     error_code m_ec;
-    TimeStructArray tbuf;
+    std::array<TimeSpec, 2> tbuf;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
     // This implementation has a race condition between determining the
     // last access time and attempting to set it to the same value using
@@ -1050,12 +1050,12 @@ void __last_write_time(const path& p, file_time_type new_time,
     file_status fst = detail::posix_stat(p, st, &m_ec);
     if (m_ec && !status_known(fst))
       return err.report(m_ec);
-    SetTimeStructTo(tbuf[0], detail::extract_atime(st));
+    tbuf[0] = detail::extract_atime(st);
 #else
     tbuf[0].tv_sec = 0;
     tbuf[0].tv_nsec = UTIME_OMIT;
 #endif
-    if (SetTimeStructTo(tbuf[1], new_time))
+    if (SetTimeSpecTo(tbuf[1], new_time))
       return err.report(errc::value_too_large);
 
     SetFileTimes(p, tbuf, m_ec);
