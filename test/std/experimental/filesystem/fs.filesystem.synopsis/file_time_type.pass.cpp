@@ -29,14 +29,18 @@ void test_trivial_clock() {
   ASSERT_NOEXCEPT(Clock::now());
   ASSERT_SAME_TYPE(decltype(Clock::now()), file_time_type);
   ASSERT_SAME_TYPE(Clock::time_point, file_time_type);
+  volatile auto* odr_use = &Clock::is_steady;
+  ((void)odr_use);
 }
 
 void test_time_point_resolution_and_range() {
   using namespace fs;
   using Dur = file_time_type::duration;
   using Period = Dur::period;
-  // Check that we have nanosecond resolution, since so does struct timespec.
-  ASSERT_SAME_TYPE(Period, std::nano);
+  // Ideally we should be checking only for nanosecond resolution, but unfortunately
+  // there can be cases where libc++ needs to fall back to microseconds.
+  static_assert(std::is_same<Period, std::nano>::value ||
+                std::is_same<Period, std::micro>::value);
 }
 
 int main() {

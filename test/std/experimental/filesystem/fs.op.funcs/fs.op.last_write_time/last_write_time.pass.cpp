@@ -249,7 +249,7 @@ static bool CompareTime(TimeSpec t1, TimeSpec t2) {
 
   auto diff = std::abs(t1.tv_nsec - t2.tv_nsec);
 
-  return diff < duration_cast<NanoSec>(MicroSec(2)).count();
+  return diff < duration_cast<NanoSec>(MicroSec(1)).count();
 }
 
 static bool CompareTime(file_time_type t1, TimeSpec t2) {
