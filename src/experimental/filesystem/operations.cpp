@@ -498,9 +498,8 @@ const bool _FilesystemClock::is_steady;
 
 _FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
   typedef chrono::duration<rep> __secs;
-  typedef chrono::duration<rep, nano> __nsecs;
-
 #if defined(_LIBCXX_USE_CLOCK_GETTIME) && defined(CLOCK_REALTIME)
+  typedef chrono::duration<rep, nano> __nsecs;
   struct timespec tp;
   if (0 != clock_gettime(CLOCK_REALTIME, &tp))
     __throw_system_error(errno, "clock_gettime(CLOCK_REALTIME) failed");
