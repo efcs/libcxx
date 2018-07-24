@@ -82,7 +82,7 @@ constexpr bool ConvertFromTimeSpec(file_time_type& ft, TimeSpec ts) {
     return false;
   auto subsecs = duration_cast<file_time_type::duration>(NanoSec(ts.tv_nsec));
   auto dur = secs_part + subsecs;
-  if (dur < secs_part)
+  if (dur < secs_part && subsecs.count() >= 0)
     return false;
   ft = file_time_type(dur);
   return true;
