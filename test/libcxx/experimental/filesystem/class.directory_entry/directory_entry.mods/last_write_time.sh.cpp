@@ -41,9 +41,7 @@ TEST_CASE(last_write_time_not_representable_error) {
   ToTime.tv_sec = std::numeric_limits<decltype(ToTime.tv_sec)>::max();
   ToTime.tv_nsec = duration_cast<nanoseconds>(seconds(1)).count() - 1;
 
-  TimeStructArray TS;
-  SetTimeStructTo(TS[0], ToTime);
-  SetTimeStructTo(TS[1], ToTime);
+  std::array<TimeSpec, 2> TS = {ToTime, ToTime};
 
   file_time_type old_time = last_write_time(file);
   directory_entry ent(file);
