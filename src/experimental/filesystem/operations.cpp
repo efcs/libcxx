@@ -378,7 +378,7 @@ private:
   explicit FileDescriptor(const path* p, int fd = -1) : name(*p), fd(fd) {}
 };
 
-perms posix_get_perms(const struct ::stat& st) noexcept {
+perms posix_get_perms(const StatT& st) noexcept {
   return static_cast<perms>(st.st_mode) & perms::mask;
 }
 
@@ -387,8 +387,7 @@ perms posix_get_perms(const struct ::stat& st) noexcept {
 }
 
 file_status create_file_status(error_code& m_ec, path const& p,
-                               const struct ::stat& path_stat,
-                               error_code* ec) {
+                               const StatT& path_stat, error_code* ec) {
   if (ec)
     *ec = m_ec;
   if (m_ec && (m_ec.value() == ENOENT || m_ec.value() == ENOTDIR)) {
@@ -423,8 +422,7 @@ file_status create_file_status(error_code& m_ec, path const& p,
   return fs_tmp;
 }
 
-file_status posix_stat(path const& p, struct ::stat& path_stat,
-                       error_code* ec) {
+file_status posix_stat(path const& p, StatT& path_stat, error_code* ec) {
   error_code m_ec;
   if (::stat(p.c_str(), &path_stat) == -1)
     m_ec = detail::capture_errno();
@@ -432,12 +430,11 @@ file_status posix_stat(path const& p, struct ::stat& path_stat,
 }
 
 file_status posix_stat(path const& p, error_code* ec) {
-  struct ::stat path_stat;
+  StatT path_stat;
   return posix_stat(p, path_stat, ec);
 }
 
-file_status posix_lstat(path const& p, struct ::stat& path_stat,
-                        error_code* ec) {
+file_status posix_lstat(path const& p, StatT& path_stat, error_code* ec) {
   error_code m_ec;
   if (::lstat(p.c_str(), &path_stat) == -1)
     m_ec = detail::capture_errno();
@@ -445,7 +442,7 @@ file_status posix_lstat(path const& p, struct ::stat& path_stat,
 }
 
 file_status posix_lstat(path const& p, error_code* ec) {
-  struct ::stat path_stat;
+  StatT path_stat;
   return posix_lstat(p, path_stat, ec);
 }
 
@@ -569,14 +566,14 @@ void __copy(const path& from, const path& to, copy_options options,
   const bool sym_status2 = bool(options & copy_options::copy_symlinks);
 
   error_code m_ec1;
-  struct ::stat f_st = {};
+  StatT f_st = {};
   const file_status f = sym_status || sym_status2
                             ? detail::posix_lstat(from, f_st, &m_ec1)
                             : detail::posix_stat(from, f_st, &m_ec1);
   if (m_ec1)
     return err.report(m_ec1);
 
-  struct ::stat t_st = {};
+  StatT t_st = {};
   const file_status t = sym_status ? detail::posix_lstat(to, t_st, &m_ec1)
                                    : detail::posix_stat(to, t_st, &m_ec1);
 
@@ -958,7 +955,7 @@ uintmax_t __file_size(const path& p, error_code *ec)
   ErrorHandler<uintmax_t> err("file_size", ec, &p);
 
   error_code m_ec;
-  struct ::stat st;
+  StatT st;
   file_status fst = detail::posix_stat(p, st, &m_ec);
   if (!exists(fst) || !is_regular_file(fst)) {
     errc error_kind =
@@ -1045,9 +1042,9 @@ void __last_write_time(const path& p, file_time_type new_time,
     // This implementation has a race condition between determining the
     // last access time and attempting to set it to the same value using
     // ::utimes
-    struct ::stat st;
+    StatT st;
     file_status fst = detail::posix_stat(p, st, &m_ec);
-    if (m_ec && !status_known(fst))
+    if (m_ec)
       return err.report(m_ec);
     tbuf[0] = detail::extract_atime(st);
 #else
@@ -1634,7 +1631,7 @@ error_code directory_entry::__do_refresh() noexcept {
   __data_.__reset();
   error_code failure_ec;
 
-  struct ::stat full_st;
+  StatT full_st;
   file_status st = detail::posix_lstat(__p_, full_st, &failure_ec);
   if (!status_known(st)) {
     __data_.__reset();

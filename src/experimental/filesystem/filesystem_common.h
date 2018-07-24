@@ -212,14 +212,15 @@ private:
   ErrorHandler& operator=(ErrorHandler const&) = delete;
 };
 
-namespace time_util {
-
 using chrono::duration;
 using chrono::duration_cast;
 
+using TimeSpec = struct ::timespec;
+using StatT = struct ::stat;
+
 template <class FileTimeT, class TimeT,
           bool IsFloat = is_floating_point<typename FileTimeT::rep>::value>
-struct fs_time_util_base {
+struct time_util_base {
   using rep = typename FileTimeT::rep;
   using fs_duration = typename FileTimeT::duration;
   using fs_seconds = duration<rep>;
@@ -266,7 +267,7 @@ private:
 };
 
 template <class FileTimeT, class TimeT>
-struct fs_time_util_base<FileTimeT, TimeT, true> {
+struct time_util_base<FileTimeT, TimeT, true> {
   using rep = typename FileTimeT::rep;
   using fs_duration = typename FileTimeT::duration;
   using fs_seconds = duration<rep>;
@@ -281,32 +282,31 @@ struct fs_time_util_base<FileTimeT, TimeT, true> {
 
 template <class FileTimeT, class TimeT>
 const typename FileTimeT::rep
-    fs_time_util_base<FileTimeT, TimeT, true>::max_seconds =
+    time_util_base<FileTimeT, TimeT, true>::max_seconds =
         duration_cast<fs_seconds>(FileTimeT::duration::max()).count();
 
 template <class FileTimeT, class TimeT>
-const typename FileTimeT::rep
-    fs_time_util_base<FileTimeT, TimeT, true>::max_nsec =
-        duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
-                                      fs_seconds(max_seconds))
-            .count();
+const typename FileTimeT::rep time_util_base<FileTimeT, TimeT, true>::max_nsec =
+    duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
+                                  fs_seconds(max_seconds))
+        .count();
 
 template <class FileTimeT, class TimeT>
 const typename FileTimeT::rep
-    fs_time_util_base<FileTimeT, TimeT, true>::min_seconds =
+    time_util_base<FileTimeT, TimeT, true>::min_seconds =
         duration_cast<fs_seconds>(FileTimeT::duration::min()).count();
 
 template <class FileTimeT, class TimeT>
 const typename FileTimeT::rep
-    fs_time_util_base<FileTimeT, TimeT, true>::min_nsec_timespec =
+    time_util_base<FileTimeT, TimeT, true>::min_nsec_timespec =
         duration_cast<fs_nanoseconds>((FileTimeT::duration::min() -
                                        fs_seconds(min_seconds)) +
                                       fs_seconds(1))
             .count();
 
 template <class FileTimeT, class TimeT, class TimeSpecT>
-struct fs_time_util : fs_time_util_base<FileTimeT, TimeT> {
-  using Base = fs_time_util_base<FileTimeT, TimeT>;
+struct time_util : time_util_base<FileTimeT, TimeT> {
+  using Base = time_util_base<FileTimeT, TimeT>;
   using Base::max_nsec;
   using Base::max_seconds;
   using Base::min_nsec_timespec;
@@ -393,12 +393,7 @@ public:
   }
 };
 
-} // namespace time_util
-
-using TimeSpec = struct ::timespec;
-using StatT = struct ::stat;
-
-using FSTime = time_util::fs_time_util<file_time_type, time_t, struct timespec>;
+using FSTime = time_util<file_time_type, time_t, struct timespec>;
 
 #if defined(__APPLE__)
 TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
@@ -412,16 +407,11 @@ bool SetFileTimes(const path& p, std::array<TimeSpec, 2> const& TS,
                   error_code& ec) {
 #if !defined(_LIBCXX_USE_UTIMENSAT)
   using namespace chrono;
-  using TimeVal = struct ::timeval;
-
-  TimeVal ConvertedTS[2];
-  auto SetConverted = [&](TimeVal& Dest, const TimeSpec& From) {
-    Dest.tv_sec = From.tv_sec;
-    Dest.tv_usec =
-        duration_cast<microseconds>(nanoseconds(From.tv_nsec)).count();
+  auto Convert = [](long nsec) {
+    return duration_cast<microseconds>(nanoseconds(nsec)).count();
   };
-  SetConverted(ConvertedTS[0], TS[0]);
-  SetConverted(ConvertedTS[1], TS[1]);
+  struct ::timeval ConvertedTS[2] = {{TS[0].tv_sec, Convert(TS[0].tv_nsec)},
+                                     {TS[1].tv_sec, Convert(TS[1].tv_nsec)}};
   if (::utimes(p.c_str(), ConvertedTS) == -1)
 #else
   if (::utimensat(AT_FDCWD, p.c_str(), TS.data(), 0) == -1)
@@ -435,7 +425,6 @@ bool SetFileTimes(const path& p, std::array<TimeSpec, 2> const& TS,
 
 bool SetTimeSpecTo(TimeSpec& TS, file_time_type NewTime) {
   using namespace chrono;
-  using namespace time_util;
   return !FSTime::set_times_checked<typename FSTime::fs_nanoseconds>(
       &TS.tv_sec, &TS.tv_nsec, NewTime);
 }

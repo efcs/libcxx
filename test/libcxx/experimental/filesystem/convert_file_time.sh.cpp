@@ -32,7 +32,7 @@
 using namespace std::chrono;
 namespace fs = std::experimental::filesystem;
 using fs::file_time_type;
-using fs::detail::time_util::fs_time_util;
+using fs::detail::time_util;
 
 #ifdef TEST_HAS_NO_INT128_T
 static_assert(sizeof(fs::file_time_type::rep) <= 8, "");
@@ -64,7 +64,7 @@ constexpr TestKind getFileTimeTestKind() {
 }
 
 template <class FileTimeT, class TimeT, class TimeSpecT,
-          class Base = fs_time_util<FileTimeT, TimeT, TimeSpecT>,
+          class Base = time_util<FileTimeT, TimeT, TimeSpecT>,
           TestKind = getTimeTTestKind<TimeT>(),
           TestKind = getFileTimeTestKind<FileTimeT>()>
 struct test_case;

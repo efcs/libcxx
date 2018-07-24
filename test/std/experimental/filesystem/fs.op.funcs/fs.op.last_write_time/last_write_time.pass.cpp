@@ -30,6 +30,9 @@
 #include <sys/stat.h>
 #include <iostream>
 
+#include <fcntl.h>
+#include <sys/time.h>
+
 using namespace fs;
 
 using TimeSpec = struct ::timespec;
@@ -213,13 +216,23 @@ constexpr bool TestSupportsMinRoundTrip() {
   return min_val == file_time_type::min();
 }
 
-bool TestFilesystemSupportsRoundtrip() {
-  file_time_type ft(duration_cast<file_time_type::duration>(NanoSec(3)));
+bool TestFilesystemSupportsRoundTrip() {
+  NanoSec ns(3);
 
-  scoped_test_env env;
-  const path p = env.create_file("file", 42);
-  last_write_time(p, ft);
-  return last_write_time(p) == ft;
+  // Test if the file_time_type period is less than that of nanoseconds.
+  auto ft_dur = duration_cast<file_time_type::duration>(ns);
+  if (duration_cast<NanoSec>(ft_dur) != ns)
+    return false;
+
+  // Test that the system call we use to set the times also supports nanosecond
+  // resolution. (utimes does not)
+  file_time_type ft(ft_dur);
+  {
+    scoped_test_env env;
+    const path p = env.create_file("file", 42);
+    last_write_time(p, ft);
+    return last_write_time(p) == ft;
+  }
 }
 
 #if defined(__clang__)
@@ -231,8 +244,8 @@ static const bool SupportsMaxTime = TestSupportsMaxTime();
 static const bool SupportsMinTime = TestSupportsMinTime();
 static constexpr bool SupportsNanosecondResolution =
     std::is_same<file_time_type::period, std::nano>::value;
-static const bool SupportsRoundtrip = TestFilesystemSupportsRoundtrip();
-static constexpr bool SupportsMinRoundtrip = TestSupportsMinRoundTrip();
+static const bool SupportsRoundTrip = TestFilesystemSupportsRoundTrip();
+static constexpr bool SupportsMinRoundTrip = TestSupportsMinRoundTrip();
 
 } // end namespace
 
@@ -247,7 +260,7 @@ static constexpr bool SupportsMinRoundtrip = TestSupportsMinRoundTrip();
 #endif
 
 static bool CompareTime(TimeSpec t1, TimeSpec t2) {
-  if (SupportsRoundtrip && SupportsNanosecondResolution)
+  if (SupportsRoundTrip && SupportsNanosecondResolution)
     return CompareTimeExact(t1, t2);
   if (t1.tv_sec != t2.tv_sec)
     return false;
@@ -271,7 +284,7 @@ static bool CompareTime(file_time_type t1, file_time_type t2) {
   bool IsMin =
       t1.time_since_epoch() < min_secs || t2.time_since_epoch() < min_secs;
 
-  if (SupportsRoundtrip && (!IsMin || SupportsMinRoundtrip))
+  if (SupportsRoundTrip && (!IsMin || SupportsMinRoundTrip))
     return t1 == t2;
   if (IsMin) {
     return duration_cast<Sec>(t1.time_since_epoch()) ==
@@ -313,7 +326,7 @@ inline bool TimeIsRepresentableByFilesystem(file_time_type tp) {
 // Create a sub-second duration using the smallest period the filesystem supports.
 file_time_type::duration SubSec(long long val) {
   using SubSecT = file_time_type::duration;
-  if (SupportsNanosecondResolution && SupportsRoundtrip) {
+  if (SupportsNanosecondResolution && SupportsRoundTrip) {
     return duration_cast<SubSecT>(NanoSec(val));
   } else {
     return duration_cast<SubSecT>(MicroSec(val));
@@ -572,6 +585,29 @@ TEST_CASE(test_exists_fails)
     ExceptionChecker Checker(file, std::errc::permission_denied,
                              "last_write_time");
     TEST_CHECK_THROW_RESULT(filesystem_error, Checker, last_write_time(file));
+}
+
+TEST_CASE(my_test) {
+  scoped_test_env env;
+  const path p = env.create_file("file", 42);
+  using namespace std::chrono;
+  using TimeSpec = struct ::timespec;
+  TimeSpec ts[2];
+  ts[0].tv_sec = 0;
+  ts[0].tv_nsec = UTIME_OMIT;
+  ts[1].tv_sec = -1;
+  ts[1].tv_nsec =
+      duration_cast<nanoseconds>(seconds(1) - nanoseconds(13)).count();
+  if (::utimensat(AT_FDCWD, p.c_str(), ts, 0) == -1) {
+    TEST_CHECK(false);
+    std::cerr << std::error_code(errno, std::generic_category()).message()
+              << std::endl;
+  }
+  TimeSpec new_ts = LastWriteTime(p);
+  std::cerr << new_ts.tv_sec << "\n";
+  std::cerr << new_ts.tv_nsec << "\n";
+  TEST_CHECK(ts[1].tv_sec == new_ts.tv_sec);
+  TEST_CHECK(ts[1].tv_nsec == new_ts.tv_nsec);
 }
 
 TEST_SUITE_END()
