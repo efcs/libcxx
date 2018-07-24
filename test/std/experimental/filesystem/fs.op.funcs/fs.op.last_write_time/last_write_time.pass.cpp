@@ -333,7 +333,7 @@ file_time_type::duration SubSec(long long val) {
   }
 }
 
-TEST_SUITE(exists_test_suite)
+TEST_SUITE(last_write_time_test_suite)
 
 TEST_CASE(signature_test)
 {

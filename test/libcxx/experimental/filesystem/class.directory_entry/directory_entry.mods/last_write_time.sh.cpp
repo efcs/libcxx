@@ -80,7 +80,7 @@ TEST_CASE(last_write_time_not_representable_error) {
 
     ExceptionChecker CheckExcept(file, expected_err,
                                  "directory_entry::last_write_time");
-    TEST_CHECK_THROW_RESULT(fs::filesystem_error, CheckExcept,
+    TEST_CHECK_THROW_RESULT(filesystem_error, CheckExcept,
                             ent.last_write_time());
 
   } else {
