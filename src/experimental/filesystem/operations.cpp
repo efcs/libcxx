@@ -70,9 +70,6 @@
 
 _LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
 
-filesystem_error::~filesystem_error() {}
-
-
 namespace { namespace parser
 {
 
@@ -512,6 +509,8 @@ _FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
   return time_point(__secs(tv.tv_sec) + __microsecs(tv.tv_usec));
 #endif // _LIBCXX_USE_CLOCK_GETTIME && CLOCK_REALTIME
 }
+
+filesystem_error::~filesystem_error() {}
 
 void filesystem_error::__create_what(int __num_paths) {
   const char* derived_what = system_error::what();
