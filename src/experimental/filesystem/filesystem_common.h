@@ -217,7 +217,7 @@ namespace time_util {
 using chrono::duration;
 using chrono::duration_cast;
 
-template <class FileTimeT,
+template <class FileTimeT, class TimeT,
           bool IsFloat = is_floating_point<typename FileTimeT::rep>::value>
 struct fs_time_util_base {
   using rep = typename FileTimeT::rep;
@@ -243,18 +243,30 @@ struct fs_time_util_base {
           fs_seconds(1))
           .count();
 
+private:
+  static constexpr fs_duration get_min_nsecs() {
+    return duration_cast<fs_duration>(
+        fs_nanoseconds(min_nsec_timespec) -
+        duration_cast<fs_nanoseconds>(fs_seconds(1)));
+  }
+
+  typedef duration<long long, ratio<3600 * 24 * 365> > Years;
+
+  static_assert(max_seconds >= numeric_limits<TimeT>::max() ||
+                    duration_cast<Years>(fs_seconds(max_seconds)) > Years(500),
+                "");
+  static_assert(min_seconds <= numeric_limits<TimeT>::min() ||
+                    duration_cast<Years>(fs_seconds(min_seconds)) < Years(-500),
+                "");
+
   // Static assert that these values properly round trip.
-#if 0
-  static_assert((fs_seconds(min_seconds) +
-                 fs_nanoseconds(min_nsec_timespec))) -
-                        duration_cast<fs_microseconds>(fs_seconds(1)) ==
+  static_assert(fs_seconds(min_seconds) + get_min_nsecs() ==
                     FileTimeT::duration::min(),
                 "");
-#endif
 };
 
-template <class FileTimeT>
-struct fs_time_util_base<FileTimeT, true> {
+template <class FileTimeT, class TimeT>
+struct fs_time_util_base<FileTimeT, TimeT, true> {
   using rep = typename FileTimeT::rep;
   using fs_duration = typename FileTimeT::duration;
   using fs_seconds = duration<rep>;
@@ -267,31 +279,34 @@ struct fs_time_util_base<FileTimeT, true> {
   static const rep min_nsec_timespec;
 };
 
-template <class FileTimeT>
-const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::max_seconds =
-    duration_cast<fs_seconds>(FileTimeT::duration::max()).count();
-
-template <class FileTimeT>
-const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::max_nsec =
-    duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
-                                  fs_seconds(max_seconds))
-        .count();
-
-template <class FileTimeT>
-const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::min_seconds =
-    duration_cast<fs_seconds>(FileTimeT::duration::min()).count();
-
-template <class FileTimeT>
+template <class FileTimeT, class TimeT>
 const typename FileTimeT::rep
-    fs_time_util_base<FileTimeT, true>::min_nsec_timespec =
+    fs_time_util_base<FileTimeT, TimeT, true>::max_seconds =
+        duration_cast<fs_seconds>(FileTimeT::duration::max()).count();
+
+template <class FileTimeT, class TimeT>
+const typename FileTimeT::rep
+    fs_time_util_base<FileTimeT, TimeT, true>::max_nsec =
+        duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
+                                      fs_seconds(max_seconds))
+            .count();
+
+template <class FileTimeT, class TimeT>
+const typename FileTimeT::rep
+    fs_time_util_base<FileTimeT, TimeT, true>::min_seconds =
+        duration_cast<fs_seconds>(FileTimeT::duration::min()).count();
+
+template <class FileTimeT, class TimeT>
+const typename FileTimeT::rep
+    fs_time_util_base<FileTimeT, TimeT, true>::min_nsec_timespec =
         duration_cast<fs_nanoseconds>((FileTimeT::duration::min() -
                                        fs_seconds(min_seconds)) +
                                       fs_seconds(1))
             .count();
 
 template <class FileTimeT, class TimeT, class TimeSpecT>
-struct fs_time_util : fs_time_util_base<FileTimeT> {
-  using Base = fs_time_util_base<FileTimeT>;
+struct fs_time_util : fs_time_util_base<FileTimeT, TimeT> {
+  using Base = fs_time_util_base<FileTimeT, TimeT>;
   using Base::max_nsec;
   using Base::max_seconds;
   using Base::min_nsec_timespec;

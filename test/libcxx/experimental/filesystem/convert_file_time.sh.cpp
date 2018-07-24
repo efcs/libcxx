@@ -29,14 +29,14 @@
 #define TEST_HAS_NO_INT128_T
 #endif
 
-#ifdef TEST_HAS_NO_INT128_T
-static_assert(sizeof(fs::file_time_type::rep) <= 8);
-#endif
-
 using namespace std::chrono;
 namespace fs = std::experimental::filesystem;
 using fs::file_time_type;
 using fs::detail::time_util::fs_time_util;
+
+#ifdef TEST_HAS_NO_INT128_T
+static_assert(sizeof(fs::file_time_type::rep) <= 8, "");
+#endif
 
 enum TestKind { TK_128Bit, TK_64Bit, TK_32Bit, TK_FloatingPoint };
 
@@ -54,6 +54,8 @@ constexpr TestKind getTimeTTestKind() {
 template <class FileTimeT>
 constexpr TestKind getFileTimeTestKind() {
   using Rep = typename FileTimeT::rep;
+  if (std::is_floating_point<Rep>::value)
+    return TK_FloatingPoint;
   if (sizeof(Rep) == 16)
     return TK_128Bit;
   if (sizeof(Rep) == 8)

@@ -42,19 +42,11 @@ using MicroSec = std::chrono::duration<file_time_type::rep, std::micro>;
 using NanoSec = std::chrono::duration<file_time_type::rep, std::nano>;
 using std::chrono::duration_cast;
 
-constexpr
-
 #if defined(__APPLE__)
-    TimeSpec
-    extract_mtime(StatT const& st) {
-  return st.st_mtimespec;
-}
+TimeSpec extract_mtime(StatT const& st) { return st.st_mtimespec; }
 TimeSpec extract_atime(StatT const& st) { return st.st_atimespec; }
 #else
-    TimeSpec
-    extract_mtime(StatT const& st) {
-  return st.st_mtim;
-}
+TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
 TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 #endif
 
@@ -108,17 +100,6 @@ constexpr bool CompareTimeExact(file_time_type ft, TimeSpec ts) {
 constexpr bool CompareTimeExact(TimeSpec ts, file_time_type ft) {
   return CompareTimeExact(ft, ts);
 }
-
-constexpr bool TestSupportsMinRoundTrip() {
-  TimeSpec ts = {};
-  if (!ConvertToTimeSpec(ts, file_time_type::min()))
-    return false;
-  file_time_type min_val = {};
-  if (!ConvertFromTimeSpec(min_val, ts))
-    return false;
-  return min_val == file_time_type::min();
-}
-static constexpr bool SupportsMinRoundtrip = TestSupportsMinRoundTrip();
 
 struct Times {
   TimeSpec access, write;
@@ -222,10 +203,15 @@ bool TestSupportsMinTime() {
     return !ec && new_write_time.tv_sec < min_ts.tv_sec + 1;
 }
 
-
-static const bool SupportsNegativeTimes = TestSupportsNegativeTimes();
-static const bool SupportsMaxTime = TestSupportsMaxTime();
-static const bool SupportsMinTime = TestSupportsMinTime();
+constexpr bool TestSupportsMinRoundTrip() {
+  TimeSpec ts = {};
+  if (!ConvertToTimeSpec(ts, file_time_type::min()))
+    return false;
+  file_time_type min_val = {};
+  if (!ConvertFromTimeSpec(min_val, ts))
+    return false;
+  return min_val == file_time_type::min();
+}
 
 bool TestFilesystemSupportsRoundtrip() {
   file_time_type ft(duration_cast<file_time_type::duration>(NanoSec(3)));
@@ -235,13 +221,18 @@ bool TestFilesystemSupportsRoundtrip() {
   last_write_time(p, ft);
   return last_write_time(p) == ft;
 }
+
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 
+static const bool SupportsNegativeTimes = TestSupportsNegativeTimes();
+static const bool SupportsMaxTime = TestSupportsMaxTime();
+static const bool SupportsMinTime = TestSupportsMinTime();
 static constexpr bool SupportsNanosecondResolution =
     std::is_same<file_time_type::period, std::nano>::value;
 static const bool SupportsRoundtrip = TestFilesystemSupportsRoundtrip();
+static constexpr bool SupportsMinRoundtrip = TestSupportsMinRoundTrip();
 
 } // end namespace
 
@@ -318,6 +309,16 @@ inline bool TimeIsRepresentableByFilesystem(file_time_type tp) {
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
+
+// Create a sub-second duration using the smallest period the filesystem supports.
+file_time_type::duration SubSec(long long val) {
+  using SubSecT = file_time_type::duration;
+  if (SupportsNanosecondResolution && SupportsRoundtrip) {
+    return duration_cast<SubSecT>(NanoSec(val));
+  } else {
+    return duration_cast<SubSecT>(MicroSec(val));
+  }
+}
 
 TEST_SUITE(exists_test_suite)
 
@@ -405,7 +406,7 @@ TEST_CASE(get_last_write_time_dynamic_env_test)
 TEST_CASE(set_last_write_time_dynamic_env_test)
 {
     using Clock = file_time_type::clock;
-
+    using SubSecT = file_time_type::duration;
     scoped_test_env env;
 
     const path file = env.create_file("file", 42);
@@ -413,15 +414,17 @@ TEST_CASE(set_last_write_time_dynamic_env_test)
     const auto now = Clock::now();
     const file_time_type epoch_time = now - now.time_since_epoch();
 
-    const file_time_type future_time = now + Hours(3) + Sec(42) + MicroSec(17);
-    const file_time_type past_time = now - Minutes(3) - Sec(42) - MicroSec(17);
-    const file_time_type before_epoch_time = epoch_time - Minutes(3) - Sec(42) - MicroSec(17);
+    const file_time_type future_time = now + Hours(3) + Sec(42) + SubSec(17);
+    const file_time_type past_time = now - Minutes(3) - Sec(42) - SubSec(17);
+    const file_time_type before_epoch_time =
+        epoch_time - Minutes(3) - Sec(42) - SubSec(17);
     // FreeBSD has a bug in their utimes implementation where the time is not update
     // when the number of seconds is '-1'.
 #if defined(__FreeBSD__)
-    const file_time_type just_before_epoch_time = epoch_time - Sec(2) - MicroSec(17);
+    const file_time_type just_before_epoch_time =
+        epoch_time - Sec(2) - SubSec(17);
 #else
-    const file_time_type just_before_epoch_time = epoch_time - MicroSec(17);
+    const file_time_type just_before_epoch_time = epoch_time - SubSec(17);
 #endif
 
     struct TestCase {
@@ -502,27 +505,21 @@ TEST_CASE(test_write_min_time)
 
     if (TimeIsRepresentableByFilesystem(new_time)) {
         TEST_CHECK(!ec);
-        std::cerr << file_time_type::min().time_since_epoch().count() << "\n";
-        std::cerr << tt.time_since_epoch().count() << std::endl;
-        std::cerr << new_time.time_since_epoch().count() << std::endl;
-        std::cerr << duration_cast<Sec>(tt.time_since_epoch()).count()
-                  << std::endl;
-        std::cerr << duration_cast<Sec>(new_time.time_since_epoch()).count()
-                  << std::endl;
-
         TEST_CHECK(CompareTime(tt, new_time));
 
+        last_write_time(p, old_time);
+        new_time = file_time_type::min() + SubSec(1);
+
         ec = GetTestEC();
-        last_write_time(p, Clock::now());
-
-        new_time = file_time_type::min() + MicroSec(1);
-
         last_write_time(p, new_time, ec);
         tt = last_write_time(p);
 
         if (TimeIsRepresentableByFilesystem(new_time)) {
             TEST_CHECK(!ec);
             TEST_CHECK(CompareTime(tt, new_time));
+        } else {
+          TEST_CHECK(ErrorIs(ec, std::errc::value_too_large));
+          TEST_CHECK(tt == old_time);
         }
     } else {
       TEST_CHECK(ErrorIs(ec, std::errc::value_too_large));
