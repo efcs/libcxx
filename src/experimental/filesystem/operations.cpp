@@ -468,6 +468,8 @@ using parser::createView;
 using parser::PathParser;
 using parser::string_view_t;
 
+const bool _FilesystemClock::is_steady;
+
 void filesystem_error::__create_what(int __num_paths) {
   const char* derived_what = system_error::what();
   __storage_->__what_ = [&]() -> string {
@@ -971,7 +973,7 @@ static file_time_type __extract_last_write_time(const path& p, const StatT& st,
   if (!FSTime::is_representable(ts))
     return err.report(errc::value_too_large);
 
-  return FSTime::convert_timespec(ts);
+  return FSTime::convert_from_timespec(ts);
 }
 
 file_time_type __last_write_time(const path& p, error_code *ec)
@@ -1011,7 +1013,7 @@ void __last_write_time(const path& p, file_time_type new_time,
     tbuf[0].tv_nsec = UTIME_OMIT;
 #endif
     if (SetTimeStructTo(tbuf[1], new_time))
-      return err.report(errc::invalid_argument);
+      return err.report(errc::value_too_large);
 
     SetFileTimes(p, tbuf, m_ec);
     if (m_ec)

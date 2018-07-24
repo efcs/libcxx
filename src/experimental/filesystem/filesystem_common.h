@@ -214,62 +214,80 @@ private:
 
 namespace time_util {
 
-using namespace chrono;
+using chrono::duration;
+using chrono::duration_cast;
 
 template <class FileTimeT,
           bool IsFloat = is_floating_point<typename FileTimeT::rep>::value>
 struct fs_time_util_base {
-  static constexpr seconds::rep max_seconds =
-      duration_cast<seconds>(FileTimeT::duration::max()).count();
+  using rep = typename FileTimeT::rep;
+  using fs_duration = typename FileTimeT::duration;
+  using fs_seconds = duration<rep>;
+  using fs_nanoseconds = duration<rep, nano>;
+  using fs_microseconds = duration<rep, micro>;
 
-  static constexpr nanoseconds::rep max_nsec =
-      duration_cast<nanoseconds>(FileTimeT::duration::max() -
-                                 seconds(max_seconds))
+  static constexpr rep max_seconds =
+      duration_cast<fs_seconds>(FileTimeT::duration::max()).count();
+
+  static constexpr rep max_nsec =
+      duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
+                                    fs_seconds(max_seconds))
           .count();
 
-  static constexpr seconds::rep min_seconds =
-      duration_cast<seconds>(FileTimeT::duration::min()).count();
+  static constexpr rep min_seconds =
+      duration_cast<fs_seconds>(FileTimeT::duration::min()).count();
 
-  static constexpr nanoseconds::rep min_nsec_timespec =
-      duration_cast<nanoseconds>(
-          (FileTimeT::duration::min() - seconds(min_seconds)) + seconds(1))
+  static constexpr rep min_nsec_timespec =
+      duration_cast<fs_nanoseconds>(
+          (FileTimeT::duration::min() - fs_seconds(min_seconds)) +
+          fs_seconds(1))
           .count();
 
   // Static assert that these values properly round trip.
-  static_assert((seconds(min_seconds) +
-                 duration_cast<microseconds>(nanoseconds(min_nsec_timespec))) -
-                        duration_cast<microseconds>(seconds(1)) ==
+#if 0
+  static_assert((fs_seconds(min_seconds) +
+                 fs_nanoseconds(min_nsec_timespec))) -
+                        duration_cast<fs_microseconds>(fs_seconds(1)) ==
                     FileTimeT::duration::min(),
                 "");
+#endif
 };
 
 template <class FileTimeT>
 struct fs_time_util_base<FileTimeT, true> {
-  static const long long max_seconds;
-  static const long long max_nsec;
-  static const long long min_seconds;
-  static const long long min_nsec_timespec;
+  using rep = typename FileTimeT::rep;
+  using fs_duration = typename FileTimeT::duration;
+  using fs_seconds = duration<rep>;
+  using fs_nanoseconds = duration<rep, nano>;
+  using fs_microseconds = duration<rep, micro>;
+
+  static const rep max_seconds;
+  static const rep max_nsec;
+  static const rep min_seconds;
+  static const rep min_nsec_timespec;
 };
 
 template <class FileTimeT>
-const long long fs_time_util_base<FileTimeT, true>::max_seconds =
-    duration_cast<seconds>(FileTimeT::duration::max()).count();
+const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::max_seconds =
+    duration_cast<fs_seconds>(FileTimeT::duration::max()).count();
 
 template <class FileTimeT>
-const long long fs_time_util_base<FileTimeT, true>::max_nsec =
-    duration_cast<nanoseconds>(FileTimeT::duration::max() -
-                               seconds(max_seconds))
+const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::max_nsec =
+    duration_cast<fs_nanoseconds>(FileTimeT::duration::max() -
+                                  fs_seconds(max_seconds))
         .count();
 
 template <class FileTimeT>
-const long long fs_time_util_base<FileTimeT, true>::min_seconds =
-    duration_cast<seconds>(FileTimeT::duration::min()).count();
+const typename FileTimeT::rep fs_time_util_base<FileTimeT, true>::min_seconds =
+    duration_cast<fs_seconds>(FileTimeT::duration::min()).count();
 
 template <class FileTimeT>
-const long long fs_time_util_base<FileTimeT, true>::min_nsec_timespec =
-    duration_cast<nanoseconds>(
-        (FileTimeT::duration::min() - seconds(min_seconds)) + seconds(1))
-        .count();
+const typename FileTimeT::rep
+    fs_time_util_base<FileTimeT, true>::min_nsec_timespec =
+        duration_cast<fs_nanoseconds>((FileTimeT::duration::min() -
+                                       fs_seconds(min_seconds)) +
+                                      fs_seconds(1))
+            .count();
 
 template <class FileTimeT, class TimeT, class TimeSpecT>
 struct fs_time_util : fs_time_util_base<FileTimeT> {
@@ -279,9 +297,15 @@ struct fs_time_util : fs_time_util_base<FileTimeT> {
   using Base::min_nsec_timespec;
   using Base::min_seconds;
 
+  using typename Base::fs_duration;
+  using typename Base::fs_microseconds;
+  using typename Base::fs_nanoseconds;
+  using typename Base::fs_seconds;
+
 public:
   template <class CType, class ChronoType>
-  static bool checked_set(CType* out, ChronoType time) {
+  static _LIBCPP_CONSTEXPR_AFTER_CXX11 bool checked_set(CType* out,
+                                                        ChronoType time) {
     using Lim = numeric_limits<CType>;
     if (time > Lim::max() || time < Lim::min())
       return false;
@@ -301,11 +325,11 @@ public:
   }
 
   static _LIBCPP_CONSTEXPR_AFTER_CXX11 bool is_representable(FileTimeT tm) {
-    auto secs = duration_cast<seconds>(tm.time_since_epoch());
-    auto nsecs = duration_cast<nanoseconds>(tm.time_since_epoch() - secs);
+    auto secs = duration_cast<fs_seconds>(tm.time_since_epoch());
+    auto nsecs = duration_cast<fs_nanoseconds>(tm.time_since_epoch() - secs);
     if (nsecs.count() < 0) {
-      secs = secs + seconds(1);
-      nsecs = nsecs + seconds(1);
+      secs = secs + fs_seconds(1);
+      nsecs = nsecs + fs_seconds(1);
     }
     using TLim = numeric_limits<TimeT>;
     if (secs.count() >= 0)
@@ -314,39 +338,43 @@ public:
   }
 
   static _LIBCPP_CONSTEXPR_AFTER_CXX11 FileTimeT
-  convert_timespec(TimeSpecT tm) {
-    auto adj_msec = duration_cast<microseconds>(nanoseconds(tm.tv_nsec));
-    if (tm.tv_sec >= 0) {
-      auto Dur = seconds(tm.tv_sec) + microseconds(adj_msec);
-      return FileTimeT(Dur);
-    } else if (duration_cast<microseconds>(nanoseconds(tm.tv_nsec)).count() ==
-               0) {
-      return FileTimeT(seconds(tm.tv_sec));
+  convert_from_timespec(TimeSpecT tm) {
+    if (tm.tv_sec >= 0 || tm.tv_nsec == 0) {
+      return FileTimeT(fs_seconds(tm.tv_sec) +
+                       duration_cast<fs_duration>(fs_nanoseconds(tm.tv_nsec)));
+    } else if (tm.tv_nsec == 0) {
+      return FileTimeT(fs_seconds(tm.tv_sec));
     } else { // tm.tv_sec < 0
-      auto adj_subsec =
-          duration_cast<microseconds>(seconds(1) - nanoseconds(tm.tv_nsec));
-      auto Dur = seconds(tm.tv_sec + 1) - adj_subsec;
+      auto adj_subsec = duration_cast<fs_duration>(fs_seconds(1) -
+                                                   fs_nanoseconds(tm.tv_nsec));
+      auto Dur = fs_seconds(tm.tv_sec + 1) - adj_subsec;
       return FileTimeT(Dur);
     }
   }
 
   template <class SubSecDurT, class SubSecT>
-  static bool set_times_checked(TimeT* sec_out, SubSecT* subsec_out,
-                                FileTimeT tp) {
+  static _LIBCPP_CONSTEXPR_AFTER_CXX11 bool
+  set_times_checked(TimeT* sec_out, SubSecT* subsec_out, FileTimeT tp) {
     auto dur = tp.time_since_epoch();
-    auto sec_dur = duration_cast<seconds>(dur);
+    auto sec_dur = duration_cast<fs_seconds>(dur);
     auto subsec_dur = duration_cast<SubSecDurT>(dur - sec_dur);
     // The tv_nsec and tv_usec fields must not be negative so adjust accordingly
     if (subsec_dur.count() < 0) {
       if (sec_dur.count() > min_seconds) {
-        sec_dur -= seconds(1);
-        subsec_dur += seconds(1);
+        sec_dur -= fs_seconds(1);
+        subsec_dur += fs_seconds(1);
       } else {
         subsec_dur = SubSecDurT::zero();
       }
     }
     return checked_set(sec_out, sec_dur.count()) &&
            checked_set(subsec_out, subsec_dur.count());
+  }
+  static _LIBCPP_CONSTEXPR_AFTER_CXX11 bool convert_to_timespec(TimeSpecT& dest,
+                                                                FileTimeT tp) {
+    if (!is_representable(tp))
+      return false;
+    return set_times_checked<fs_nanoseconds>(&dest.tv_sec, &dest.tv_nsec, tp);
   }
 };
 
@@ -390,9 +418,12 @@ bool SetFileTimes(const path& p, TimeStructArray const& TS,
 
 void SetTimeStructTo(TimeStruct& TS, TimeSpec ToTS) {
   using namespace chrono;
+  using namespace time_util;
   TS.tv_sec = ToTS.tv_sec;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
-  TS.tv_usec = duration_cast<microseconds>(nanoseconds(ToTS.tv_nsec)).count();
+  TS.tv_usec = duration_cast<typename FSTime::fs_microseconds>(
+                   typename FSTime::fs_nanoseconds(ToTS.tv_nsec))
+                   .count();
 #else
   TS.tv_nsec = ToTS.tv_nsec;
 #endif
@@ -400,12 +431,13 @@ void SetTimeStructTo(TimeStruct& TS, TimeSpec ToTS) {
 
 bool SetTimeStructTo(TimeStruct& TS, file_time_type NewTime) {
   using namespace chrono;
+  using namespace time_util;
 #if !defined(_LIBCXX_USE_UTIMENSAT)
-  return !FSTime::set_times_checked<microseconds>(&TS.tv_sec, &TS.tv_usec,
-                                                  NewTime);
+  return !FSTime::set_times_checked<typename FSTime::fs_microseconds>(
+      &TS.tv_sec, &TS.tv_usec, NewTime);
 #else
-  return !FSTime::set_times_checked<nanoseconds>(&TS.tv_sec, &TS.tv_nsec,
-                                                 NewTime);
+  return !FSTime::set_times_checked<typename FSTime::fs_nanoseconds>(
+      &TS.tv_sec, &TS.tv_nsec, NewTime);
 #endif
 }
 
