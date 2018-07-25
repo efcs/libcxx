@@ -151,7 +151,7 @@ Having a Larger Range than ``timespec``
 We also should consider the opposite problem of having ``file_time_type``
 be able to represent a larger range than that of ``timespec``. At least in
 this case ``last_write_time`` can be used to get and set all possible values
-supported by the underlying filesystem; meaning `last_write_time(p)` will
+supported by the underlying filesystem; meaning ``last_write_time(p)`` will
 never throw a overflow error.
 
 However, this introduces a new problem, where users are allowed to create time
@@ -184,8 +184,8 @@ Potential Solutions And Their Complications
 Source Code Portability Across Implementations
 -----------------------------------------------
 
-As we've discussed, `file_time_type` needs a representation that uses more
-than 64 bits. The possible solutions include using `__int128_t`, emulating a
+As we've discussed, ``file_time_type`` needs a representation that uses more
+than 64 bits. The possible solutions include using ``__int128_t``, emulating a
 128 bit integer using a class, or potentially defining a ``timespec`` like
 arithmetic type. All three will solve allow us to, at minimum, match the range
 and resolution, and the last one might even allow us to match them exactly.
@@ -275,9 +275,9 @@ it from a single 64 bit integer.
 
 We also can't allow the user to inspect the ``tv_sec`` or ``tv_nsec`` values
 directly. A ``chrono::duration`` represents its value as a tick period and a
-number of ticks stored using `rep`. The representation is unaware of the
+number of ticks stored using ``rep``. The representation is unaware of the
 tick period its being used to represent, but ``timespec`` is setup to assume a
-nanosecond tick period. That's the only case where the names of the `tv_sec`
+nanosecond tick period. That's the only case where the names of the ``tv_sec``
 and ``tv_nsec`` members matches the values they store.
 
 When we convert a nanosecond duration to a seconds, ``fs_timespec_rep``
@@ -351,18 +351,18 @@ were an actual ``timespec``.
 Interactions with 32 bit ``time_t``
 -----------------------------------
 
-Up until now we've only be considering cases where `time_t` is 64 bits, but what
-about 32 bit systems/builds where `time_t` is 32 bits? (this is the common case
+Up until now we've only be considering cases where ``time_t`` is 64 bits, but what
+about 32 bit systems/builds where ``time_t`` is 32 bits? (this is the common case
 for 32 bit builds).
 
-When `time_t` is 32 bits, we can implement `file_time_type` simply using 64-bit
-`long long`. There is no need to get either `__int128_t` or ``timespec`` emulation
+When ``time_t`` is 32 bits, we can implement ``file_time_type`` simply using 64-bit
+``long long``. There is no need to get either ``__int128_t`` or ``timespec`` emulation
 involved. And nor should we, as it would suffer from the numerous complications
 described by this paper.
 
 Obviously our implementation for 32-bit builds should act as similarly to the
 64-bit build as possible. Code which compiles in one, should compile in the other.
-This consideration is important when choosing between `__int128_t` and
+This consideration is important when choosing between ``__int128_t`` and
 emulating ``timespec``. The solution which provides the most uniformity is
 the preferable one, with the least eccentricity is the preferable one.
 
@@ -383,7 +383,7 @@ arithmetic emulation of ``timespec``. Each has its pros and cons, and both
 come with more than one complication.
 
 The Potential Solutions
------------------------------------
+-----------------------
 
 ``long long`` - The Status Quo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -444,21 +444,21 @@ Pros:
 
 * It has the exact same range and resolution of ``timespec`` when representing
   a nanosecond tick period.
-* It's always available, unlike `__int128_t`.
+* It's always available, unlike ``__int128_t``.
 
 Cons:
 
 * It has a larger range when representing any period longer than a nanosecond.
 * Doesn't actually allow users to use it like a ``timespec``.
-* The required representation of using `tv_sec` to store the giga tick count
-  and `tv_nsec` to store the remainder adds nothing over a 128 bit integer,
+* The required representation of using ``tv_sec`` to store the giga tick count
+  and ``tv_nsec`` to store the remainder adds nothing over a 128 bit integer,
   but complicates a lot.
 * It isn't a builtin integer type, and can't be used anything like one.
 * Chrono can be made to work with it, but not nicely.
 * Emulating arithmetic classes come with their own host of problems regarding
   overload resolution (Each operator needs three SFINAE constrained versions of
   it in order to act like builtin integer types).
-* It offers little over simply using `__int128_t`.
+* It offers little over simply using ``__int128_t``.
 * It acts the most differently than implementations using an actual integer type,
   which has a high chance of breaking source compatibility.
 
@@ -466,17 +466,17 @@ Cons:
 Selected Solution - Using ``__int128_t``
 =========================================
 
-The solution I selected for libc++ is using `__int128_t` when available,
-and otherwise falling back to using `long long` with nanosecond precision.
+The solution I selected for libc++ is using ``__int128_t`` when available,
+and otherwise falling back to using ``long long`` with nanosecond precision.
 
-When `__int128_t` is available, or when `time_t` is 32-bits, the implementation
+When ``__int128_t`` is available, or when ``time_t`` is 32-bits, the implementation
 provides same resolution and a greater range than ``timespec``. Otherwise
 it still provides the same resolution, but is limited to a range of +/- 300
-years. This final case should be rather rare, as `__int128_t`
-is normally available in 64-bit builds, and `time_t` is normally 32-bits
+years. This final case should be rather rare, as ``__int128_t``
+is normally available in 64-bit builds, and ``time_t`` is normally 32-bits
 during 32-bit builds.
 
-Although falling back to `long long` and nanosecond precision is less than
+Although falling back to ``long long`` and nanosecond precision is less than
 ideal, it also happens to be the implementation provided by both libstdc++
 and MSVC. (So that makes it better, right?)
 
@@ -490,4 +490,4 @@ to expect them to tolerate and work around these differences. And once
 we commit to an ABI it will be too late to change. Committing to this seems
 risky.
 
-Therefore, `__int128_t` seems like the better solution.
+Therefore, ``__int128_t`` seems like the better solution.
