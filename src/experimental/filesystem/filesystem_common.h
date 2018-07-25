@@ -229,25 +229,29 @@ struct time_util_base {
           .count();
 
 private:
+#if _LIBCPP_STD_VER > 11
   static constexpr fs_duration get_min_nsecs() {
     return duration_cast<fs_duration>(
         fs_nanoseconds(min_nsec_timespec) -
         duration_cast<fs_nanoseconds>(fs_seconds(1)));
   }
-
-  typedef duration<long long, ratio<3600 * 24 * 365> > Years;
-
-  static_assert(max_seconds >= numeric_limits<TimeT>::max() ||
-                    duration_cast<Years>(fs_seconds(max_seconds)) > Years(500),
-                "");
-  static_assert(min_seconds <= numeric_limits<TimeT>::min() ||
-                    duration_cast<Years>(fs_seconds(min_seconds)) < Years(-500),
-                "");
-
   // Static assert that these values properly round trip.
   static_assert(fs_seconds(min_seconds) + get_min_nsecs() ==
                     FileTimeT::duration::min(),
                 "");
+
+  static constexpr bool check_range() {
+    // This kinda sucks, but it's what happens when we don't have __int128_t.
+    if (sizeof(TimeT) == sizeof(rep)) {
+      typedef duration<long long, ratio<3600 * 24 * 365> > Years;
+      return duration_cast<Years>(fs_seconds(max_seconds)) > Years(250) &&
+             duration_cast<Years>(fs_seconds(min_seconds)) < Years(-250);
+    }
+    return max_seconds >= numeric_limits<TimeT>::max() &&
+           min_seconds <= numeric_limits<TimeT>::min();
+  }
+  static_assert(check_range(), "the representable range is unacceptable small");
+#endif
 };
 
 template <class FileTimeT, class TimeT>

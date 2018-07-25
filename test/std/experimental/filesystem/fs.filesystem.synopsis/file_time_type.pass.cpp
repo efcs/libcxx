@@ -37,10 +37,7 @@ void test_time_point_resolution_and_range() {
   using namespace fs;
   using Dur = file_time_type::duration;
   using Period = Dur::period;
-  // Ideally we should be checking only for nanosecond resolution, but unfortunately
-  // there can be cases where libc++ needs to fall back to microseconds.
-  static_assert(std::is_same<Period, std::nano>::value ||
-                std::is_same<Period, std::micro>::value);
+  ASSERT_SAME_TYPE(Period, std::nano);
 }
 
 int main() {

@@ -53,7 +53,7 @@ TimeSpec extract_mtime(StatT const& st) { return st.st_mtim; }
 TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 #endif
 
-constexpr bool ConvertToTimeSpec(TimeSpec& ts, file_time_type ft) {
+bool ConvertToTimeSpec(TimeSpec& ts, file_time_type ft) {
   using SecFieldT = decltype(TimeSpec::tv_sec);
   using NSecFieldT = decltype(TimeSpec::tv_nsec);
   using SecLim = std::numeric_limits<SecFieldT>;
@@ -79,7 +79,7 @@ constexpr bool ConvertToTimeSpec(TimeSpec& ts, file_time_type ft) {
   return true;
 }
 
-constexpr bool ConvertFromTimeSpec(file_time_type& ft, TimeSpec ts) {
+bool ConvertFromTimeSpec(file_time_type& ft, TimeSpec ts) {
   auto secs_part = duration_cast<file_time_type::duration>(Sec(ts.tv_sec));
   if (duration_cast<Sec>(secs_part).count() != ts.tv_sec)
     return false;
@@ -91,16 +91,16 @@ constexpr bool ConvertFromTimeSpec(file_time_type& ft, TimeSpec ts) {
   return true;
 }
 
-constexpr bool CompareTimeExact(TimeSpec ts, TimeSpec ts2) {
+bool CompareTimeExact(TimeSpec ts, TimeSpec ts2) {
   return ts2.tv_sec == ts.tv_sec && ts2.tv_nsec == ts.tv_nsec;
 }
-constexpr bool CompareTimeExact(file_time_type ft, TimeSpec ts) {
+bool CompareTimeExact(file_time_type ft, TimeSpec ts) {
   TimeSpec ts2 = {};
   if (!ConvertToTimeSpec(ts2, ft))
     return false;
   return CompareTimeExact(ts, ts2);
 }
-constexpr bool CompareTimeExact(TimeSpec ts, file_time_type ft) {
+bool CompareTimeExact(TimeSpec ts, file_time_type ft) {
   return CompareTimeExact(ft, ts);
 }
 
@@ -264,8 +264,7 @@ static bool CompareTime(TimeSpec t1, file_time_type t2) {
 }
 
 static bool CompareTime(file_time_type t1, file_time_type t2) {
-  constexpr auto min_secs =
-      duration_cast<Sec>(file_time_type::min().time_since_epoch());
+  auto min_secs = duration_cast<Sec>(file_time_type::min().time_since_epoch());
   bool IsMin =
       t1.time_since_epoch() < min_secs || t2.time_since_epoch() < min_secs;
 
