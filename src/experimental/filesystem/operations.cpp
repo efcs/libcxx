@@ -474,7 +474,7 @@ using parser::string_view_t;
 
 const bool _FilesystemClock::is_steady;
 
-_FilesystemClock::time_point _FilesystemClock::now() _NOEXCEPT {
+_FilesystemClock::time_point _FilesystemClock::now() noexcept {
   typedef chrono::duration<rep> __secs;
 #if defined(_LIBCPP_USE_CLOCK_GETTIME) && defined(CLOCK_REALTIME)
   typedef chrono::duration<rep, nano> __nsecs;
