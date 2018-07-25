@@ -238,7 +238,7 @@ private:
   // Static assert that these values properly round trip.
   static_assert(fs_seconds(min_seconds) + get_min_nsecs() ==
                     FileTimeT::duration::min(),
-                "");
+                "value doesn't roundtrip");
 
   static constexpr bool check_range() {
     // This kinda sucks, but it's what happens when we don't have __int128_t.

@@ -207,10 +207,7 @@ static const bool SupportsMinTime = [] {
   return !ec && new_write_time.tv_sec < min_ts.tv_sec + 1;
 }();
 
-static constexpr bool SupportsNanosecondResolution =
-    std::is_same<file_time_type::period, std::nano>::value;
-
-static const bool SupportsRoundTrip = [] {
+static const bool SupportsNanosecondRoundTrip = [] {
   NanoSec ns(3);
 
   // Test if the file_time_type period is less than that of nanoseconds.
@@ -242,7 +239,7 @@ static const bool SupportsMinRoundTrip = [] {
 } // end namespace
 
 static bool CompareTime(TimeSpec t1, TimeSpec t2) {
-  if (SupportsRoundTrip && SupportsNanosecondResolution)
+  if (SupportsNanosecondRoundTrip)
     return CompareTimeExact(t1, t2);
   if (t1.tv_sec != t2.tv_sec)
     return false;
@@ -268,7 +265,7 @@ static bool CompareTime(file_time_type t1, file_time_type t2) {
   bool IsMin =
       t1.time_since_epoch() < min_secs || t2.time_since_epoch() < min_secs;
 
-  if (SupportsRoundTrip && (!IsMin || SupportsMinRoundTrip))
+  if (SupportsNanosecondRoundTrip && (!IsMin || SupportsMinRoundTrip))
     return t1 == t2;
   if (IsMin) {
     return duration_cast<Sec>(t1.time_since_epoch()) ==
@@ -310,7 +307,7 @@ inline bool TimeIsRepresentableByFilesystem(file_time_type tp) {
 // Create a sub-second duration using the smallest period the filesystem supports.
 file_time_type::duration SubSec(long long val) {
   using SubSecT = file_time_type::duration;
-  if (SupportsNanosecondResolution && SupportsRoundTrip) {
+  if (SupportsNanosecondRoundTrip) {
     return duration_cast<SubSecT>(NanoSec(val));
   } else {
     return duration_cast<SubSecT>(MicroSec(val));
