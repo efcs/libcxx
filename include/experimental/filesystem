@@ -261,12 +261,11 @@ _LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
 struct _FilesystemClock {
 #if !defined(_LIBCPP_HAS_NO_INT128)
   typedef __int128_t rep;
-  typedef nano period;
 #else
   typedef long long rep;
-  typedef conditional<sizeof(long long) == 8 && sizeof(time_t) == 4, nano,
-                      micro>::type period;
 #endif
+
+  typedef nano period;
 
   typedef chrono::duration<rep, period> duration;
   typedef chrono::time_point<_FilesystemClock> time_point;
