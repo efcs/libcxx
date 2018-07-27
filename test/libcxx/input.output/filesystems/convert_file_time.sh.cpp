@@ -9,14 +9,14 @@
 
 // UNSUPPORTED: c++98, c++03, c++11
 
-// <experimental/filesystem>
+// <filesystem>
 
 // typedef TrivialClock file_time_type;
 
-// RUN: %build -I%libcxx_src_root/src/experimental/filesystem
+// RUN: %build -I%libcxx_src_root/src/filesystem
 // RUN: %run
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <chrono>
 #include <type_traits>
 #include <limits>
@@ -30,7 +30,7 @@
 #endif
 
 using namespace std::chrono;
-namespace fs = std::experimental::filesystem;
+namespace fs = std::__fs::filesystem;
 using fs::file_time_type;
 using fs::detail::time_util;
 

@@ -9,7 +9,7 @@
 
 // UNSUPPORTED: c++98, c++03
 
-// <experimental/filesystem>
+// <filesystem>
 
 // template <class Tp> struct __is_pathable
 
@@ -21,7 +21,7 @@
 // * A character array, which points to a NTCTS after array-to-pointer decay.
 
 
-#include <experimental/filesystem>
+#include "filesystem_include.hpp"
 #include <type_traits>
 #include <cassert>
 
@@ -29,8 +29,6 @@
 #include "test_iterators.h"
 #include "min_allocator.h"
 #include "constexpr_char_traits.hpp"
-
-namespace fs = std::experimental::filesystem;
 
 using fs::__is_pathable;
 

@@ -9,11 +9,11 @@
 
 // UNSUPPORTED: c++98, c++03
 
-// <experimental/filesystem>
+// <filesystem>
 
 // class directory_entry
 
-// RUN: %build -I%libcxx_src_root/src/experimental/filesystem
+// RUN: %build -I%libcxx_src_root/src/filesystem
 // RUN: %run
 
 #include "filesystem_include.hpp"

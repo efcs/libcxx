@@ -13,21 +13,19 @@
 // MODULES_DEFINES: _LIBCPP_DEBUG_USE_EXCEPTIONS
 // MODULES_DEFINES: _LIBCPP_DEBUG=0
 
-// <experimental/filesystem>
+// <filesystem>
 
 // class path
 
 #define _LIBCPP_DEBUG 0
 #define _LIBCPP_DEBUG_USE_EXCEPTIONS
-#include <experimental/filesystem>
+#include "filesystem_include.hpp"
 #include <iterator>
 #include <type_traits>
 #include <cassert>
 
 #include "test_macros.h"
 #include "filesystem_test_helper.hpp"
-
-namespace fs = std::experimental::filesystem;
 
 int main() {
   using namespace fs;

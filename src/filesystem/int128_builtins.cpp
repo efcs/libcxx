@@ -17,7 +17,7 @@
 #include "__config"
 #include "climits"
 
-#ifndef _LIBCPP_HAS_NO_INT128
+#if !defined(_LIBCPP_HAS_NO_INT128)
 
 extern "C" __attribute__((no_sanitize("undefined")))
 __int128_t __muloti4(__int128_t a, __int128_t b, int* overflow) {

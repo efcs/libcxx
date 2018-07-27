@@ -7,14 +7,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-// <experimental/filesystem>
+// UNSUPPORTED: c++98, c++03, c++11, c++14
 
-#include <experimental/filesystem>
+// <filesystem>
 
-#ifndef _LIBCPP_VERSION
-#error _LIBCPP_VERSION not defined
-#endif
+// namespace std::filesystem
 
-int main()
-{
+#include <filesystem>
+#include <type_traits>
+
+using namespace std::filesystem;
+
+int main() {
+  static_assert(std::is_same<
+          path,
+          std::filesystem::path
+      >::value, "");
 }

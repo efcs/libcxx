@@ -9,15 +9,13 @@
 
 // UNSUPPORTED: c++98, c++03
 
-// <experimental/filesystem>
+// <filesystem>
 
 // class path
 
-#include <experimental/filesystem>
+#include "filesystem_include.hpp"
 #include <iterator>
 
-
-namespace fs = std::experimental::filesystem;
 
 int main() {
   using namespace fs;

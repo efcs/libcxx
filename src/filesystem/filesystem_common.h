@@ -10,7 +10,8 @@
 #ifndef FILESYSTEM_COMMON_H
 #define FILESYSTEM_COMMON_H
 
-#include "experimental/__config"
+#include "__config"
+#include "filesystem"
 #include "array"
 #include "chrono"
 #include "cstdlib"
@@ -20,11 +21,9 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/time.h> // for ::utimes as used in __last_write_time
-#include <fcntl.h> /* values for fchmodat */
+#include <fcntl.h>    /* values for fchmodat */
 
-#include <experimental/filesystem>
-
-#include "../../include/apple_availability.h"
+#include "../include/apple_availability.h"
 
 #if !defined(__APPLE__)
 // We can use the presence of UTIME_OMIT to detect platforms that provide
@@ -39,7 +38,7 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_BEGIN_NAMESPACE_FILESYSTEM
 
 namespace detail {
 namespace {
@@ -49,7 +48,7 @@ static string format_string_imp(const char* msg, ...) {
   struct GuardVAList {
     va_list& target;
     bool active = true;
-    GuardVAList(va_list &target) : target(target), active(true) {}
+    GuardVAList(va_list& target) : target(target), active(true) {}
     void clear() {
       if (active)
         va_end(target);
@@ -386,10 +385,10 @@ TimeSpec extract_atime(StatT const& st) { return st.st_atim; }
 // to use it.
 
 bool posix_utimes(const path& p, std::array<TimeSpec, 2> const& TS,
-                    error_code& ec) {
+                  error_code& ec) {
   using namespace chrono;
   auto Convert = [](long nsec) {
-    using int_type = decltype(std::declval<::timeval>().tv_usec);
+    using int_type = decltype(std::declval< ::timeval>().tv_usec);
     auto dur = duration_cast<microseconds>(nanoseconds(nsec)).count();
     return static_cast<int_type>(dur);
   };
@@ -404,9 +403,8 @@ bool posix_utimes(const path& p, std::array<TimeSpec, 2> const& TS,
 
 #if defined(_LIBCPP_USE_UTIMENSAT)
 bool posix_utimensat(const path& p, std::array<TimeSpec, 2> const& TS,
-                    error_code& ec) {
-  if (::utimensat(AT_FDCWD, p.c_str(), TS.data(), 0) == -1)
-  {
+                     error_code& ec) {
+  if (::utimensat(AT_FDCWD, p.c_str(), TS.data(), 0) == -1) {
     ec = capture_errno();
     return true;
   }
@@ -423,10 +421,9 @@ bool set_file_times(const path& p, std::array<TimeSpec, 2> const& TS,
 #endif
 }
 
-
 } // namespace
 } // end namespace detail
 
-_LIBCPP_END_NAMESPACE_EXPERIMENTAL_FILESYSTEM
+_LIBCPP_END_NAMESPACE_FILESYSTEM
 
 #endif // FILESYSTEM_COMMON_H
