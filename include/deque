@@ -186,7 +186,7 @@ template <class _ValueType, class = void>
 struct __select_deque_block_size : __default_deque_block_size<_ValueType> {};
 
 template <class _ValueType>
-struct __select_deque_block_size<_ValueType, typename __void_t<decltype(__custom_deque_block_size<_ValueType>::value)>::type>
+struct __select_deque_block_size<_ValueType, typename __void_t<decltype(__custom_deque_block_size<_ValueType>::__block_size)>::type>
     : __custom_deque_block_size<_ValueType> {};
 
 template <class _ValueType, class _DiffType>

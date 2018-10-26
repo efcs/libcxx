@@ -158,3 +158,4 @@ foreach(test_path ${BENCHMARK_TESTS})
   endif()
   add_benchmark_test(${test_name} ${test_file})
 endforeach()
+
