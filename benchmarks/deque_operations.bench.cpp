@@ -50,6 +50,9 @@ constexpr size_t InsertionCount = 3 * 1024;
       std::deque<Payload<value_size>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
   BENCHMARK_CAPTURE(BM, \
       deque_1024_16_ ## value_size, \
+      std::deque<Payload<value_size, true, 2056, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+  BENCHMARK_CAPTURE(BM, \
+      deque_1024_16_ ## value_size, \
       std::deque<Payload<value_size, true, 1024, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
 BENCHMARK_CAPTURE(BM, \
       deque_512_16_ ## value_size, \
