@@ -8,7 +8,7 @@
 
 #include "benchmark/benchmark.h"
 
-template <size_t Size, bool Custom = false, size_t BlockSize = 0, size_t MinElem = 0>
+template <size_t Size, int Custom = 0, size_t BlockSize = 0, size_t MinElem = 0>
 struct CheapPayload {
   CheapPayload() {}
   CheapPayload(const CheapPayload&) = delete;
@@ -21,9 +21,32 @@ struct CheapPayload {
 #ifdef _LIBCPP_VERSION
 _LIBCPP_BEGIN_NAMESPACE_STD
 template <size_t S, size_t BlockSize, size_t MinElem>
-struct __custom_deque_block_size<CheapPayload<S, true, BlockSize, MinElem>> {
+struct __custom_deque_block_size<CheapPayload<S, 1, BlockSize, MinElem>> {
+  using _ValueType = CheapPayload<S, 1, BlockSize, MinElem>;
   static constexpr const size_t __block_size = BlockSize;
   static constexpr const size_t __min_length = MinElem;
+
+  static constexpr size_t calc_value() {
+    return sizeof(_ValueType) < 256
+    ? __block_size / sizeof(_ValueType) : __min_length;
+  }
+
+  static constexpr const size_t __value = calc_value();
+};
+template <size_t S, size_t MaxElem, size_t MinElem>
+struct __custom_deque_block_size<CheapPayload<S, 2, MaxElem, MinElem>> {
+  using _ValueType = CheapPayload<S, 1, MaxElem, MinElem>;
+  static constexpr const size_t __block_size = 4096;
+  static constexpr const size_t __min_length = MinElem;
+
+  static constexpr const size_t block_elems = __block_size / sizeof(_ValueType);
+
+  static constexpr size_t calc_value() {
+    return sizeof(_ValueType) < 256
+    ? (block_elems > MaxElem ? MaxElem : block_elems) : __min_length;
+  }
+
+  static constexpr const size_t __value = calc_value();
 };
 _LIBCPP_END_NAMESPACE_STD
 #endif
@@ -49,17 +72,23 @@ constexpr size_t InsertionCount = 3 * 1024;
       deque_default_ ## value_size, \
       std::deque<Payload<value_size>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
   BENCHMARK_CAPTURE(BM, \
-      deque_1024_16_ ## value_size, \
-      std::deque<Payload<value_size, true, 2056, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+      deque_2056_16_ ## value_size, \
+      std::deque<Payload<value_size, 1, 2056, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
   BENCHMARK_CAPTURE(BM, \
       deque_1024_16_ ## value_size, \
-      std::deque<Payload<value_size, true, 1024, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+      std::deque<Payload<value_size, 1, 1024, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
 BENCHMARK_CAPTURE(BM, \
       deque_512_16_ ## value_size, \
-      std::deque<Payload<value_size, true, 512, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+      std::deque<Payload<value_size, 1, 512, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
 BENCHMARK_CAPTURE(BM, \
       deque_512_2_ ## value_size, \
-      std::deque<Payload<value_size, true, 512, 2>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+      std::deque<Payload<value_size, 1, 512, 2>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+BENCHMARK_CAPTURE(BM, \
+      deque_max_128_16_ ## value_size, \
+      std::deque<Payload<value_size, 2, 128, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
+BENCHMARK_CAPTURE(BM, \
+      deque_max_512_16_ ## value_size, \
+      std::deque<Payload<value_size, 2, 512, 16>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount); \
 BENCHMARK_CAPTURE(BM, \
       list_ ## value_size, \
       std::list<Payload<value_size>>{})->Arg(10)->Arg(128)->Arg(1024)->Arg(InsertionCount);
@@ -74,7 +103,7 @@ BENCHMARK_CAPTURE(BM, \
 
 #endif
 
-#if 0
+#if 1
 #define BENCHMARK_DEQUE(BM, Payload) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 4) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 8) \
@@ -85,7 +114,7 @@ BENCHMARK_CAPTURE(BM, \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 256) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 512) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 1024)
-#endif
+#else
 
 #define BENCHMARK_DEQUE(BM, Payload) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 4) \
@@ -93,6 +122,7 @@ BENCHMARK_CAPTURE(BM, \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 64) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 256) \
   BENCHMARK_CAPTURE_DEQUE(BM, Payload, 1024)
+#endif
 
 BENCHMARK_DEQUE(BM_PushBackClear, CheapPayload)
 
