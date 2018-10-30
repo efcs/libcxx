@@ -781,7 +781,7 @@ typedef __char32_t char32_t;
 #  if _LIBCPP_ABI_VERSION > 1
 #    define _LIBCPP_HIDE_FROM_ABI_AFTER_V1 _LIBCPP_HIDE_FROM_ABI
 #  else
-#    define _LIBCPP_HIDE_FROM_ABI_AFTER_V1
+#    define _LIBCPP_HIDE_FROM_ABI_AFTER_V1 __attribute__((visibility("default")))
 #  endif
 #else
 #  define _LIBCPP_HIDE_FROM_ABI_AFTER_V1 _LIBCPP_HIDE_FROM_ABI
