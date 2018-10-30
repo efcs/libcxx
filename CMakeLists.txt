@@ -528,6 +528,11 @@ add_compile_flags_if_supported(-nostdinc++)
 # visible. This prevents new definitions for inline functions from appearing in
 # the dylib when get ODR used by another function.
 add_compile_flags_if_supported(-fvisibility-inlines-hidden)
+
+# Hide all function definitions not explicitly marked with _LIBCPP_FUNC_VIS
+# (unless the symbol is explicitly instantiated).
+# TODO: Both -fvisibily=hidden and -fvisibility-inlines-hidden should be
+# removed once we apply _LIBCPP_HIDDEN at namespace scope.
 add_compile_flags_if_supported(-fvisibility=hidden)
 
 if (LIBCXX_CONFIGURE_IDE)
