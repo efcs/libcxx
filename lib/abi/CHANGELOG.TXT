@@ -13,6 +13,21 @@ Afterwards the ABI list should be updated to include the new changes.
 New entries should be added directly below the "Version" header.
 
 -----------
+Version 8.0
+-----------
+
+* rTBD - Apply visibility("hidden") to the versioning namespace.
+
+  This change applies hidden visibility to the versioning namespace. This
+  will allow us to remove most of the usages of _LIBCPP_INLINE_VISIBILITY
+  and _LIBCPP_ALWAYS_INLINE.
+
+  The exports this patch removes are symbols that should have never been exported
+  by the dylib in the first place, and should all be symbols which the linker
+  won't de-duplicate across SO boundaries, making them safe to removed.
+
+
+-----------
 Version 7.0
 -----------
 
