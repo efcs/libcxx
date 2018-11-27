@@ -210,6 +210,25 @@ Visibility Macros
   available. This is an internal macro used by other visibility macros, and
   it should not be used directly.
 
+Special Visibility Macros for Large Codebases
+=============================================
+
+When `_LIBCPP_LARGE_CODEBASE` is defined, certain types will be tweaked to
+ensure that their constructor, or certain methods, are never inlined. This can
+reduce binary size in large codebases with little impact on performance.
+
+**_LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE**
+  When the tweak is active, mark a function to never be inlined.  Otherwise,
+  mark a function as hidden and force inlining whenever possible.
+
+**_LIBCPP_NEVER_INLINE_FOR_LARGE_CODEBASE**
+  When the tweak is active, mark a function to never be inlined.  Otherwise,
+  this macro has no effect.
+
+**_LIBCPP_ALWAYS_INLINE_FOR_LARGE_CODEBASE**
+  When the tweak is active, mark a function as hidden and force inlining
+  whenever possible.  Otherwise, this macro has no effect.
+
 Links
 =====
 

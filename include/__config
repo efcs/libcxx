@@ -792,6 +792,16 @@ typedef __char32_t char32_t;
 // Just so we can migrate to the new macros gradually.
 #define _LIBCPP_INLINE_VISIBILITY _LIBCPP_HIDE_FROM_ABI
 
+#ifdef _LIBCPP_LARGE_CODEBASE
+#  define _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE __attribute__ ((noinline))
+#  define _LIBCPP_ALWAYS_INLINE_FOR_LARGE_CODEBASE _LIBCPP_ALWAYS_INLINE
+#  define _LIBCPP_NEVER_INLINE_FOR_LARGE_CODEBASE __attribute__ ((noinline))
+#else
+#  define _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE _LIBCPP_INLINE_VISIBILITY
+#  define _LIBCPP_ALWAYS_INLINE_FOR_LARGE_CODEBASE
+#  define _LIBCPP_NEVER_INLINE_FOR_LARGE_CODEBASE
+#endif
+
 // Inline namespaces are available in Clang/GCC/MSVC regardless of C++ dialect.
 #define _LIBCPP_BEGIN_NAMESPACE_STD namespace std { inline namespace _LIBCPP_ABI_NAMESPACE {
 #define _LIBCPP_END_NAMESPACE_STD  } }

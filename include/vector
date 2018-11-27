@@ -367,7 +367,7 @@ protected:
     size_type capacity() const _NOEXCEPT
         {return static_cast<size_type>(__end_cap() - __begin_);}
 
-    _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
     void __destruct_at_end(pointer __new_last) _NOEXCEPT;
 
     _LIBCPP_INLINE_VISIBILITY
@@ -413,7 +413,7 @@ private:
 };
 
 template <class _Tp, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY
+inline _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
 void
 __vector_base<_Tp, _Allocator>::__destruct_at_end(pointer __new_last) _NOEXCEPT
 {
@@ -704,13 +704,13 @@ public:
     }
 #endif
 
-    _LIBCPP_INLINE_VISIBILITY void push_back(const_reference __x);
+    _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE void push_back(const_reference __x);
 
 #ifndef _LIBCPP_CXX03_LANG
-    _LIBCPP_INLINE_VISIBILITY void push_back(value_type&& __x);
+    _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE void push_back(value_type&& __x);
 
     template <class... _Args>
-        _LIBCPP_INLINE_VISIBILITY
+        _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
 #if _LIBCPP_STD_VER > 14
         reference emplace_back(_Args&&... __args);
 #else
@@ -1618,7 +1618,7 @@ vector<_Tp, _Allocator>::__push_back_slow_path(_Up& __x)
 }
 
 template <class _Tp, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY
+inline _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
 void
 vector<_Tp, _Allocator>::push_back(const_reference __x)
 {
@@ -1637,7 +1637,7 @@ vector<_Tp, _Allocator>::push_back(const_reference __x)
 #ifndef _LIBCPP_CXX03_LANG
 
 template <class _Tp, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY
+inline _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
 void
 vector<_Tp, _Allocator>::push_back(value_type&& __x)
 {
@@ -1669,7 +1669,7 @@ vector<_Tp, _Allocator>::__emplace_back_slow_path(_Args&&... __args)
 
 template <class _Tp, class _Allocator>
 template <class... _Args>
-inline
+inline _LIBCPP_INLINE_VISIBILITY_FOR_LARGE_CODEBASE
 #if _LIBCPP_STD_VER > 14
 typename vector<_Tp, _Allocator>::reference
 #else
