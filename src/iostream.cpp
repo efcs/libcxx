@@ -10,6 +10,7 @@
 #include "__std_stream"
 #include "string"
 #include "new"
+#include "sstream"
 
 #define _str(s) #s
 #define str(s) _str(s)
@@ -124,5 +125,8 @@ ios_base::Init::~Init()
 template basic_ostream<char, char_traits<char> >&
 __put_character_sequence(basic_ostream<char, char_traits<char> >&,
                          const char*, size_t);
+
+template class basic_stringbuf<char>;
+
 
 _LIBCPP_END_NAMESPACE_STD

@@ -209,9 +209,9 @@ private:
 
 public:
     // 27.8.1.1 Constructors:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_stringbuf(ios_base::openmode __wch = ios_base::in | ios_base::out);
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_stringbuf(const string_type& __s,
                              ios_base::openmode __wch = ios_base::in | ios_base::out);
 #ifndef _LIBCPP_CXX03_LANG
@@ -233,7 +233,6 @@ protected:
     virtual int_type overflow (int_type __c = traits_type::eof());
     virtual pos_type seekoff(off_type __off, ios_base::seekdir __way,
                              ios_base::openmode __wch = ios_base::in | ios_base::out);
-    inline _LIBCPP_INLINE_VISIBILITY
     virtual pos_type seekpos(pos_type __sp,
                              ios_base::openmode __wch = ios_base::in | ios_base::out);
 };
@@ -978,6 +977,9 @@ basic_stringstream<_CharT, _Traits, _Allocator>::str(const string_type& __s)
 {
     __sb_.str(__s);
 }
+
+extern template class basic_stringbuf<char>;
+
 
 _LIBCPP_END_NAMESPACE_STD
 
