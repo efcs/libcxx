@@ -25,6 +25,9 @@ template class _LIBCPP_CLASS_TEMPLATE_INSTANTIATION_VIS basic_string<wchar_t>;
 template
     string
     operator+<char, char_traits<char>, allocator<char> >(char const*, string const&);
+template
+string
+operator+<char, char_traits<char>, allocator<char> >(string const&, char const*);
 
 namespace
 {

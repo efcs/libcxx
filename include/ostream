@@ -742,6 +742,11 @@ __put_character_sequence(basic_ostream<_CharT, _Traits>& __os,
     return __os;
 }
 
+_LIBCPP_EXTERN_TEMPLATE(
+    basic_ostream<char, char_traits<char> >&
+    __put_character_sequence(basic_ostream<char, char_traits<char> >&,
+                         const char*, size_t)
+)
 
 template<class _CharT, class _Traits>
 basic_ostream<_CharT, _Traits>&

@@ -1422,6 +1422,11 @@ __pad_and_output(ostreambuf_iterator<_CharT, _Traits> __s,
     return __s;
 }
 
+extern template
+    ostreambuf_iterator<char, char_traits<char> >
+    __pad_and_output(ostreambuf_iterator<char, char_traits<char> >,
+                        const char*, const char*, const char*, ios_base&, char);
+
 #endif
 
 template <class _CharT, class _OutputIterator>

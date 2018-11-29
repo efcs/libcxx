@@ -508,7 +508,7 @@ remove_flags("/D_DEBUG" "/MTd" "/MDd" "/MT" "/Md")
 remove_flags(-Wno-pedantic -pedantic-errors -pedantic)
 
 # Required flags ==============================================================
-set(LIBCXX_STANDARD_VER c++11 CACHE INTERNAL "internal option to change build dialect")
+set(LIBCXX_STANDARD_VER c++17 CACHE INTERNAL "internal option to change build dialect")
 if (LIBCXX_HAS_MUSL_LIBC OR LIBCXX_TARGETING_CLANG_CL)
   # musl's pthread implementations uses volatile types in their structs which is
   # not a constexpr in C++11 but is in C++14, so we use C++14 with musl.

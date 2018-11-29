@@ -47,6 +47,12 @@
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
+
+template
+ostreambuf_iterator<char, char_traits<char> >
+__pad_and_output(ostreambuf_iterator<char, char_traits<char> >,
+                 const char*, const char*, const char*, ios_base&, char);
+
 struct __libcpp_unique_locale {
   __libcpp_unique_locale(const char* nm) : __loc_(newlocale(LC_ALL_MASK, nm, 0)) {}
 

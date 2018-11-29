@@ -121,4 +121,8 @@ ios_base::Init::~Init()
     wclog_ptr->flush();
 }
 
+template basic_ostream<char, char_traits<char> >&
+__put_character_sequence(basic_ostream<char, char_traits<char> >&,
+                         const char*, size_t);
+
 _LIBCPP_END_NAMESPACE_STD

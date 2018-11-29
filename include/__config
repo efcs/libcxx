@@ -669,7 +669,7 @@ typedef __char32_t char32_t;
 
 #ifndef _LIBCPP_HIDDEN
 #  if !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
-#    define _LIBCPP_HIDDEN __attribute__ ((__visibility__("hidden")))
+#    define _LIBCPP_HIDDEN
 #  else
 #    define _LIBCPP_HIDDEN
 #  endif
@@ -755,12 +755,12 @@ typedef __char32_t char32_t;
 #endif
 
 #if __has_attribute(exclude_from_explicit_instantiation)
-#  define _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION __attribute__ ((__exclude_from_explicit_instantiation__))
+#  define _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION
 #else
    // Try to approximate the effect of exclude_from_explicit_instantiation
    // (which is that entities are not assumed to be provided by explicit
    // template instantitations in the dylib) by always inlining those entities.
-#  define _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION _LIBCPP_ALWAYS_INLINE
+#  define _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION
 #endif
 
 #ifndef _LIBCPP_HIDE_FROM_ABI_PER_TU
