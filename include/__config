@@ -749,9 +749,9 @@ typedef __char32_t char32_t;
 #endif
 
 #if __has_attribute(internal_linkage)
-#  define _LIBCPP_INTERNAL_LINKAGE __attribute__ ((internal_linkage))
+#  define _LIBCPP_INTERNAL_LINKAGE
 #else
-#  define _LIBCPP_INTERNAL_LINKAGE _LIBCPP_ALWAYS_INLINE
+#  define _LIBCPP_INTERNAL_LINKAGE
 #endif
 
 #if __has_attribute(exclude_from_explicit_instantiation)

@@ -644,27 +644,27 @@ private:
 
 public:
     // 27.8.2.1 Constructors:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_istringstream(ios_base::openmode __wch = ios_base::in);
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_istringstream(const string_type& __s,
                                  ios_base::openmode __wch = ios_base::in);
 #ifndef _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_istringstream(basic_istringstream&& __rhs);
 
     // 27.8.2.2 Assign and swap:
     basic_istringstream& operator=(basic_istringstream&& __rhs);
 #endif  // _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void swap(basic_istringstream& __rhs);
 
     // 27.8.2.3 Members:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_stringbuf<char_type, traits_type, allocator_type>* rdbuf() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     string_type str() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void str(const string_type& __s);
 };
 
@@ -761,27 +761,27 @@ private:
 
 public:
     // 27.8.2.1 Constructors:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_ostringstream(ios_base::openmode __wch = ios_base::out);
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_ostringstream(const string_type& __s,
                                  ios_base::openmode __wch = ios_base::out);
 #ifndef _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_ostringstream(basic_ostringstream&& __rhs);
 
     // 27.8.2.2 Assign and swap:
     basic_ostringstream& operator=(basic_ostringstream&& __rhs);
 #endif  // _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void swap(basic_ostringstream& __rhs);
 
     // 27.8.2.3 Members:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_stringbuf<char_type, traits_type, allocator_type>* rdbuf() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     string_type str() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void str(const string_type& __s);
 };
 
@@ -880,27 +880,27 @@ private:
 
 public:
     // 27.8.2.1 Constructors:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_stringstream(ios_base::openmode __wch = ios_base::in | ios_base::out);
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     explicit basic_stringstream(const string_type& __s,
                                 ios_base::openmode __wch = ios_base::in | ios_base::out);
 #ifndef _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_stringstream(basic_stringstream&& __rhs);
 
     // 27.8.2.2 Assign and swap:
     basic_stringstream& operator=(basic_stringstream&& __rhs);
 #endif  // _LIBCPP_CXX03_LANG
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void swap(basic_stringstream& __rhs);
 
     // 27.8.2.3 Members:
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     basic_stringbuf<char_type, traits_type, allocator_type>* rdbuf() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     string_type str() const;
-    inline _LIBCPP_INLINE_VISIBILITY
+    _LIBCPP_INLINE_VISIBILITY
     void str(const string_type& __s);
 };
 
@@ -979,6 +979,10 @@ basic_stringstream<_CharT, _Traits, _Allocator>::str(const string_type& __s)
 }
 
 extern template class basic_stringbuf<char>;
+extern template class basic_stringstream<char>;
+extern template class basic_istringstream<char>;
+extern template class basic_ostringstream<char>;
+
 
 
 _LIBCPP_END_NAMESPACE_STD

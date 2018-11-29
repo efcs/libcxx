@@ -127,6 +127,8 @@ __put_character_sequence(basic_ostream<char, char_traits<char> >&,
                          const char*, size_t);
 
 template class basic_stringbuf<char>;
-
+template class basic_stringstream<char>;
+template class basic_istringstream<char>;
+template class basic_ostringstream<char>;
 
 _LIBCPP_END_NAMESPACE_STD
