@@ -13,4 +13,6 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 const piecewise_construct_t piecewise_construct = {};
 
+template struct __murmur2_or_cityhash<unsigned long>;
+
 _LIBCPP_END_NAMESPACE_STD

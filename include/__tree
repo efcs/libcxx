@@ -2918,6 +2918,7 @@ swap(__tree<_Tp, _Compare, _Allocator>& __x,
 }
 
 extern template class __tree<string, less<string>, allocator<string> >;
+extern template class __tree<int, less<int>, allocator<int> >;
 
 _LIBCPP_END_NAMESPACE_STD
 
