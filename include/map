@@ -2148,6 +2148,11 @@ swap(multimap<_Key, _Tp, _Compare, _Allocator>& __x,
     __x.swap(__y);
 }
 
+typedef __value_type<string, string> _MapVT;
+extern template class __tree<_MapVT,
+                             __map_value_compare<string, _MapVT, less<string> >,
+                             allocator<_MapVT> >;
+
 _LIBCPP_END_NAMESPACE_STD
 
 #endif  // _LIBCPP_MAP
