@@ -702,11 +702,7 @@ typedef __char32_t char32_t;
 
 #ifndef _LIBCPP_TEMPLATE_VIS
 #  if !defined(_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
-#    if __has_attribute(__type_visibility__)
-#      define _LIBCPP_TEMPLATE_VIS __attribute__ ((__type_visibility__("default")))
-#    else
 #      define _LIBCPP_TEMPLATE_VIS __attribute__ ((__visibility__("default")))
-#    endif
 #  else
 #    define _LIBCPP_TEMPLATE_VIS
 #  endif
@@ -773,9 +769,9 @@ typedef __char32_t char32_t;
 
 #ifndef _LIBCPP_HIDE_FROM_ABI
 #  if _LIBCPP_HIDE_FROM_ABI_PER_TU
-#    define _LIBCPP_HIDE_FROM_ABI _LIBCPP_HIDDEN _LIBCPP_INTERNAL_LINKAGE
+#    define _LIBCPP_HIDE_FROM_ABI
 #  else
-#    define _LIBCPP_HIDE_FROM_ABI _LIBCPP_HIDDEN _LIBCPP_EXCLUDE_FROM_EXPLICIT_INSTANTIATION
+#    define _LIBCPP_HIDE_FROM_ABI
 #  endif
 #endif
 
