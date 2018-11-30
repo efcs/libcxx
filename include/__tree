@@ -2917,8 +2917,8 @@ swap(__tree<_Tp, _Compare, _Allocator>& __x,
     __x.swap(__y);
 }
 
-extern template class __tree<string, less<string>, allocator<string> >;
-extern template class __tree<int, less<int>, allocator<int> >;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<string, less<string>, allocator<string> >;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<int, less<int>, allocator<int> >;
 
 _LIBCPP_END_NAMESPACE_STD
 
