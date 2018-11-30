@@ -3413,6 +3413,7 @@ _ExternKeyword template _LIBCPP_FUNC_VIS void vector<_Tp>::__push_back_slow_path
 
 _LIBCPP_INSTANTIATE_VECTOR(extern, string);
 _LIBCPP_INSTANTIATE_VECTOR(extern, int);
+_LIBCPP_INSTANTIATE_VECTOR(extern, unsigned int);
 _LIBCPP_INSTANTIATE_VECTOR(extern, unsigned long);
 _LIBCPP_INSTANTIATE_VECTOR(extern, unsigned char);
 _LIBCPP_INSTANTIATE_VECTOR(extern, char);
