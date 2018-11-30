@@ -743,6 +743,7 @@ __put_character_sequence(basic_ostream<_CharT, _Traits>& __os,
 }
 
 _LIBCPP_EXTERN_TEMPLATE(
+    _LIBCPP_FUNC_VIS
     basic_ostream<char, char_traits<char> >&
     __put_character_sequence(basic_ostream<char, char_traits<char> >&,
                          const char*, size_t)
