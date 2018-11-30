@@ -19,6 +19,7 @@
 #include <cmath>
 #include <utility>
 #include <type_traits>
+#include <string>
 
 #include <__debug>
 
@@ -1425,7 +1426,7 @@ private:
 };
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::__hash_table()
     _NOEXCEPT_(
         is_nothrow_default_constructible<__bucket_list>::value &&
@@ -1439,7 +1440,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__hash_table()
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::__hash_table(const hasher& __hf,
                                                        const key_equal& __eql)
     : __bucket_list_(nullptr, __bucket_list_deleter()),
@@ -1715,7 +1716,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__move_assign(
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 __hash_table<_Tp, _Hash, _Equal, _Alloc>&
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::operator=(__hash_table&& __u)
     _NOEXCEPT_(
@@ -1811,7 +1812,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__assign_multi(_InputIterator __first,
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 typename __hash_table<_Tp, _Hash, _Equal, _Alloc>::iterator
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::begin() _NOEXCEPT
 {
@@ -1823,7 +1824,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::begin() _NOEXCEPT
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 typename __hash_table<_Tp, _Hash, _Equal, _Alloc>::iterator
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::end() _NOEXCEPT
 {
@@ -1835,7 +1836,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::end() _NOEXCEPT
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 typename __hash_table<_Tp, _Hash, _Equal, _Alloc>::const_iterator
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::begin() const _NOEXCEPT
 {
@@ -1847,7 +1848,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::begin() const _NOEXCEPT
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
-inline
+
 typename __hash_table<_Tp, _Hash, _Equal, _Alloc>::const_iterator
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::end() const _NOEXCEPT
 {
@@ -2725,7 +2726,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::remove(const_iterator __p) _NOEXCEPT
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
 template <class _Key>
-inline
+
 typename __hash_table<_Tp, _Hash, _Equal, _Alloc>::size_type
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::__count_unique(const _Key& __k) const
 {
@@ -2921,6 +2922,14 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__subscriptable(const const_iterator*,
 }
 
 #endif  // _LIBCPP_DEBUG_LEVEL >= 2
+
+#define _LIBCPP_INSTANTIATE_HASH_SET(ExternKey, Key) \
+ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __hash_table< \
+    Key, hash<Key>, equal_to<Key>, allocator<Key> >;
+
+_LIBCPP_INSTANTIATE_HASH_SET(extern, string)
+_LIBCPP_INSTANTIATE_HASH_SET(extern, int)
+_LIBCPP_INSTANTIATE_HASH_SET(extern, unsigned)
 
 _LIBCPP_END_NAMESPACE_STD
 

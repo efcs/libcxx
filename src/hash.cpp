@@ -11,12 +11,20 @@
 #include "algorithm"
 #include "stdexcept"
 #include "type_traits"
+#include "unordered_map"
 
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 #endif
 
 _LIBCPP_BEGIN_NAMESPACE_STD
+
+_LIBCPP_INSTANTIATE_HASH_MAP(, string, string)
+_LIBCPP_INSTANTIATE_HASH_MAP(, unsigned, unsigned)
+_LIBCPP_INSTANTIATE_HASH_SET(, string)
+_LIBCPP_INSTANTIATE_HASH_SET(, int)
+_LIBCPP_INSTANTIATE_HASH_SET(, unsigned)
+
 
 namespace {
 

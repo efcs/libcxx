@@ -2271,6 +2271,16 @@ operator!=(const unordered_multimap<_Key, _Tp, _Hash, _Pred, _Alloc>& __x,
     return !(__x == __y);
 }
 
+#define _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, Key, Value) \
+ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __hash_table< \
+    __hash_value_type<Key, Value >, \
+        __unordered_map_hasher<Key, __hash_value_type<Key, Value >, hash<Key >>, \
+            __unordered_map_equal<Key, __hash_value_type<Key, Value >, equal_to<Key >>, \
+                allocator<__hash_value_type<Key, Value > > >;
+
+_LIBCPP_INSTANTIATE_HASH_MAP(extern, string, string)
+_LIBCPP_INSTANTIATE_HASH_MAP(extern, unsigned, unsigned)
+
 _LIBCPP_END_NAMESPACE_STD
 
 #endif  // _LIBCPP_UNORDERED_MAP

@@ -21,6 +21,7 @@ template class _LIBCPP_CLASS_TEMPLATE_INSTANTIATION_VIS __basic_string_common<tr
 
 template class _LIBCPP_CLASS_TEMPLATE_INSTANTIATION_VIS basic_string<char>;
 template class _LIBCPP_CLASS_TEMPLATE_INSTANTIATION_VIS basic_string<wchar_t>;
+template class _LIBCPP_CLASS_TEMPLATE_INSTANTIATION_VIS basic_string<unsigned short>;
 
 template
     string
