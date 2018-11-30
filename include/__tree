@@ -118,7 +118,7 @@ struct __tree_operations {
   static void __tree_remove(_NodePtr __root, _NodePtr __z);
 };
 
-extern template struct __tree_operations<void*>;
+extern template struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree_operations<void*>;
 
 // Returns:  true if __x is a left child of its parent, else false
 // Precondition:  __x != nullptr.
