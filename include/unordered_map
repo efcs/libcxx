@@ -2271,15 +2271,38 @@ operator!=(const unordered_multimap<_Key, _Tp, _Hash, _Pred, _Alloc>& __x,
     return !(__x == __y);
 }
 
-#define _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, Key, Value) \
-ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __hash_table< \
+template <class Key, class Value>
+using __my_hash = __hash_table<
+    __hash_value_type<Key, Value >,
+        __unordered_map_hasher<Key, __hash_value_type<Key, Value >, hash<Key >>,
+            __unordered_map_equal<Key, __hash_value_type<Key, Value >, equal_to<Key >>,
+                allocator<__hash_value_type<Key, Value > > >;
+
+#define _LIBCPP_HASH_MAP_T(Key, Value) \
+__hash_table< \
     __hash_value_type<Key, Value >, \
         __unordered_map_hasher<Key, __hash_value_type<Key, Value >, hash<Key >>, \
             __unordered_map_equal<Key, __hash_value_type<Key, Value >, equal_to<Key >>, \
-                allocator<__hash_value_type<Key, Value > > >;
+                allocator<__hash_value_type<Key, Value > > >
 
-_LIBCPP_INSTANTIATE_HASH_MAP(extern, string, string)
-_LIBCPP_INSTANTIATE_HASH_MAP(extern, unsigned, unsigned)
+#define _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, Key, Value) \
+ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS _LIBCPP_HASH_MAP_T(Key, Value); \
+ExternKey template std::pair<__my_hash<Key, Value>::iterator, bool> \
+    __my_hash<Key, Value>::__emplace_unique_key_args( \
+        Key const&, std::piecewise_construct_t const&, std::tuple<Key const&>&&, tuple<>&&); \
+ExternKey template std::pair<__my_hash<Key, Value>::iterator, bool> \
+    __my_hash<Key, Value>::__emplace_unique_key_args( \
+        Key const&, std::piecewise_construct_t const&, std::tuple<Key &&>&&, tuple<>&&); \
+ExternKey template std::pair<__my_hash<Key, Value>::iterator, bool> \
+    __my_hash<Key, Value>::__emplace_unique_key_args( \
+        Key const&, std::pair<Key, Value>&&);
+
+#define _LIBCPP_INSTANTIATE_HASH_MAPS(ExternKey) \
+_LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, string) \
+_LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, int) \
+_LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, unsigned) \
+_LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, void*) \
+_LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, unsigned, unsigned)
 
 _LIBCPP_END_NAMESPACE_STD
 

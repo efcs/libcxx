@@ -3408,15 +3408,24 @@ swap(vector<_Tp, _Allocator>& __x, vector<_Tp, _Allocator>& __y)
 
 #define _LIBCPP_INSTANTIATE_VECTOR(_ExternKeyword, _Tp) \
 _ExternKeyword template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS vector<_Tp>; \
+_ExternKeyword template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __vector_base<_Tp, std::allocator<_Tp> >; \
 _ExternKeyword template _LIBCPP_FUNC_VIS void vector<_Tp>::__push_back_slow_path(_Tp const&); \
 _ExternKeyword template _LIBCPP_FUNC_VIS void vector<_Tp>::__push_back_slow_path(_Tp &&)
+    
+#define _LIBCPP_INSTANTIATE_VECTORS(ExternKey) \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, string); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, int); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, long); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, short); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned int); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned long); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned char); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned short); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, char); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, float); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, double); \
 
-_LIBCPP_INSTANTIATE_VECTOR(extern, string);
-_LIBCPP_INSTANTIATE_VECTOR(extern, int);
-_LIBCPP_INSTANTIATE_VECTOR(extern, unsigned int);
-_LIBCPP_INSTANTIATE_VECTOR(extern, unsigned long);
-_LIBCPP_INSTANTIATE_VECTOR(extern, unsigned char);
-_LIBCPP_INSTANTIATE_VECTOR(extern, char);
+
 
 extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS vector<bool>;
 

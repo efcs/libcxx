@@ -2927,9 +2927,10 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__subscriptable(const const_iterator*,
 ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __hash_table< \
     Key, hash<Key>, equal_to<Key>, allocator<Key> >;
 
-_LIBCPP_INSTANTIATE_HASH_SET(extern, string)
-_LIBCPP_INSTANTIATE_HASH_SET(extern, int)
-_LIBCPP_INSTANTIATE_HASH_SET(extern, unsigned)
+#define _LIBCPP_INSTANTIATE_HASH_SETS(ExternKey) \
+_LIBCPP_INSTANTIATE_HASH_SET(ExternKey, string) \
+_LIBCPP_INSTANTIATE_HASH_SET(ExternKey, int) \
+_LIBCPP_INSTANTIATE_HASH_SET(ExternKey, unsigned)
 
 _LIBCPP_END_NAMESPACE_STD
 

@@ -2919,7 +2919,10 @@ swap(__tree<_Tp, _Compare, _Allocator>& __x,
 
 _LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<string, less<string>, allocator<string> >)
 _LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<int, less<int>, allocator<int> >)
+_LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<unsigned, less<int>, allocator<int> >)
+_LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<long, less<long>, allocator<long> >)
 
+    
 _LIBCPP_END_NAMESPACE_STD
 
 _LIBCPP_POP_MACROS
