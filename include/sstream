@@ -978,10 +978,10 @@ basic_stringstream<_CharT, _Traits, _Allocator>::str(const string_type& __s)
     __sb_.str(__s);
 }
 
-extern template class basic_stringbuf<char>;
-extern template class basic_stringstream<char>;
-extern template class basic_istringstream<char>;
-extern template class basic_ostringstream<char>;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS basic_stringbuf<char>;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS basic_stringstream<char>;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS basic_istringstream<char>;
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS basic_ostringstream<char>;
 
 
 
