@@ -3407,9 +3407,9 @@ swap(vector<_Tp, _Allocator>& __x, vector<_Tp, _Allocator>& __y)
 }
 
 #define _LIBCPP_INSTANTIATE_VECTOR(_ExternKeyword, _Tp) \
-_ExternKeyword template class vector<_Tp>; \
-_ExternKeyword template void vector<_Tp>::__push_back_slow_path(_Tp const&); \
-_ExternKeyword template void vector<_Tp>::__push_back_slow_path(_Tp &&)
+_ExternKeyword template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS vector<_Tp>; \
+_ExternKeyword template _LIBCPP_FUNC_VIS void vector<_Tp>::__push_back_slow_path(_Tp const&); \
+_ExternKeyword template _LIBCPP_FUNC_VIS void vector<_Tp>::__push_back_slow_path(_Tp &&)
 
 _LIBCPP_INSTANTIATE_VECTOR(extern, string);
 _LIBCPP_INSTANTIATE_VECTOR(extern, int);
