@@ -2153,15 +2153,23 @@ template <class _Key, class _Value, class _VT = __value_type<_Key, _Value>,
     class _Cmp = __map_value_compare<_Key, _VT, less<_Key> > >
 using _TreeTy = __tree<_VT, _Cmp, allocator<_VT> >;
 
-extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<_MapVT,
-                             __map_value_compare<string, _MapVT, less<string> >,
-                             allocator<_MapVT> >;
+
+#define _LIBCPP_MAP_T(Key, Value)  __tree<__value_type<Key, Value>, \
+__map_value_compare<Key, __value_type<Key, Value>, less<Key> >, \
+allocator<__value_type<Key, Value> > >
+
+#define _LIBCPP_MAP_INSTANT(ExternKey, Key, Value) \
+ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS _LIBCPP_MAP_T(Key, Value);
+
+#define _LIBCPP_MAP_INSTANTS(ExternKey) \
+  _LIBCPP_MAP_INSTANT(ExternKey, string, string)
+
 extern template
 _LIBCPP_FUNC_VIS
 pair<__tree_iterator<string, __tree_node<string, void*>*, long>, bool>
 __tree<string, less<string >, allocator<string > >::__emplace_unique_key_args<string, string const&>(string const&, string const&);
 
-
+_LIBCPP_MAP_INSTANTS(extern)
 
 _LIBCPP_END_NAMESPACE_STD
 
