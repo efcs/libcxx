@@ -103,19 +103,19 @@ struct __tree_operations {
   typedef typename _TreeTypes::__node_base_pointer _NodePtr;
   typedef typename _TreeTypes::__end_node_pointer _EndNodePtr;
 
-  static bool __tree_is_left_child(_NodePtr __x) _NOEXCEPT;
+  static bool __tree_is_left_child(_NodePtr __x);
   static unsigned __tree_sub_invariant(_NodePtr __x);
   static bool __tree_invariant(_NodePtr __root);
-  static _NodePtr __tree_min(_NodePtr __x) _NOEXCEPT;
-  static _NodePtr __tree_max(_NodePtr __x) _NOEXCEPT;
-  static _NodePtr __tree_next(_NodePtr __x) _NOEXCEPT;
-  static _EndNodePtr __tree_next_iter(_NodePtr __x) _NOEXCEPT;
-  static _NodePtr __tree_prev_iter(_EndNodePtr __x) _NOEXCEPT;
-  static _NodePtr __tree_leaf(_NodePtr __x) _NOEXCEPT;
-  static void __tree_left_rotate(_NodePtr) _NOEXCEPT;
-  static void __tree_right_rotate(_NodePtr) _NOEXCEPT;
-  static void __tree_balance_after_insert(_NodePtr __root, _NodePtr __x) _NOEXCEPT;
-  static void __tree_remove(_NodePtr __root, _NodePtr __z) _NOEXCEPT;
+  static _NodePtr __tree_min(_NodePtr __x);
+  static _NodePtr __tree_max(_NodePtr __x);
+  static _NodePtr __tree_next(_NodePtr __x);
+  static _EndNodePtr __tree_next_iter(_NodePtr __x);
+  static _NodePtr __tree_prev_iter(_EndNodePtr __x);
+  static _NodePtr __tree_leaf(_NodePtr __x);
+  static void __tree_left_rotate(_NodePtr);
+  static void __tree_right_rotate(_NodePtr);
+  static void __tree_balance_after_insert(_NodePtr __root, _NodePtr __x);
+  static void __tree_remove(_NodePtr __root, _NodePtr __z);
 };
 
 extern template struct __tree_operations<void*>;
@@ -124,7 +124,7 @@ extern template struct __tree_operations<void*>;
 // Precondition:  __x != nullptr.
 template <class _VoidPtr>
 bool
-__tree_operations<_VoidPtr>::__tree_is_left_child(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_is_left_child(_NodePtr __x)
 {
     return __x == __x->__parent_->__left_;
 }
@@ -189,7 +189,7 @@ __tree_operations<_VoidPtr>::__tree_invariant(_NodePtr __root)
 // Precondition:  __x != nullptr.
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_NodePtr
-__tree_operations<_VoidPtr>::__tree_min(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_min(_NodePtr __x)
 {
     while (__x->__left_ != nullptr)
         __x = __x->__left_;
@@ -200,7 +200,7 @@ __tree_operations<_VoidPtr>::__tree_min(_NodePtr __x) _NOEXCEPT
 // Precondition:  __x != nullptr.
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_NodePtr
-__tree_operations<_VoidPtr>::__tree_max(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_max(_NodePtr __x)
 {
     while (__x->__right_ != nullptr)
         __x = __x->__right_;
@@ -211,7 +211,7 @@ __tree_operations<_VoidPtr>::__tree_max(_NodePtr __x) _NOEXCEPT
 // Precondition:  __x != nullptr.
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_NodePtr
-__tree_operations<_VoidPtr>::__tree_next(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_next(_NodePtr __x)
 {
     if (__x->__right_ != nullptr)
         return __tree_min(__x->__right_);
@@ -222,7 +222,7 @@ __tree_operations<_VoidPtr>::__tree_next(_NodePtr __x) _NOEXCEPT
 
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_EndNodePtr
-__tree_operations<_VoidPtr>::__tree_next_iter(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_next_iter(_NodePtr __x)
 {
     if (__x->__right_ != nullptr)
         return static_cast<_EndNodePtr>(__tree_min(__x->__right_));
@@ -236,7 +236,7 @@ __tree_operations<_VoidPtr>::__tree_next_iter(_NodePtr __x) _NOEXCEPT
 // Note: __x may be the end node.
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_NodePtr
-__tree_operations<_VoidPtr>::__tree_prev_iter(_EndNodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_prev_iter(_EndNodePtr __x)
 {
     if (__x->__left_ != nullptr)
         return __tree_max(__x->__left_);
@@ -250,7 +250,7 @@ __tree_operations<_VoidPtr>::__tree_prev_iter(_EndNodePtr __x) _NOEXCEPT
 // Precondition:  __x != nullptr.
 template <class _VoidPtr>
 typename __tree_operations<_VoidPtr>::_NodePtr
-__tree_operations<_VoidPtr>::__tree_leaf(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_leaf(_NodePtr __x)
 {
     while (true)
     {
@@ -274,7 +274,7 @@ __tree_operations<_VoidPtr>::__tree_leaf(_NodePtr __x) _NOEXCEPT
 // Precondition:  __x->__right_ != nullptr
 template <class _VoidPtr>
 void
-__tree_operations<_VoidPtr>::__tree_left_rotate(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_left_rotate(_NodePtr __x)
 {
     _NodePtr __y = __x->__right_;
     __x->__right_ = __y->__left_;
@@ -294,7 +294,7 @@ __tree_operations<_VoidPtr>::__tree_left_rotate(_NodePtr __x) _NOEXCEPT
 // Precondition:  __x->__left_ != nullptr
 template <class _VoidPtr>
 void
-__tree_operations<_VoidPtr>::__tree_right_rotate(_NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_right_rotate(_NodePtr __x)
 {
     _NodePtr __y = __x->__left_;
     __x->__left_ = __y->__right_;
@@ -319,7 +319,7 @@ __tree_operations<_VoidPtr>::__tree_right_rotate(_NodePtr __x) _NOEXCEPT
 //                may be different than the value passed in as __root.
 template <class _VoidPtr>
 void
-__tree_operations<_VoidPtr>::__tree_balance_after_insert(_NodePtr __root, _NodePtr __x) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_balance_after_insert(_NodePtr __root, _NodePtr __x)
 {
     __x->__is_black_ = __x == __root;
     while (__x != __root && !__x->__parent_unsafe()->__is_black_)
@@ -389,7 +389,7 @@ __tree_operations<_VoidPtr>::__tree_balance_after_insert(_NodePtr __root, _NodeP
 //                may be different than the value passed in as __root.
 template <class _VoidPtr>
 void
-__tree_operations<_VoidPtr>::__tree_remove(_NodePtr __root, _NodePtr __z) _NOEXCEPT
+__tree_operations<_VoidPtr>::__tree_remove(_NodePtr __root, _NodePtr __z)
 {
     // __z will be removed from the tree.  Client still needs to destruct/deallocate it
     // __y is either __z, or if __z has two children, __tree_next(__z).
