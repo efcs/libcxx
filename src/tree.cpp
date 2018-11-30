@@ -4,8 +4,8 @@
 _LIBCPP_BEGIN_NAMESPACE_STD
 
 template struct __tree_operations<void*>;
-template class __tree<string, less<string>, allocator<string> >;
-template class __tree<int, less<int>, allocator<int> >;
+
+_LIBCPP_TREE_INSTANT( );
 
 template class __tree<_MapVT,
                              __map_value_compare<string, _MapVT, less<string> >,

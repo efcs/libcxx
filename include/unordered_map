@@ -2304,6 +2304,8 @@ _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, unsigned) \
 _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, string, void*) \
 _LIBCPP_INSTANTIATE_HASH_MAP(ExternKey, unsigned, unsigned)
 
+_LIBCPP_INSTANTIATE_HASH_MAPS(extern)
+
 _LIBCPP_END_NAMESPACE_STD
 
 #endif  // _LIBCPP_UNORDERED_MAP

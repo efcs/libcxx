@@ -3423,9 +3423,9 @@ _LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned char); \
 _LIBCPP_INSTANTIATE_VECTOR(ExternKey, unsigned short); \
 _LIBCPP_INSTANTIATE_VECTOR(ExternKey, char); \
 _LIBCPP_INSTANTIATE_VECTOR(ExternKey, float); \
-_LIBCPP_INSTANTIATE_VECTOR(ExternKey, double); \
+_LIBCPP_INSTANTIATE_VECTOR(ExternKey, double);
 
-
+_LIBCPP_INSTANTIATE_VECTORS(extern)
 
 extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS vector<bool>;
 

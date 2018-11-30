@@ -5655,6 +5655,11 @@ struct __is_allocator<_Alloc,
      >
    : true_type {};
 
+#define _LIBCPP_UNIQUE_PTR_INSTANT(ExternKey) \
+ExternKey template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS unique_ptr<int>;
+
+_LIBCPP_UNIQUE_PTR_INSTANT(extern)
+
 _LIBCPP_END_NAMESPACE_STD
 
 _LIBCPP_POP_MACROS
