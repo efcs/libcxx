@@ -36,8 +36,8 @@ class NMExtractor(object):
         Initialize the nm executable and flags that will be used to extract
         symbols from shared libraries.
         """
-        self.nm_exe = self.find_tool()
-        if self.nm_exe is None:
+        self.tool = self.find_tool()
+        if self.tool is None:
             # ERROR no NM found
             print("ERROR: Could not find nm")
             sys.exit(1)
@@ -48,10 +48,10 @@ class NMExtractor(object):
         Extract symbols from a library and return the results as a dict of
         parsed symbols.
         """
-        cmd = [self.nm_exe] + self.flags + [lib]
+        cmd = [self.tool] + self.flags + [lib]
         out, _, exit_code = libcxx.util.executeCommandVerbose(cmd)
         if exit_code != 0:
-            raise RuntimeError('Failed to run %s on %s' % (self.nm_exe, lib))
+            raise RuntimeError('Failed to run %s on %s' % (self.tool, lib))
         fmt_syms = (self._extract_sym(l)
                     for l in out.splitlines() if l.strip())
             # Cast symbol to string.
@@ -74,7 +74,7 @@ class NMExtractor(object):
         new_sym['name'] = new_sym['name'].replace('@@', '@')
         new_sym = self._transform_sym_type(new_sym)
         # NM types which we want to save the size for.
-        if new_sym['type'] == 'OBJECT' and len(bits) > 3:
+        if len(bits) > 3:
             new_sym['size'] = int(bits[3], 16)
         return new_sym
 
@@ -86,6 +86,10 @@ class NMExtractor(object):
         if sym is None or len(sym) < 2:
             return False
         if sym['name'] in extract_ignore_names:
+            return False
+        if not sym['is_defined']:
+            return False
+        if 'size' not in sym.keys():
             return False
         bad_types = ['t', 'b', 'r', 'd', 'w']
         return (sym['type'] not in bad_types
@@ -137,7 +141,7 @@ class ReadElfExtractor(object):
         cmd = [self.tool] + self.flags + [lib]
         out, _, exit_code = libcxx.util.executeCommandVerbose(cmd)
         if exit_code != 0:
-            raise RuntimeError('Failed to run %s on %s' % (self.nm_exe, lib))
+            raise RuntimeError('Failed to run %s on %s' % (self.tool, lib))
         dyn_syms = self.get_dynsym_table(out)
         return self.process_syms(dyn_syms)
 
@@ -187,8 +191,6 @@ def extract_symbols(lib_file):
     The symbols are extracted using NM. They are then filtered and formated.
     Finally they symbols are made unique.
     """
-    if ReadElfExtractor.find_tool():
-        extractor = ReadElfExtractor()
-    else:
-        extractor = NMExtractor()
+
+    extractor = NMExtractor()
     return extractor.extract(lib_file)
