@@ -10,6 +10,7 @@
 #include "algorithm"
 #include "random"
 #include "mutex"
+#include "string"
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
@@ -28,6 +29,7 @@ template void __sort<__less<unsigned long long>&, unsigned long long*>(unsigned 
 template void __sort<__less<float>&, float*>(float*, float*, __less<float>&);
 template void __sort<__less<double>&, double*>(double*, double*, __less<double>&);
 template void __sort<__less<long double>&, long double*>(long double*, long double*, __less<long double>&);
+template void __sort<__less<string>&, string*>(string*, string*, __less<string>&);
 
 template bool __insertion_sort_incomplete<__less<char>&, char*>(char*, char*, __less<char>&);
 template bool __insertion_sort_incomplete<__less<wchar_t>&, wchar_t*>(wchar_t*, wchar_t*, __less<wchar_t>&);

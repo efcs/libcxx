@@ -3418,6 +3418,9 @@ _LIBCPP_INSTANTIATE_VECTOR(extern, unsigned long);
 _LIBCPP_INSTANTIATE_VECTOR(extern, unsigned char);
 _LIBCPP_INSTANTIATE_VECTOR(extern, char);
 
+extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS vector<bool>;
+
+
 
 _LIBCPP_END_NAMESPACE_STD
 
