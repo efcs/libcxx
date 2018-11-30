@@ -1078,6 +1078,9 @@ struct __atomic_base<_Tp, true>
     _Tp operator^=(_Tp __op) _NOEXCEPT          {return fetch_xor(__op) ^ __op;}
 };
 
+_LIBCPP_EXTERN_TEMPLATE(struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __atomic_base<int, true>)
+_LIBCPP_EXTERN_TEMPLATE(struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __atomic_base<int, false>)
+
 // atomic<T>
 
 template <class _Tp>

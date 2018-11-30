@@ -16,6 +16,7 @@
 #include "future"
 #include "limits"
 #include <sys/types.h>
+#include "atomic"
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 # include <sys/param.h>
@@ -216,6 +217,10 @@ __thread_struct::__make_ready_at_thread_exit(__assoc_sub_state* __s)
 {
     __p_->__make_ready_at_thread_exit(__s);
 }
+
+template struct __atomic_base<int, true>;
+template struct __atomic_base<int, false>;
+
 
 _LIBCPP_END_NAMESPACE_STD
 

@@ -118,7 +118,7 @@ struct __tree_operations {
   static void __tree_remove(_NodePtr __root, _NodePtr __z);
 };
 
-extern template struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree_operations<void*>;
+_LIBCPP_EXTERN_TEMPLATE(struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree_operations<void*>)
 
 // Returns:  true if __x is a left child of its parent, else false
 // Precondition:  __x != nullptr.
@@ -2917,8 +2917,8 @@ swap(__tree<_Tp, _Compare, _Allocator>& __x,
     __x.swap(__y);
 }
 
-extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<string, less<string>, allocator<string> >;
-extern template class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<int, less<int>, allocator<int> >;
+_LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<string, less<string>, allocator<string> >)
+_LIBCPP_EXTERN_TEMPLATE(class _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __tree<int, less<int>, allocator<int> >)
 
 _LIBCPP_END_NAMESPACE_STD
 

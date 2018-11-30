@@ -1178,7 +1178,7 @@ __murmur2_or_cityhash<_Size, 64>::operator()(const void* __key, _Size __len)
       __hash_len_16(__v.second, __w.second) + __x);
 }
 
-extern template struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __murmur2_or_cityhash<unsigned long>;
+_LIBCPP_EXTERN_TEMPLATE(struct _LIBCPP_EXTERN_TEMPLATE_TYPE_VIS __murmur2_or_cityhash<unsigned long>);
 
 template <class _Tp, size_t = sizeof(_Tp) / sizeof(size_t)>
 struct __scalar_hash;
