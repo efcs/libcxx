@@ -493,7 +493,9 @@ TEST_CASE(last_write_time_symlink_test)
 
     file_time_type  got_time = last_write_time(sym);
     TEST_CHECK(!CompareTime(got_time, old_times.write));
+    std::this_thread::sleep_for(2);
     old_sym_times.first = GetSymlinkTimes(sym).first;
+    std::this_thread::sleep_for(2);
 
     if (!WorkaroundStatTruncatesToSeconds) {
       TEST_CHECK(got_time == new_time);
