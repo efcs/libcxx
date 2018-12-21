@@ -126,7 +126,7 @@ TimeSpec LastAccessTime(path const& p) { return GetTimes(p).access; }
 
 TimeSpec LastWriteTime(path const& p) { return GetTimes(p).write; }
 
-std::pair<TimeSpec, TimeSpec> GetSymlinkTimes(path const& p) {
+Times GetSymlinkTimes(path const& p) {
   StatT st;
   if (::lstat(p.c_str(), &st) == -1) {
     std::error_code ec(errno, std::generic_category());
@@ -483,20 +483,21 @@ TEST_CASE(last_write_time_symlink_test)
     const path sym = env.create_symlink("file", "sym");
 
     const file_time_type new_time = Clock::now() + Hours(3);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     const auto old_times = GetTimes(sym);
-    auto old_sym_times = GetSymlinkTimes(sym);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    Times old_sym_times = GetSymlinkTimes(sym);
 
     std::error_code ec = GetTestEC();
     last_write_time(sym, new_time, ec);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     TEST_CHECK(!ec);
 
     file_time_type  got_time = last_write_time(sym);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     TEST_CHECK(!CompareTime(got_time, old_times.write));
+    auto new_sym_access = GetSymlinkTimes(sym).access;
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    old_sym_times.first = GetSymlinkTimes(sym).first;
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-
     if (!WorkaroundStatTruncatesToSeconds) {
       TEST_CHECK(got_time == new_time);
     } else {
@@ -504,10 +505,13 @@ TEST_CASE(last_write_time_symlink_test)
     }
 
     TEST_CHECK(CompareTime(LastWriteTime(file), new_time));
-    TEST_CHECK(CompareTime(LastAccessTime(sym), old_times.access));
-    std::pair<TimeSpec, TimeSpec> sym_times = GetSymlinkTimes(sym);
-    TEST_CHECK(CompareTime(sym_times.first, old_sym_times.first));
-    TEST_CHECK(CompareTime(sym_times.second, old_sym_times.second));
+    TEST_CHECK(CompareTime(LastAccessTime(sym), new_sym_access));
+     std::this_thread::sleep_for(std::chrono::seconds(2));
+
+
+    Times sym_times = GetSymlinkTimes(sym);
+    TEST_CHECK(CompareTime(sym_times.access, old_sym_times.access));
+    TEST_CHECK(CompareTime(sym_times.write, old_sym_times.write));
 }
 
 
