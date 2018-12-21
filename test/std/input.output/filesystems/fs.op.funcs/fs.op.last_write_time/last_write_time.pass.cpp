@@ -22,6 +22,7 @@
 #include <chrono>
 #include <fstream>
 #include <cstdlib>
+#include <thread>
 
 #include "test_macros.h"
 #include "rapid-cxx-test.hpp"
@@ -499,6 +500,7 @@ TEST_CASE(last_write_time_symlink_test)
     }
 
     TEST_CHECK(CompareTime(LastWriteTime(file), new_time));
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     TEST_CHECK(CompareTime(LastAccessTime(sym), old_times.access));
     std::pair<TimeSpec, TimeSpec> sym_times = GetSymlinkTimes(sym);
     TEST_CHECK(CompareTime(sym_times.first, old_sym_times.first));
