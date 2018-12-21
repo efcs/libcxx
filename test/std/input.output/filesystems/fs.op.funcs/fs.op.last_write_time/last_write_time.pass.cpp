@@ -485,8 +485,9 @@ TEST_CASE(last_write_time_symlink_test)
     const file_time_type new_time = Clock::now() + Hours(3);
 
     const auto old_times = GetTimes(sym);
-    const auto old_sym_times = GetSymlinkTimes(sym);
+
         std::this_thread::sleep_for(std::chrono::seconds(3));
+    const auto old_sym_times = GetSymlinkTimes(sym);
     std::error_code ec = GetTestEC();
     last_write_time(sym, new_time, ec);
     TEST_CHECK(!ec);
