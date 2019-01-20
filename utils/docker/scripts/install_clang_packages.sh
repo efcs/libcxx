@@ -45,7 +45,7 @@ curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 add-apt-repository -s "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main"
 apt-get update
 apt-get upgrade -y
-apt-get install -y --no-install-recommends "clang-$VERSION" "llvm-utils-$VERSION"
+apt-get install -y --no-install-recommends "clang-$VERSION" "llvm-$VERSION-tools"
 
 # FIXME(EricWF): Remove this once the clang packages are no longer broken.
 if [ -f "/usr/local/bin/clang" ]; then
