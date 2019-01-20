@@ -477,7 +477,8 @@ endif()
 # Configure coverage options.
 if (LIBCXX_GENERATE_COVERAGE)
   include(CodeCoverage)
-  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_COVERAGE})
+  append(LIBCXX_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_COVERAGE}")
+  append(LIBCXX_LINK_FLAGS "${CMAKE_CXX_FLAGS_COVERAGE}")
 endif()
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)

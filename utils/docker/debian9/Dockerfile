@@ -37,7 +37,9 @@ RUN apt-get update && \
       gnupg \
       apt-transport-https \
       systemd \
-      sysvinit-utils && \
+      sysvinit-utils \
+      lcov \
+      vim && \
   update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20 && \
   update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10 && \
   rm -rf /var/lib/apt/lists/*
