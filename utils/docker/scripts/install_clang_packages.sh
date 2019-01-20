@@ -45,7 +45,7 @@ curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 add-apt-repository -s "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main"
 apt-get update
 apt-get upgrade -y
-apt-get install -y --no-install-recommends "clang-$VERSION"
+apt-get install -y --no-install-recommends "clang-$VERSION" "llvm-utils-$VERSION"
 
 # FIXME(EricWF): Remove this once the clang packages are no longer broken.
 if [ -f "/usr/local/bin/clang" ]; then
@@ -62,12 +62,19 @@ else
   CXX_BINARY="$(which clang++-$VERSION)"
   ln -s "$CXX_BINARY" "/usr/local/bin/clang++"
 fi
+if [ -f "/usr/local/bin/llvm-cov-9" ]; then
+  echo "llvm-cov already exists"
+  exit 1
+else
+  LLVM_COV="$(which llvm-cov-$VERSION)"
+  ln -s "$LLVM_COV" "/usr/local/bin/llvm-cov"
+fi
 
 echo "Testing clang version..."
 clang --version
 
 echo "Testing clang++ version..."
-clang++ --version
+clang++ -
 
 # Figure out the libc++ and libc++abi package versions that we want.
 if [ "$VERSION" == "" ]; then

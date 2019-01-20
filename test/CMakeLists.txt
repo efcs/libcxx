@@ -79,7 +79,7 @@ if (LIBCXX_GENERATE_COVERAGE)
   set(output_dir "${CMAKE_CURRENT_BINARY_DIR}/coverage")
   set(capture_dirs
       "${LIBCXX_LIB_CMAKEFILES_DIR}/cxx_objects.dir/"
-      "${LIBCXX_LIB_CMAKEFILES_DIR}/cxx.dir/"
+      "${LIBCXX_LIB_CMAKEFILES_DIR}/cxx_shared.dir/"
       "${LIBCXX_LIB_CMAKEFILES_DIR}/cxx_experimental.dir/"
       "${CMAKE_CURRENT_BINARY_DIR}")
   set(extract_dirs "${LIBCXX_SOURCE_DIR}/include;${LIBCXX_SOURCE_DIR}/src")

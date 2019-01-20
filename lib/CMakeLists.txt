@@ -37,7 +37,7 @@ add_link_flags_if(LIBCXX_CXX_ABI_LIBRARY_PATH
 if (LIBCXX_GENERATE_COVERAGE AND NOT LIBCXX_COVERAGE_LIBRARY)
   find_compiler_rt_library(profile LIBCXX_COVERAGE_LIBRARY)
 endif()
-add_library_flags_if(LIBCXX_COVERAGE_LIBRARY "${LIBCXX_COVERAGE_LIBRARY}")
+add_library_flags_if(LIBCXX_COVERAGE_LIBRARY -Wl,--whole-archive "${LIBCXX_COVERAGE_LIBRARY}" -Wl,--no-whole-archive)
 
 if (APPLE AND (LIBCXX_CXX_ABI_LIBNAME STREQUAL "libcxxabi" OR
                LIBCXX_CXX_ABI_LIBNAME STREQUAL "default"))
