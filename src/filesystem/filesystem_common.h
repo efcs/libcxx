@@ -95,6 +95,7 @@ static string format_string_imp(const char* msg, ...) {
 
 const char* unwrap(string const& s) { return s.c_str(); }
 const char* unwrap(path const& p) { return p.native().c_str(); }
+const char* unwrap(string_view sv) { return sv.data(); }
 template <class Arg>
 Arg const& unwrap(Arg const& a) {
   static_assert(!is_class<Arg>::value, "cannot pass class here");

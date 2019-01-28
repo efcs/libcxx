@@ -503,11 +503,39 @@ _FilesystemClock::time_point _FilesystemClock::now() noexcept {
 
 filesystem_error::~filesystem_error() {}
 
+static bool contains_null(string_view sv) {
+  return sv.find('\0') != string_view::npos;
+}
+
+
+static string_view sanitize_path_for_exception(string_view p, string &buff) {
+  if (p.empty())
+    return "\"\"";
+  auto num_null = std::count(p.begin(), p.end(), '\0');
+  if (num_null == 0)
+    return p;
+
+  buff = {};
+  const size_t new_size = p.size() + num_null;
+  buff.__resize_default_init(new_size);
+  auto it = buff.begin();
+  for (auto ch : p) {
+    if (ch == '\0') {
+      *it++ = '\\';
+      *it++ = '0';
+    } else {
+      *it++ = ch;
+    }
+  }
+  return buff;
+}
+
 void filesystem_error::__create_what(int __num_paths) {
   const char* derived_what = system_error::what();
   __storage_->__what_ = [&]() -> string {
-    const char* p1 = path1().native().empty() ? "\"\"" : path1().c_str();
-    const char* p2 = path2().native().empty() ? "\"\"" : path2().c_str();
+    string p1_buff, p2_buff;
+    string_view p1 = sanitize_path_for_exception(path1().native(), p1_buff);
+    string_view p2 = sanitize_path_for_exception(path2().native(), p2_buff);
     switch (__num_paths) {
     default:
       return detail::format_string("filesystem error: %s", derived_what);

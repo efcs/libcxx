@@ -228,9 +228,28 @@ error_code::message() const
 
 // system_error
 
+static void escape_null(string &s) {
+  if (auto num_null = std::count(s.begin(), s.end(), '\0')) {
+    std::string new_s;
+    const size_t new_size = s.size() + num_null;
+    new_s.__resize_default_init(new_size);
+    auto it = new_s.begin();
+    for (auto ch : s) {
+      if (ch == '\0') {
+        *it++ = '\\';
+        *it++ = '0';
+      } else {
+       *it++ = ch;
+      }
+    }
+    s.swap(new_s);
+  }
+}
+
 string
 system_error::__init(const error_code& ec, string what_arg)
 {
+    escape_null(what_arg);
     if (ec)
     {
         if (!what_arg.empty())
