@@ -40,11 +40,6 @@ struct AssociativeContainerChecks : BasicContainerChecks<Container, CT> {
 public:
   static void run() {
     Base::run();
-    try {
-     // FIXME Add tests
-    } catch (...) {
-      assert(false && "uncaught debug exception");
-    }
   }
 
 private:

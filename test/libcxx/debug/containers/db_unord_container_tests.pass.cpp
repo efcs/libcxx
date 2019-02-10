@@ -39,11 +39,6 @@ struct UnorderedContainerChecks : BasicContainerChecks<Container, CT> {
 public:
   static void run() {
     Base::run();
-    try {
-     // FIXME
-    } catch (...) {
-      assert(false && "uncaught debug exception");
-    }
   }
 private:
 

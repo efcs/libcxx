@@ -62,10 +62,10 @@ private:
     (void)C.back();
     (void)CC.back();
     C.pop_back();
-    CHECK_DEBUG_THROWS( C.erase(it) );
+    EXPECT_DEATH( C.erase(it) );
     C.clear();
-    CHECK_DEBUG_THROWS( C.back() );
-    CHECK_DEBUG_THROWS( CC.back() );
+    EXPECT_DEATH( C.back() );
+    EXPECT_DEATH( CC.back() );
   }
 
   static void FrontOnEmptyContainer(int N) {
@@ -75,8 +75,8 @@ private:
     (void)C.front();
     (void)CC.front();
     C.clear();
-    CHECK_DEBUG_THROWS( C.front() );
-    CHECK_DEBUG_THROWS( CC.front() );
+    EXPECT_DEATH( C.front() );
+    EXPECT_DEATH( CC.front() );
   }
 
   static void PopBack(int N) {
@@ -85,11 +85,10 @@ private:
     iterator it1 = C1.end();
     --it1;
     C1.pop_back();
-    CHECK_DEBUG_THROWS( C1.erase(it1) );
+    EXPECT_DEATH( C1.erase(it1) );
     C1.erase(C1.begin(), C1.end());
     assert(C1.size() == 0);
-    CHECK_DEBUG_THROWS( C1.pop_back() );
-    CHECK_DEBUG_THROWS( (void)static_cast<void*>(nullptr) );
+    EXPECT_DEATH( C1.pop_back() );
   }
 };
 

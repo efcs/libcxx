@@ -185,7 +185,7 @@ inline bool ExpectDeath(const char* stmt, Func&& func) {
 
 
 /// Assert that the specified expression throws a libc++ debug exception.
-#define CHECK_DEBUG_THROWS(...) assert((ExpectDeath(#__VA_ARGS__, [&]() { __VA_ARGS__; } )))
+#define EXPECT_DEATH(...) assert((ExpectDeath(#__VA_ARGS__, [&]() { __VA_ARGS__; } )))
 
 
 namespace IteratorDebugChecks {
@@ -354,15 +354,15 @@ private:
   static void TestNullIterators() {
     CHECKPOINT("testing null iterator");
     Iter it;
-    CHECK_DEBUG_THROWS( ++it );
-    CHECK_DEBUG_THROWS( it++ );
-    CHECK_DEBUG_THROWS( *it );
+    EXPECT_DEATH( ++it );
+    EXPECT_DEATH( it++ );
+    EXPECT_DEATH( *it );
     if constexpr (CT != CT_VectorBool) {
-      CHECK_DEBUG_THROWS( it.operator->() );
+      EXPECT_DEATH( it.operator->() );
     }
     if constexpr (IsBiDir) {
-      CHECK_DEBUG_THROWS( --it );
-      CHECK_DEBUG_THROWS( it-- );
+      EXPECT_DEATH( --it );
+      EXPECT_DEATH( it-- );
     }
   }
 
@@ -374,10 +374,10 @@ private:
     --i;
     --ci;
     assert(i == C.begin());
-    CHECK_DEBUG_THROWS( --i );
-    CHECK_DEBUG_THROWS( i-- );
-    CHECK_DEBUG_THROWS( --ci );
-    CHECK_DEBUG_THROWS( ci-- );
+    EXPECT_DEATH( --i );
+    EXPECT_DEATH( i-- );
+    EXPECT_DEATH( --ci );
+    EXPECT_DEATH( ci-- );
   }
 
   static void IncrementEnd() {
@@ -388,10 +388,10 @@ private:
     ++i;
     ++ci;
     assert(i == C.end());
-    CHECK_DEBUG_THROWS( ++i );
-    CHECK_DEBUG_THROWS( i++ );
-    CHECK_DEBUG_THROWS( ++ci );
-    CHECK_DEBUG_THROWS( ci++ );
+    EXPECT_DEATH( ++i );
+    EXPECT_DEATH( i++ );
+    EXPECT_DEATH( ++ci );
+    EXPECT_DEATH( ci++ );
   }
 
   static void DerefEndIterator() {
@@ -406,11 +406,11 @@ private:
     }
     ++i; ++ci;
     assert(i == C.end());
-    CHECK_DEBUG_THROWS( *i );
-    CHECK_DEBUG_THROWS( *ci );
+    EXPECT_DEATH( *i );
+    EXPECT_DEATH( *ci );
     if constexpr (CT != CT_VectorBool) {
-      CHECK_DEBUG_THROWS( i.operator->() );
-      CHECK_DEBUG_THROWS( ci.operator->() );
+      EXPECT_DEATH( i.operator->() );
+      EXPECT_DEATH( ci.operator->() );
     }
   }
 
@@ -424,14 +424,14 @@ private:
       iterator i_next = i;
       ++i_next;
       (void)*i_next;
-      CHECK_DEBUG_THROWS( C2.erase_after(i) );
+      EXPECT_DEATH( C2.erase_after(i) );
       C1.erase_after(i);
-      CHECK_DEBUG_THROWS( *i_next );
+      EXPECT_DEATH( *i_next );
     } else {
-      CHECK_DEBUG_THROWS( C2.erase(i) );
+      EXPECT_DEATH( C2.erase(i) );
       (void)*i;
       C1.erase(i);
-      CHECK_DEBUG_THROWS( *i );
+      EXPECT_DEATH( *i );
     }
   }
 
@@ -442,12 +442,12 @@ private:
     Container C2 = std::move(C1);
     (void) *i;
     if constexpr (CT == CT_ForwardList) {
-      CHECK_DEBUG_THROWS( C1.erase_after(i) );
+      EXPECT_DEATH( C1.erase_after(i) );
       C2.erase_after(i);
     } else {
-      CHECK_DEBUG_THROWS( C1.erase(i) );
+      EXPECT_DEATH( C1.erase(i) );
       C2.erase(i);
-      CHECK_DEBUG_THROWS(*i);
+      EXPECT_DEATH(*i);
     }
   }
 
@@ -458,12 +458,12 @@ private:
     iterator it1_next = it1;
     ++it1_next;
     Container C2 = C1;
-    CHECK_DEBUG_THROWS( C2.erase(it1) ); // wrong container
-    CHECK_DEBUG_THROWS( C2.erase(C2.end()) ); // erase with end
+    EXPECT_DEATH( C2.erase(it1) ); // wrong container
+    EXPECT_DEATH( C2.erase(C2.end()) ); // erase with end
     C1.erase(it1_next);
-    CHECK_DEBUG_THROWS( C1.erase(it1_next) ); // invalidated iterator
+    EXPECT_DEATH( C1.erase(it1_next) ); // invalidated iterator
     C1.erase(it1);
-    CHECK_DEBUG_THROWS( C1.erase(it1) ); // invalidated iterator
+    EXPECT_DEATH( C1.erase(it1) ); // invalidated iterator
   }
 
   static void EraseIterIter() {
@@ -476,9 +476,9 @@ private:
     iterator it2 = C2.begin();
     iterator it2_next = it2;
     ++it2_next;
-    CHECK_DEBUG_THROWS( C2.erase(it1, it1_next) ); // begin from wrong container
-    CHECK_DEBUG_THROWS( C2.erase(it1, it2_next) ); // end   from wrong container
-    CHECK_DEBUG_THROWS( C2.erase(it2, it1_next) ); // both  from wrong container
+    EXPECT_DEATH( C2.erase(it1, it1_next) ); // begin from wrong container
+    EXPECT_DEATH( C2.erase(it1, it2_next) ); // end   from wrong container
+    EXPECT_DEATH( C2.erase(it2, it1_next) ); // both  from wrong container
     C2.erase(it2, it2_next);
   }
 
@@ -490,13 +490,13 @@ private:
     iterator it1 = C1.begin();
     iterator it2 = C2.begin();
     swap(C1, C2);
-    CHECK_DEBUG_THROWS( C1.erase(it1) );
+    EXPECT_DEATH( C1.erase(it1) );
     if (CT == CT_String) {
-      CHECK_DEBUG_THROWS(C1.erase(it2));
+      EXPECT_DEATH(C1.erase(it2));
     } else
       C1.erase(it2);
     //C2.erase(it1);
-    CHECK_DEBUG_THROWS( C1.erase(it1) );
+    EXPECT_DEATH( C1.erase(it1) );
   }
 
   static void SwapNonEqualAllocators() {
@@ -505,7 +505,7 @@ private:
     Container C2 = makeContainer(1, allocator_type(2));
     Container C3 = makeContainer(2, allocator_type(2));
     swap(C2, C3);
-    CHECK_DEBUG_THROWS( swap(C1, C2) );
+    EXPECT_DEATH( swap(C1, C2) );
   }
 
 private:
