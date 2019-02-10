@@ -68,19 +68,19 @@ struct DebugInfoMatcher {
       return true;
     }();
     if (!IsMatch) {
-      std::cerr << "Failed to match debug info!\n"
-                << "Expected:\n" << ToString() << "\n"
-                << "Got:\n" << got.what() << "\n";
+      std::cout << "Failed to match debug info!\n"
+                << ToString() << "\n"
+                << "VS\n"
+                << got.what() << "\n";
     }
     return IsMatch;
   }
 
   std::string ToString() const {
     std::stringstream ss;
-    ss << "DebugInfoMatcher: \n"
-       << "  " << "msg = \"" << msg << "\"\n"
-       << "  " << "line = " << (line == any_line ? "'*'" : std::to_string(line)) << "\n"
-       << "  " << "file = " << (file == any_file ? "'*'" : any_file) << "\n";
+    ss << "msg = \"" << msg << "\"\n"
+       << "line = " << (line == any_line ? "'*'" : std::to_string(line)) << "\n"
+       << "file = " << (file == any_file ? "'*'" : any_file) << "";
     return ss.str();
   }
 
@@ -131,6 +131,25 @@ struct DeathTest {
       std::exit(2);
     } else {
       close(pipe_fd[1]);
+      int read_fd = pipe_fd[0];
+      int bytes_read;
+      char flag;
+      do {
+
+        bytes_read = ::read(read_fd, &flag, 1);
+      } while (bytes_read == -1 && errno == EINTR);
+      if (bytes_read == 1)
+        error_msg_ += flag;
+
+      char buffer[256];
+      int num_read;
+      do {
+        while ((num_read = read(read_fd, buffer, 255)) > 0) {
+          buffer[num_read] = '\0';
+          error_msg_ += buffer;
+        }
+      } while (num_read == -1 && errno == EINTR);
+      close(read_fd);
       int status_value;
       pid_t result = waitpid(child_pid_, &status_value, 0);
       assert(result != 1);
@@ -148,6 +167,8 @@ struct DeathTest {
     assert(false);
   }
 
+  std::string const& getError() const { return error_msg_; }
+
 private:
   DeathTest(DeathTest const&) = delete;
   DeathTest& operator=(DeathTest const&) = delete;
@@ -156,6 +177,7 @@ private:
   DebugInfoMatcher matcher_;
   pid_t child_pid_ = -1;
   int status_ = -1;
+  std::string error_msg_;
 };
 
 template <class Func>
@@ -164,6 +186,8 @@ inline bool ExpectDeath(const char* stmt, Func&& func, DebugInfoMatcher Matcher)
   DeathTest::ResultKind RK = DT.Run(func);
   auto OnFailure = [&](const char* msg) {
     std::cerr << "EXPECT_DEATH( " << stmt << " ) failed! (" << msg << ")\n\n";
+    if (!DT.getError().empty())
+      std::cerr << DT.getError() << "\n";
     return false;
   };
   switch (RK) {
@@ -187,6 +211,7 @@ inline bool ExpectDeath(const char* stmt, Func&& func) {
 /// Assert that the specified expression throws a libc++ debug exception.
 #define EXPECT_DEATH(...) assert((ExpectDeath(#__VA_ARGS__, [&]() { __VA_ARGS__; } )))
 
+#define EXPECT_DEATH_MATCHES(Matcher, ...) assert((ExpectDeath(#__VA_ARGS__, [&]() { __VA_ARGS__; }, Matcher)))
 
 namespace IteratorDebugChecks {
 
