@@ -17,7 +17,6 @@
 // test container debugging
 
 #define _LIBCPP_DEBUG 1
-#define _LIBCPP_DEBUG_USE_EXCEPTIONS
 #include <string>
 #include <vector>
 
@@ -90,6 +89,7 @@ private:
     C1.erase(C1.begin(), C1.end());
     assert(C1.size() == 0);
     CHECK_DEBUG_THROWS( C1.pop_back() );
+    CHECK_DEBUG_THROWS( (void)static_cast<void*>(nullptr) );
   }
 };
 

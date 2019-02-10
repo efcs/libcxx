@@ -12,9 +12,6 @@
 #ifndef _LIBCPP_DEBUG
 #error _LIBCPP_DEBUG must be defined before including this header
 #endif
-#ifndef _LIBCPP_DEBUG_USE_EXCEPTIONS
-#error _LIBCPP_DEBUG_USE_EXCEPTIONS must be defined before including this header
-#endif
 
 #include <ciso646>
 #ifndef _LIBCPP_VERSION
@@ -26,6 +23,13 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cassert>
+#include <string>
+#include <sstream>
+#include <iostream>
+
+#include <unistd.h>
+#include <sys/wait.h>
+
 
 #include "test_macros.h"
 #include "assert_checkpoint.h"
@@ -43,18 +47,146 @@
 #error These tests require if constexpr
 #endif
 
-/// Assert that the specified expression throws a libc++ debug exception.
-#define CHECK_DEBUG_THROWS(...) assert((CheckDebugThrows( [&]() { __VA_ARGS__; } )))
+struct DebugInfoMatcher {
+  static const int any_line = -1;
+  static constexpr const char* any_file = "*";
+  static constexpr const char* any_msg = "*";
+
+  constexpr DebugInfoMatcher() : msg(nullptr), file(any_file), line(any_line) { }
+  constexpr DebugInfoMatcher(const char* msg, const char* file = any_file, int line = any_line)
+    : msg(msg), file(file), line(line) {}
+
+  bool Matches(std::__libcpp_debug_info const& got) const {
+    assert(msg && "empty matcher");
+    bool IsMatch = [&]() {
+      if (line != any_line && line != got.__line_)
+        return false;
+      if (file != std::string(any_file) && std::string(got.__file_).find(file) == std::string::npos)
+        return false;
+      if (msg != std::string(any_msg) && std::string(got.__msg_).find(msg) == std::string::npos)
+        return false;
+      return true;
+    }();
+    if (!IsMatch) {
+      std::cerr << "Failed to match debug info!\n"
+                << "Expected:\n" << ToString() << "\n"
+                << "Got:\n" << got.what() << "\n";
+    }
+    return IsMatch;
+  }
+
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << "DebugInfoMatcher: \n"
+       << "  " << "msg = \"" << msg << "\"\n"
+       << "  " << "line = " << (line == any_line ? "'*'" : std::to_string(line)) << "\n"
+       << "  " << "file = " << (file == any_file ? "'*'" : any_file) << "\n";
+    return ss.str();
+  }
+
+  bool empty() const { return msg == nullptr; }
+
+private:
+  const char* msg;
+  const char* file;
+  int line;
+};
+
+static constexpr DebugInfoMatcher AnyMatcher(DebugInfoMatcher::any_msg);
+
+inline DebugInfoMatcher& GlobalMatcher() {
+  static DebugInfoMatcher GMatch;
+  return GMatch;
+}
+
+inline void DeathTestDebugHandler(std::__libcpp_debug_info const& info) {
+  assert(!GlobalMatcher().empty());
+  if (GlobalMatcher().Matches(info)) {
+    std::exit(0);
+  }
+  std::exit(1);
+}
+
+struct DeathTest {
+  enum ResultKind {
+    RK_Died, RK_MatchFailure, RK_Lived, RK_Unknown
+  };
+
+  DeathTest(DebugInfoMatcher const& Matcher) : matcher_(Matcher) {}
+
+  template <class Func>
+  ResultKind Run(Func&& f) {
+    int pipe_fd[2];
+    assert(pipe(pipe_fd) != -1);
+
+    pid_t child_pid = fork();
+    assert(child_pid != -1);
+    child_pid_ = child_pid;
+    if (child_pid_ == 0) {
+      close(pipe_fd[0]);
+      while ((dup2(pipe_fd[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+      GlobalMatcher() = matcher_;
+      std::__libcpp_set_debug_function(&DeathTestDebugHandler);
+      f();
+      std::exit(2);
+    } else {
+      close(pipe_fd[1]);
+      int status_value;
+      pid_t result = waitpid(child_pid_, &status_value, 0);
+      assert(result != 1);
+      status_ = status_value;
+      if (WIFEXITED(status_value)) {
+        if (WEXITSTATUS(status_value) == 0)
+          return RK_Died;
+        else if (WEXITSTATUS(status_value) == 1)
+          return RK_MatchFailure;
+        else if (WEXITSTATUS(status_value) == 2)
+          return RK_Lived;
+      }
+      return RK_Unknown;
+    }
+    assert(false);
+  }
+
+private:
+  DeathTest(DeathTest const&) = delete;
+  DeathTest& operator=(DeathTest const&) = delete;
+
+private:
+  DebugInfoMatcher matcher_;
+  pid_t child_pid_ = -1;
+  int status_ = -1;
+};
 
 template <class Func>
-inline bool CheckDebugThrows(Func&& func) {
-  try {
-    func();
-  } catch (std::__libcpp_debug_exception const&) {
+inline bool ExpectDeath(const char* stmt, Func&& func, DebugInfoMatcher Matcher) {
+  DeathTest DT(Matcher);
+  DeathTest::ResultKind RK = DT.Run(func);
+  auto OnFailure = [&](const char* msg) {
+    std::cerr << "EXPECT_DEATH( " << stmt << " ) failed! (" << msg << ")\n\n";
+    return false;
+  };
+  switch (RK) {
+  case DeathTest::RK_Died:
     return true;
+  case DeathTest::RK_Unknown:
+      return OnFailure("reason unknown");
+  case DeathTest::RK_Lived:
+      return OnFailure("child lived");
+  case DeathTest::RK_MatchFailure:
+      return OnFailure("matcher failed");
   }
-  return false;
 }
+
+template <class Func>
+inline bool ExpectDeath(const char* stmt, Func&& func) {
+  return ExpectDeath(stmt, func, AnyMatcher);
+}
+
+
+/// Assert that the specified expression throws a libc++ debug exception.
+#define CHECK_DEBUG_THROWS(...) assert((ExpectDeath(#__VA_ARGS__, [&]() { __VA_ARGS__; } )))
+
 
 namespace IteratorDebugChecks {
 
