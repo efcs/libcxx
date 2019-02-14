@@ -26,6 +26,9 @@ def main():
         '--removed-only', dest='removed_only',
         help='Only print removed symbols',
         action='store_true', default=False)
+    parser.add_argument(
+        '--common-only', dest='common_only',
+        action='store_true', default=False)
     parser.add_argument('--only-stdlib-symbols', dest='only_stdlib',
                         help="Filter all symbols not related to the stdlib",
                         action='store_true', default=False)
@@ -54,11 +57,17 @@ def main():
         old_syms_list, _ = util.filter_stdlib_symbols(old_syms_list)
         new_syms_list, _ = util.filter_stdlib_symbols(new_syms_list)
 
-    added, removed, changed = diff.diff(old_syms_list, new_syms_list)
+    added, removed, changed, common = diff.diff(old_syms_list, new_syms_list)
     if args.removed_only:
-        added = {}
+        added = []
+    if args.common_only:
+        added = []
+        removed = []
+        changed = []
+    else:
+        common = []
     report, is_break, is_different = diff.report_diff(
-        added, removed, changed, names_only=args.names_only,
+        added, removed, changed, common, names_only=args.names_only,
         demangle=args.demangle)
     if args.output is None:
         print(report)

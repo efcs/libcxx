@@ -62,15 +62,28 @@ def write_syms(sym_list, out=None, names_only=False, filter=None):
 
 _cppfilt_exe = distutils.spawn.find_executable('c++filt')
 
-
 def demangle_symbol(symbol):
+    results = demangle_symbols([symbol])
+    assert len(results) == 1
+    return results[symbol]
+
+def create_identity_dict(l):
+    return {e: e for e in l}
+
+def demangle_symbols(symbols):
     if _cppfilt_exe is None:
-        return symbol
+        return create_identity_dict(symbols)
+    input_line = ' '.join(symbols)
     out, _, exit_code = libcxx.util.executeCommandVerbose(
-        [_cppfilt_exe], input=symbol)
+        [_cppfilt_exe], input=input_line)
     if exit_code != 0:
-        return symbol
-    return out
+        return create_identity_dict(symbols)
+    out_lines = out.splitlines()
+    assert len(out_lines) == len(symbols)
+    result = dict()
+    for i in range(0, len(symbols)):
+        result[symbols[i]] = out_lines[i]
+    return result
 
 
 def is_elf(filename):
@@ -91,8 +104,16 @@ def is_mach_o(filename):
         '\xbe\xba\xfe\xca'   # FAT_CIGAM
     ]
 
+def is_static_library(filename):
+    expect = b'!<arch>\n'
+    with open(filename, 'rb') as f:
+        magic_bytes = f.read(8)
+    return magic_bytes == expect
+
 
 def is_library_file(filename):
+    if is_static_library(filename):
+        return True
     if sys.platform == 'darwin':
         return is_mach_o(filename)
     else:

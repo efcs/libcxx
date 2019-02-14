@@ -46,28 +46,45 @@ def changed_symbols(old, new):
             changed += [(old_sym, new_sym)]
     return changed
 
+def common_symbols(old, new):
+    common = []
+    for old_sym in old:
+        new_sym = _find_by_key(new, old_sym['name'])
+        if new_sym is not None:
+            common += [(old_sym, new_sym)]
+    return common
 
 def diff(old, new):
     added = added_symbols(old, new)
     removed = removed_symbols(old, new)
     changed = changed_symbols(old, new)
-    return added, removed, changed
+    common = common_symbols(old, new)
+    return added, removed, changed, common
+
+def extract_all_names(sym_list):
+    names = set([s['name'] for s in sym_list])
+    return names
 
 
-def report_diff(added_syms, removed_syms, changed_syms, names_only=False,
+def report_diff(added_syms, removed_syms, changed_syms, common_syms,
+                names_only=False,
                 demangle=True):
-    def maybe_demangle(name):
-        return util.demangle_symbol(name) if demangle else name
-
+    all_names = extract_all_names(list(added_syms) + removed_syms + \
+      [s for (_, s) in common_syms] +
+      [s for (_, s) in changed_syms])
+    if demangle:
+        demangled_names = util.demangle_symbols(all_names)
+    else:
+        demangled_names = {n:n for n in all_names}
     report = ''
     for sym in added_syms:
-        report += 'Symbol added: %s\n' % maybe_demangle(sym['name'])
+        report += 'Symbol added: %s\n' % demangled_names[sym['name']]
         if not names_only:
             report += '    %s\n\n' % sym
     if added_syms and names_only:
         report += '\n'
     for sym in removed_syms:
-        report += 'SYMBOL REMOVED: %s\n' % maybe_demangle(sym['name'])
+        report += 'SYMBOL REMOVED: %s\n' % demangled_names[sym['name']]
         if not names_only:
             report += '    %s\n\n' % sym
     if removed_syms and names_only:
@@ -78,13 +95,21 @@ def report_diff(added_syms, removed_syms, changed_syms, names_only=False,
             old_str = '\n    OLD SYMBOL: %s' % old_sym
             new_str = '\n    NEW SYMBOL: %s' % new_sym
             report += ('SYMBOL CHANGED: %s%s%s\n\n' %
-                       (maybe_demangle(old_sym['name']),
+                       (demangled_names[old_sym['name']],
                         old_str, new_str))
 
     added = bool(len(added_syms) != 0)
     abi_break = bool(len(removed_syms))
     if not names_only:
         abi_break = abi_break or len(changed_syms)
+    if common_syms:
+        report += 'Common symbols:\n'
+        for old_sym, new_sym in common_syms:
+            report += '%s\n' % demangled_names[old_sym['name']]
+            if not names_only:
+                report += '    %s\n' % old_sym
+                if old_sym != new_sym:
+                    report += '    %s\n' % new_sym
     if added or abi_break:
         report += 'Summary\n'
         report += '    Added:   %d\n' % len(added_syms)

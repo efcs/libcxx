@@ -185,7 +185,7 @@ class ReadElfExtractor(object):
             start_line = mi + 2
             end_line = mi + num_lines + 2
             sect = lines[start_line:end_line]
-            name = 'dynsym'
+            name = 'dynsym(%s)' % lib
             if self.static_lib:
                 file, tu = self.get_name_and_tu(lines, mi)
                 name = '%s(%s)' % (file, tu)
@@ -216,11 +216,13 @@ class ReadElfExtractor(object):
                 'type': parts[3],
                 'is_defined': (parts[6] != 'UND')
             }
-            assert new_sym['type'] in ['OBJECT', 'FUNC', 'NOTYPE', 'FILE']
+            assert new_sym['type'] in ['OBJECT', 'FUNC', 'NOTYPE', 'FILE', 'TLS']
             if new_sym['name'] in extract_ignore_names:
                 continue
             if new_sym['type'] in ['NOTYPE', 'FILE']:
                 continue
+            if new_sym['type'] == 'TLS':
+                new_sym['type'] = 'OBJECT'
             if new_sym['type'] == 'FUNC':
                 del new_sym['size']
             if self.static_lib:
@@ -229,15 +231,13 @@ class ReadElfExtractor(object):
         return new_syms
 
 
-def extract_symbols(lib_file, static_lib=None):
+def extract_symbols(lib_file):
     """
     Extract and return a list of symbols extracted from a static or dynamic
     library. The symbols are extracted using NM or readelf. They are then
     filtered and formated. Finally they symbols are made unique.
     """
-    if static_lib is None:
-        _, ext = os.path.splitext(lib_file)
-        static_lib = True if ext in ['.a'] else False
+    static_lib = util.is_static_library(lib_file)
     if ReadElfExtractor.find_tool():
         extractor = ReadElfExtractor(static_lib=static_lib)
     else:
