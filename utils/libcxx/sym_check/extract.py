@@ -144,7 +144,8 @@ class ReadElfExtractor(object):
         sym_tables = self.split_into_sym_tables(lib, out)
         if not self.static_lib:
             assert len(sym_tables) == 1
-        return self.merge_sym_tables([(name, self.process_syms(name, s)) for name, s in sym_tables])
+        return self.merge_sym_tables([
+            (name, self.process_syms(name, s)) for name, s in sym_tables])
 
     def merge_sym_tables(self, tables):
         if not self.static_lib:
