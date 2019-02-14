@@ -49,8 +49,8 @@ def write_syms(sym_list, out=None, names_only=False, filter=None):
     if filter is not None:
         out_list = filter(out_list)
     if names_only:
-        out_list = [sym['name'] for sym in out_list]
-    for sym in out_list:
+        out_str += '\n'.join([sym['name'] for sym in out_list])
+    else:
         # Use pformat for consistent ordering of keys.
         out_str += pformat(sym, width=100000) + '\n'
     if out is None:
@@ -73,12 +73,15 @@ def create_identity_dict(l):
 def demangle_symbols(symbols):
     if _cppfilt_exe is None:
         return create_identity_dict(symbols)
-    input_line = ' '.join(symbols)
+    input_line = '\n'.join(symbols)
     out, _, exit_code = libcxx.util.executeCommandVerbose(
         [_cppfilt_exe], input=input_line)
     if exit_code != 0:
         return create_identity_dict(symbols)
     out_lines = out.splitlines()
+    print len(out_lines)
+    print len(symbols)
+    print(out_lines)
     assert len(out_lines) == len(symbols)
     result = dict()
     for i in range(0, len(symbols)):
@@ -286,6 +289,20 @@ def filter_stdlib_symbols(syms):
     for s in syms:
         canon_name = adjust_mangled_name(s['name'])
         if not is_stdlib_symbol_name(canon_name, s):
+            other_symbols += [s]
+        else:
+            stdlib_symbols += [s]
+    return stdlib_symbols, other_symbols
+
+def filter_versioned_stdlib_symbols(syms):
+    stdlib_symbols = []
+    other_symbols = []
+    demangled_names = demangle_symbols(list([s['name'] for s in syms]))
+    for s in syms:
+        dname = demangled_names[s['name']]
+        std_re = re.compile(r'std::(__[^:]+::)')
+        m = std_re.match(dname)
+        if m is None:
             other_symbols += [s]
         else:
             stdlib_symbols += [s]
