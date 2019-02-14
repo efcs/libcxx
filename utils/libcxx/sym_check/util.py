@@ -52,7 +52,8 @@ def write_syms(sym_list, out=None, names_only=False, filter=None):
         out_str += '\n'.join([sym['name'] for sym in out_list])
     else:
         # Use pformat for consistent ordering of keys.
-        out_str += pformat(sym, width=100000) + '\n'
+        for sym in out_list:
+            out_str += pformat(sym, width=100000) + '\n'
     if out is None:
         sys.stdout.write(out_str)
     else:
@@ -79,9 +80,6 @@ def demangle_symbols(symbols):
     if exit_code != 0:
         return create_identity_dict(symbols)
     out_lines = out.splitlines()
-    print len(out_lines)
-    print len(symbols)
-    print(out_lines)
     assert len(out_lines) == len(symbols)
     result = dict()
     for i in range(0, len(symbols)):
@@ -270,6 +268,8 @@ cxxabi_symbols = [
 
 def is_stdlib_symbol_name(name, sym):
     name = adjust_mangled_name(name)
+    if name.startswith('.L'):
+        return False
     if re.search("@GLIBC|@GCC", name):
         # Only when symbol is defined do we consider it ours
         return sym['is_defined']
@@ -300,9 +300,14 @@ def filter_versioned_stdlib_symbols(syms):
     demangled_names = demangle_symbols(list([s['name'] for s in syms]))
     for s in syms:
         dname = demangled_names[s['name']]
-        std_re = re.compile(r'std::(__[^:]+::)')
-        m = std_re.match(dname)
+        std_re = re.compile(r'std::')
+        std_ver_re = re.compile(r'std::(__[^:]+::)')
+        m = std_re.search(dname)
         if m is None:
+            other_symbols += [s]
+            continue
+        m_ver = std_ver_re.search(dname, m.pos)
+        if m_ver is None or m_ver.pos != m.pos:
             other_symbols += [s]
         else:
             stdlib_symbols += [s]

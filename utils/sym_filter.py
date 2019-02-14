@@ -35,16 +35,16 @@ def main():
   parser.add_argument(
     'filter', metavar='filter', type=str,
     help='The filter to apply',
-    choices=['stdlib', 'stdlib-versioned', 'stdlib-unversioned'])
+    choices=['stdlib', 'stdlib-versioned', 'stdlib-unversioned', 'defined', 'undefined'])
   parser.add_argument(
       'old_syms', metavar='old-syms', type=str,
       help='The file containing the old symbol list or a library')
   args = parser.parse_args()
   if args.inplace and util.is_library_file(args.old_syms):
     print("--inplace cannot be used when the input is a library file")
+    sys.exit(1)
 
   old_syms_list = util.extract_or_load(args.old_syms)
-  new_syms_list = None
   if args.filter == 'stdlib':
     new_syms_list, _ = util.filter_stdlib_symbols(old_syms_list)
   elif args.filter == 'stdlib-versioned':
@@ -53,6 +53,10 @@ def main():
   elif args.filter == 'stdlib-unversioned':
     new_syms_list, _ = util.filter_stdlib_symbols(old_syms_list)
     _, new_syms_list = util.filter_versioned_stdlib_symbols(new_syms_list)
+  elif args.filter == 'defined':
+    new_syms_list = [s for s in old_syms_list if s['is_defined']]
+  elif args.filter == 'undefined':
+    new_syms_list = [s for s in old_syms_list if not s['is_defined']]
   else:
     assert False
 
