@@ -129,8 +129,7 @@ class ReadElfExtractor(object):
             # ERROR no NM found
             print("ERROR: Could not find readelf")
             sys.exit(1)
-        # TODO: Support readelf for reading symbols from archives
-        assert not static_lib and "RealElf does not yet support static libs"
+        self.static_lib = static_lib
         self.flags = ['--wide', '--symbols']
 
     def extract(self, lib):
@@ -141,11 +140,67 @@ class ReadElfExtractor(object):
         cmd = [self.tool] + self.flags + [lib]
         out, _, exit_code = libcxx.util.executeCommandVerbose(cmd)
         if exit_code != 0:
-            raise RuntimeError('Failed to run %s on %s' % (self.nm_exe, lib))
-        dyn_syms = self.get_dynsym_table(out)
-        return self.process_syms(dyn_syms)
+            raise RuntimeError('Failed to run %s on %s' % (self.tool, lib))
+        sym_tables = self.split_into_sym_tables(lib, out)
+        if not self.static_lib:
+            assert len(sym_tables) == 1
+        return self.merge_sym_tables([(name, self.process_syms(name, s)) for name, s in sym_tables])
 
-    def process_syms(self, sym_list):
+    def merge_sym_tables(self, tables):
+        if not self.static_lib:
+            assert len(tables) == 1
+            name, tbl = tables[0]
+            return tbl
+        final_syms = {}
+        for tu, tbl in tables:
+            for s in tbl:
+                name = s['name']
+                final_syms[name] = self.merge_sym(s, final_syms.get(name))
+        return list(final_syms.values())
+
+
+    def merge_sym(self, s1, s2):
+        assert s1 is not None
+        if s2 is None:
+            return s1
+        if s1['is_defined'] and not s2['is_defined']:
+            return s1
+        if s2['is_defined'] and not s1['is_defined']:
+            return s2
+        return s1
+
+    def split_into_sym_tables(self, lib, out):
+        lines = out.splitlines()
+        sect_re = re.compile(r"^Symbol table '.(symtab|dynsym)' contains (\d+) entries:$")
+        matching_lines = [i for i in range(0, len(lines)) if sect_re.match(lines[i])]
+        sections = []
+        for mi in matching_lines:
+            m = sect_re.match(lines[mi])
+            assert m is not None
+            symtab_kind = m.group(1)
+            if symtab_kind == 'symtab' and not self.static_lib:
+                continue
+            num_lines = int(m.group(2))
+            start_line = mi + 2
+            end_line = mi + num_lines + 2
+            sect = lines[start_line:end_line]
+            name = 'dynsym'
+            if self.static_lib:
+                file, tu = self.get_name_and_tu(lines, mi)
+                name = '%s(%s)' % (file, tu)
+            sections += [(name, sect)]
+        return sections
+
+    def get_name_and_tu(self, lines, idx):
+        assert idx > 2
+        file_re = re.compile(r"^File: ([^\(]+)\(([^\)]+)\)$")
+        m = file_re.match(lines[idx-2])
+        assert m is not None
+        file, tu = m.group(1), m.group(2)
+        return file, tu
+
+
+    def process_syms(self, file_name, sym_list):
         new_syms = []
         for s in sym_list:
             parts = s.split()
@@ -160,29 +215,17 @@ class ReadElfExtractor(object):
                 'type': parts[3],
                 'is_defined': (parts[6] != 'UND')
             }
-            assert new_sym['type'] in ['OBJECT', 'FUNC', 'NOTYPE']
+            assert new_sym['type'] in ['OBJECT', 'FUNC', 'NOTYPE', 'FILE']
             if new_sym['name'] in extract_ignore_names:
                 continue
-            if new_sym['type'] == 'NOTYPE':
+            if new_sym['type'] in ['NOTYPE', 'FILE']:
                 continue
             if new_sym['type'] == 'FUNC':
                 del new_sym['size']
+            if self.static_lib:
+                new_sym['file'] = file_name
             new_syms += [new_sym]
         return new_syms
-
-    def get_dynsym_table(self, out):
-        lines = out.splitlines()
-        start = -1
-        end = -1
-        for i in range(len(lines)):
-            if lines[i].startswith("Symbol table '.dynsym'"):
-                start = i + 2
-            if start != -1 and end == -1 and not lines[i].strip():
-                end = i + 1
-        assert start != -1
-        if end == -1:
-            end = len(lines)
-        return lines[start:end]
 
 
 def extract_symbols(lib_file, static_lib=None):
@@ -194,7 +237,7 @@ def extract_symbols(lib_file, static_lib=None):
     if static_lib is None:
         _, ext = os.path.splitext(lib_file)
         static_lib = True if ext in ['.a'] else False
-    if ReadElfExtractor.find_tool() and not static_lib:
+    if ReadElfExtractor.find_tool():
         extractor = ReadElfExtractor(static_lib=static_lib)
     else:
         extractor = NMExtractor(static_lib=static_lib)
