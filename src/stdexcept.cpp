@@ -93,6 +93,8 @@ underflow_error::~underflow_error() _NOEXCEPT {}
 
 #endif
 #endif
-#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 
 }  // std
+
+
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
