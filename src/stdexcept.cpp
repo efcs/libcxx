@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "stdexcept"
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 #include "new"
 #include "string"
 #include "system_error"
@@ -92,5 +93,6 @@ underflow_error::~underflow_error() _NOEXCEPT {}
 
 #endif
 #endif
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 
 }  // std

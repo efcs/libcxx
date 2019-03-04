@@ -54,6 +54,7 @@ public:
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 class _LIBCPP_HIDDEN __libcpp_refstring
 {
     const char* __imp_;
@@ -67,6 +68,7 @@ public:
 
     const char* c_str() const _NOEXCEPT {return __imp_;}
 };
+#endif // _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 
 _LIBCPP_END_NAMESPACE_STD
 
@@ -76,9 +78,8 @@ namespace std  // purposefully not using versioning namespace
 class _LIBCPP_EXCEPTION_ABI logic_error
     : public exception
 {
-private:
-    _VSTD::__libcpp_refstring __imp_;
 public:
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     explicit logic_error(const string&);
     explicit logic_error(const char*);
 
@@ -88,14 +89,19 @@ public:
     virtual ~logic_error() _NOEXCEPT;
 
     virtual const char* what() const _NOEXCEPT;
+ private:
+  _VSTD::__libcpp_refstring __imp_;
+#else
+  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const string&) : exception(__s.c_str()) {}
+  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const char*) : exception(__s) {}
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI runtime_error
     : public exception
 {
-private:
-    _VSTD::__libcpp_refstring __imp_;
 public:
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     explicit runtime_error(const string&);
     explicit runtime_error(const char*);
 
@@ -105,6 +111,13 @@ public:
     virtual ~runtime_error() _NOEXCEPT;
 
     virtual const char* what() const _NOEXCEPT;
+
+private:
+  _VSTD::__libcpp_refstring __imp_;
+#else
+  _LIBCPP_INLINE_VISIBILITY explicit runtime_error(const string&  __s) : exception(__s.c_str()) {}
+  _LIBCPP_INLINE_VISIBILITY explicit runtime_error(const char* __s) : exception(__s) {}
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI domain_error
@@ -114,7 +127,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit domain_error(const string& __s) : logic_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit domain_error(const char* __s)   : logic_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~domain_error() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI invalid_argument
@@ -123,8 +138,9 @@ class _LIBCPP_EXCEPTION_ABI invalid_argument
 public:
     _LIBCPP_INLINE_VISIBILITY explicit invalid_argument(const string& __s) : logic_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit invalid_argument(const char* __s)   : logic_error(__s) {}
-
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~invalid_argument() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI length_error
@@ -134,7 +150,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit length_error(const string& __s) : logic_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit length_error(const char* __s)   : logic_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~length_error() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI out_of_range
@@ -144,7 +162,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit out_of_range(const string& __s) : logic_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit out_of_range(const char* __s)   : logic_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~out_of_range() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI range_error
@@ -154,7 +174,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit range_error(const string& __s) : runtime_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit range_error(const char* __s)   : runtime_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~range_error() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI overflow_error
@@ -164,7 +186,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit overflow_error(const string& __s) : runtime_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit overflow_error(const char* __s)   : runtime_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~overflow_error() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 class _LIBCPP_EXCEPTION_ABI underflow_error
@@ -174,7 +198,9 @@ public:
     _LIBCPP_INLINE_VISIBILITY explicit underflow_error(const string& __s) : runtime_error(__s) {}
     _LIBCPP_INLINE_VISIBILITY explicit underflow_error(const char* __s)   : runtime_error(__s) {}
 
+#ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
     virtual ~underflow_error() _NOEXCEPT;
+#endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
 }  // std
