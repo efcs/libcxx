@@ -68,6 +68,9 @@ public:
 
     const char* c_str() const _NOEXCEPT {return __imp_;}
 };
+
+#else
+_LIBCPP_INLINE_VISIBILITY inline const char* __to_c_str(string const& __s);
 #endif // _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 
 _LIBCPP_END_NAMESPACE_STD
@@ -92,8 +95,8 @@ public:
  private:
   _VSTD::__libcpp_refstring __imp_;
 #else
-  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const string&) : exception(__s.c_str()) {}
-  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const char*) : exception(__s) {}
+  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const string& __s) : exception(_VSTD::__to_c_str(__s)) {}
+  _LIBCPP_INLINE_VISIBILITY explicit logic_error(const char* __s) : exception(__s) {}
 #endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };
 
@@ -102,8 +105,8 @@ class _LIBCPP_EXCEPTION_ABI runtime_error
 {
 public:
 #ifndef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
-    explicit runtime_error(const string&);
-    explicit runtime_error(const char*);
+  explicit runtime_error(const string&);
+  explicit runtime_error(const char*);
 
     runtime_error(const runtime_error&) _NOEXCEPT;
     runtime_error& operator=(const runtime_error&) _NOEXCEPT;
@@ -115,7 +118,7 @@ public:
 private:
   _VSTD::__libcpp_refstring __imp_;
 #else
-  _LIBCPP_INLINE_VISIBILITY explicit runtime_error(const string&  __s) : exception(__s.c_str()) {}
+  _LIBCPP_INLINE_VISIBILITY explicit runtime_error(const string&  __s) : exception(_VSTD::__to_c_str(__s)) {}
   _LIBCPP_INLINE_VISIBILITY explicit runtime_error(const char* __s) : exception(__s) {}
 #endif // !_LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
 };

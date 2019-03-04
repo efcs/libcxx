@@ -4372,6 +4372,10 @@ inline namespace literals
 }
 #endif
 
+#ifdef _LIBCPP_DEFER_STDEXCEPT_TO_VCRUNTIME
+inline const char* __to_c_str(const string& __s) { return __s.c_str(); }
+#endif
+
 _LIBCPP_END_NAMESPACE_STD
 
 _LIBCPP_POP_MACROS
