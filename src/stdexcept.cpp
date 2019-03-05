@@ -11,8 +11,8 @@
 #include "string"
 #include "system_error"
 
-#ifdef _LIBCPP_DEFER_EXCEPTION_TO_VCRUNTIME
-#include "support/runtime/stdexcept_msvc.ipp"
+#ifdef _LIBCPP_ABI_VCRUNTIME
+#include "support/runtime/stdexcept_vcruntime.ipp"
 #else
 #include "support/runtime/stdexcept_default.ipp"
 #endif

@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef _LIBCPP_DEFER_EXCEPTION_TO_VCRUNTIME
-#error this header can only be used when targeting the MSVC ABI
+#ifndef _LIBCPP_ABI_VCRUNTIME
+#error this header can only be used when defering to vcruntime
 #endif
 
 namespace std {
