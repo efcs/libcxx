@@ -991,6 +991,7 @@ template <unsigned> struct __static_assert_check {};
 
 #if defined(_LIBCPP_ABI_MICROSOFT) && !defined(_LIBCPP_NO_VCRUNTIME)
 #  define _LIBCPP_DEFER_NEW_TO_VCRUNTIME
+#  define _LIBCPP_DEFER_EXCEPTION_TO_VCRUNTIME
 #endif
 
 // If we are getting operator new from the MSVC CRT, then allocation overloads
