@@ -71,7 +71,8 @@ class NMExtractor(object):
         new_sym = {
             'name': bits[0],
             'type': bits[1],
-            'is_defined': (bits[1].lower() != 'u')
+            'is_defined': (bits[1].lower() != 'u'),
+            'raw_type': bits[1],
         }
         new_sym['name'] = new_sym['name'].replace('@@', '@')
         new_sym = self._transform_sym_type(new_sym)
@@ -214,7 +215,10 @@ class ReadElfExtractor(object):
                 'name': parts[7],
                 'size': int(parts[2]),
                 'type': parts[3],
-                'is_defined': (parts[6] != 'UND')
+                'is_defined': (parts[6] != 'UND'),
+                'raw_type': parts[3],
+                'bind': parts[4],
+                'vis': parts[5]
             }
             assert new_sym['type'] in ['OBJECT', 'FUNC', 'NOTYPE', 'FILE', 'TLS']
             if new_sym['name'] in extract_ignore_names:
