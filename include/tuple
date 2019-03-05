@@ -255,6 +255,13 @@ public:
             return *this;
         }
 
+        template <class _Tp>
+        _LIBCPP_INLINE_VISIBILITY const __tuple_leaf& operator=(_Tp&& __t) const
+            _NOEXCEPT_((is_nothrow_assignable<_Hp&, _Tp>::value)) {
+          __value_ = _VSTD::forward<_Tp>(__t);
+          return *this;
+        }
+
     _LIBCPP_INLINE_VISIBILITY
     int swap(__tuple_leaf& __t) _NOEXCEPT_(__is_nothrow_swappable<__tuple_leaf>::value)
     {
@@ -434,6 +441,22 @@ struct _LIBCPP_DECLSPEC_EMPTY_BASES __tuple_impl<__tuple_indices<_Indx...>, _Tp.
             __swallow(__tuple_leaf<_Indx, _Tp>::operator=(_VSTD::forward<typename tuple_element<_Indx,
                                        typename __make_tuple_types<_Tuple>::type>::type>(_VSTD::get<_Indx>(__t)))...);
             return *this;
+        }
+
+        template <class _Tuple>
+        _LIBCPP_INLINE_VISIBILITY typename enable_if<
+            __tuple_assignable<_Tuple, const tuple<_Tp...> >::value,
+            const __tuple_impl&>::type
+        operator=(_Tuple&& __t) const _NOEXCEPT_(
+            (__all<is_nothrow_assignable<
+                 _Tp&, typename tuple_element<
+                           _Indx, typename __make_tuple_types<_Tuple>::type>::
+                           type>::value...>::value)) {
+          __swallow(__tuple_leaf<_Indx, _Tp>::operator=(
+              _VSTD::forward<typename tuple_element<
+                  _Indx, typename __make_tuple_types<_Tuple>::type>::type>(
+                  _VSTD::get<_Indx>(__t)))...);
+          return *this;
         }
 
     __tuple_impl(const __tuple_impl&) = default;
@@ -895,6 +918,14 @@ public:
         {
             __base_.operator=(_VSTD::forward<_Tuple>(__t));
             return *this;
+        }
+
+        template <class _Tuple, class = typename enable_if<__tuple_assignable<
+                                    _Tuple, tuple>::value>::type>
+        _LIBCPP_INLINE_VISIBILITY const tuple& operator=(_Tuple&& __t) const
+            _NOEXCEPT_((is_nothrow_assignable<_BaseT&, _Tuple>::value)) {
+          __base_.operator=(_VSTD::forward<_Tuple>(__t));
+          return *this;
         }
 
     _LIBCPP_INLINE_VISIBILITY
