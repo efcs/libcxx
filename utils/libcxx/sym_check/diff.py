@@ -11,7 +11,7 @@ diff - A set of functions for diff-ing two symbol lists.
 """
 
 from libcxx.sym_check import util
-
+from pprint import pformat
 
 def _symbol_difference(lhs, rhs):
     lhs_names = set((n['name'] for n in lhs))
@@ -34,6 +34,15 @@ def added_symbols(old, new):
 def removed_symbols(old, new):
     return _symbol_difference(old, new)
 
+def are_keys_eq(old, new, ignore=[]):
+    old_keys = set(old.keys()).difference(set(ignore))
+    new_keys = set(new.keys()).difference(set(ignore))
+    if old_keys != new_keys:
+        return False
+    for k in old_keys:
+        if new[k] != old[k]:
+            return False
+    return True
 
 def changed_symbols(old, new):
     changed = []
@@ -42,7 +51,7 @@ def changed_symbols(old, new):
             continue
         new_sym = _find_by_key(new, old_sym['name'])
         if (new_sym is not None and not new_sym in old
-                and old_sym != new_sym):
+                and not are_keys_eq(old_sym, new_sym, ignore=['file'])):
             changed += [(old_sym, new_sym)]
     return changed
 
@@ -65,6 +74,8 @@ def extract_all_names(sym_list):
     names = set([s['name'] for s in sym_list])
     return names
 
+def _print_sym(s):
+    return pformat(s, width=100000)
 
 def report_diff(added_syms, removed_syms, changed_syms, common_syms,
                 names_only=False,
@@ -80,20 +91,20 @@ def report_diff(added_syms, removed_syms, changed_syms, common_syms,
     for sym in added_syms:
         report += 'Symbol added: %s\n' % demangled_names[sym['name']]
         if not names_only:
-            report += '    %s\n\n' % sym
+            report += '    %s\n\n' % _print_sym(sym)
     if added_syms and names_only:
         report += '\n'
     for sym in removed_syms:
         report += 'SYMBOL REMOVED: %s\n' % demangled_names[sym['name']]
         if not names_only:
-            report += '    %s\n\n' % sym
+            report += '    %s\n\n' % _print_sym(sym)
     if removed_syms and names_only:
         report += '\n'
     if not names_only:
         for sym_pair in changed_syms:
             old_sym, new_sym = sym_pair
-            old_str = '\n    OLD SYMBOL: %s' % old_sym
-            new_str = '\n    NEW SYMBOL: %s' % new_sym
+            old_str = '\n    OLD SYMBOL: %s' % _print_sym(old_sym)
+            new_str = '\n    NEW SYMBOL: %s' % _print_sym(new_sym)
             report += ('SYMBOL CHANGED: %s%s%s\n\n' %
                        (demangled_names[old_sym['name']],
                         old_str, new_str))
@@ -107,9 +118,9 @@ def report_diff(added_syms, removed_syms, changed_syms, common_syms,
         for old_sym, new_sym in common_syms:
             report += '%s\n' % demangled_names[old_sym['name']]
             if not names_only:
-                report += '    %s\n' % old_sym
+                report += '    %s\n' % _print_sym(old_sym)
                 if old_sym != new_sym:
-                    report += '    %s\n' % new_sym
+                    report += '    %s\n' % _print_sym(new_sym)
     if added or abi_break:
         report += 'Summary\n'
         report += '    Added:   %d\n' % len(added_syms)
