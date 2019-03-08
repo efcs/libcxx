@@ -99,77 +99,89 @@ inline DebugInfoMatcher& GlobalMatcher() {
   return GMatch;
 }
 
-inline void DeathTestDebugHandler(std::__libcpp_debug_info const& info) {
-  assert(!GlobalMatcher().empty());
-  if (GlobalMatcher().Matches(info)) {
-    std::exit(0);
-  }
-  std::exit(1);
-}
-
 struct DeathTest {
   enum ResultKind {
-    RK_Died, RK_MatchFailure, RK_Lived, RK_Unknown
+    RK_MatchFound, RK_MatchFailure, RK_DidNotDie, RK_Unknown
   };
+
+  TEST_NORETURN static void DeathTestDebugHandler(std::__libcpp_debug_info const& info) {
+    assert(!GlobalMatcher().empty());
+    if (GlobalMatcher().Matches(info)) {
+      std::exit(RK_MatchFound);
+    }
+    std::exit(RK_MatchFailure);
+  }
+
 
   DeathTest(DebugInfoMatcher const& Matcher) : matcher_(Matcher) {}
 
   template <class Func>
   ResultKind Run(Func&& f) {
-    int pipe_fd[2];
-    assert(pipe(pipe_fd) != -1);
+    int pipe_res = pipe(pipe_fd);
+    assert(pipe_res != -1);
 
     pid_t child_pid = fork();
     assert(child_pid != -1);
     child_pid_ = child_pid;
     if (child_pid_ == 0) {
-      close(pipe_fd[0]);
-      while ((dup2(pipe_fd[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
-      GlobalMatcher() = matcher_;
-      std::__libcpp_set_debug_function(&DeathTestDebugHandler);
-      f();
-      std::exit(2);
-    } else {
-      close(pipe_fd[1]);
-      int read_fd = pipe_fd[0];
-      int bytes_read;
-      char flag;
-      do {
-
-        bytes_read = ::read(read_fd, &flag, 1);
-      } while (bytes_read == -1 && errno == EINTR);
-      if (bytes_read == 1)
-        error_msg_ += flag;
-
-      char buffer[256];
-      int num_read;
-      do {
-        while ((num_read = read(read_fd, buffer, 255)) > 0) {
-          buffer[num_read] = '\0';
-          error_msg_ += buffer;
-        }
-      } while (num_read == -1 && errno == EINTR);
-      close(read_fd);
-      int status_value;
-      pid_t result = waitpid(child_pid_, &status_value, 0);
-      assert(result != 1);
-      status_ = status_value;
-      if (WIFEXITED(status_value)) {
-        if (WEXITSTATUS(status_value) == 0)
-          return RK_Died;
-        else if (WEXITSTATUS(status_value) == 1)
-          return RK_MatchFailure;
-        else if (WEXITSTATUS(status_value) == 2)
-          return RK_Lived;
-      }
-      return RK_Unknown;
+      RunForChild(std::forward<Func>(f));
+      assert(false && "unreachable");
     }
-    assert(false);
+    return RunForParent();
   }
 
   std::string const& getError() const { return error_msg_; }
 
 private:
+  template <class Func>
+  TEST_NORETURN void RunForChild(Func&& f) {
+    close(pipe_fd[0]);
+    while ((dup2(pipe_fd[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+    GlobalMatcher() = matcher_;
+    std::__libcpp_set_debug_function(&DeathTestDebugHandler);
+    f();
+    std::exit(RK_DidNotDie);
+  }
+
+  void CaptureIO() {
+    close(pipe_fd[1]);
+    int read_fd = pipe_fd[0];
+    int bytes_read;
+    char flag;
+    do {
+      bytes_read = ::read(read_fd, &flag, 1);
+    } while (bytes_read == -1 && errno == EINTR);
+    if (bytes_read == 1)
+      error_msg_ += flag;
+
+    char buffer[256];
+    int num_read;
+    do {
+      while ((num_read = read(read_fd, buffer, 255)) > 0) {
+        buffer[num_read] = '\0';
+        error_msg_ += buffer;
+      }
+    } while (num_read == -1 && errno == EINTR);
+    close(read_fd);
+  }
+
+  ResultKind RunForParent() {
+    CaptureIO();
+
+    int status_value;
+    pid_t result = waitpid(child_pid_, &status_value, 0);
+    assert(result != 1);
+    status_ = status_value;
+
+    if (WIFEXITED(status_value)) {
+      int exit_status = WEXITSTATUS(status_value);
+      assert(exit_status == RK_MatchFound || exit_status == RK_MatchFailure ||
+            exit_status == RK_DidNotDie);
+      return static_cast<ResultKind>(exit_status);
+    }
+    return RK_Unknown;
+  }
+
   DeathTest(DeathTest const&) = delete;
   DeathTest& operator=(DeathTest const&) = delete;
 
@@ -177,6 +189,7 @@ private:
   DebugInfoMatcher matcher_;
   pid_t child_pid_ = -1;
   int status_ = -1;
+  int pipe_fd[2];
   std::string error_msg_;
 };
 
