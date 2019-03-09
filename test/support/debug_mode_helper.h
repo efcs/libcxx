@@ -146,14 +146,6 @@ private:
   void CaptureIO() {
     close(pipe_fd[1]);
     int read_fd = pipe_fd[0];
-    int bytes_read;
-    char flag;
-    do {
-      bytes_read = ::read(read_fd, &flag, 1);
-    } while (bytes_read == -1 && errno == EINTR);
-    if (bytes_read == 1)
-      error_msg_ += flag;
-
     char buffer[256];
     int num_read;
     do {
@@ -204,12 +196,12 @@ inline bool ExpectDeath(const char* stmt, Func&& func, DebugInfoMatcher Matcher)
     return false;
   };
   switch (RK) {
-  case DeathTest::RK_Died:
+  case DeathTest::RK_MatchFound:
     return true;
   case DeathTest::RK_Unknown:
       return OnFailure("reason unknown");
-  case DeathTest::RK_Lived:
-      return OnFailure("child lived");
+  case DeathTest::RK_DidNotDie:
+      return OnFailure("child did not die");
   case DeathTest::RK_MatchFailure:
       return OnFailure("matcher failed");
   }
