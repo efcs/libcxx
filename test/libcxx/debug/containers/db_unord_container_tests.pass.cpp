@@ -16,7 +16,6 @@
 // test container debugging
 
 #define _LIBCPP_DEBUG 1
-#define _LIBCPP_DEBUG_USE_EXCEPTIONS
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
