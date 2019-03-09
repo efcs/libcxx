@@ -16,6 +16,34 @@ New entries should be added directly below the "Version" header.
 Version 9.0
 -----------
 
+* rTBD - Remove exception throwing debug mode handler support.
+
+  The reason libc++ implemented a throwing debug mode handler was for ease of testing. Specifically,
+  I thought that if a debug violation aborted, we could only test one violation per file. This made
+  it impossible to test debug mode. Which throwing behavior we could test more!
+
+  However, the throwing approach didn't work either, since there are debug violations underneath noexcept
+  functions. This lead to the introduction of `_NOEXCEPT_DEBUG`, which was only noexcept when debug
+  mode was off.
+
+  Having thought more and having grown wiser, `_NOEXCEPT_DEBUG` was a horrible decision. It was
+  viral, it didn't cover all the cases it needed to, and it was observable to the user -- at worst
+  changing the behavior of their program.
+
+  This patch removes the throwing debug handler, and rewrites the debug tests using 'fork-ing' style
+  death tests.
+
+   x86_64-unknown-linux-gnu
+  ------------------------
+  Symbol added: _ZNSt3__111__libcpp_db10__insert_cEPvPFPNS_8__c_nodeES1_S1_S3_E
+  symbol removed: _ZNSt3__111__libcpp_db10__insert_cEPv
+
+
+    x86_64-apple-apple-darwin
+    -------------------------
+    Symbol added: __ZNSt3__111__libcpp_db10__insert_cEPvPFPNS_8__c_nodeES1_S1_S3_E
+    Symbol removed: __ZNSt3__111__libcpp_db10__insert_cEPv
+
 * r355367 - Fix -fsanitize=vptr badness in <__debug>
 
   This patch fixes a lifetime bug when inserting a new container into the debug database. It is
