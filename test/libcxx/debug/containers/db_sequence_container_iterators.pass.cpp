@@ -7,9 +7,8 @@
 //===----------------------------------------------------------------------===//
 
 // UNSUPPORTED: c++98, c++03, c++11, c++14
-// UNSUPPORTED: libcpp-no-exceptions, libcpp-no-if-constexpr
+// UNSUPPORTED: libcpp-no-if-constexpr
 // MODULES_DEFINES: _LIBCPP_DEBUG=1
-// MODULES_DEFINES: _LIBCPP_DEBUG_USE_EXCEPTIONS
 
 // Can't test the system lib because this test enables debug mode
 // UNSUPPORTED: with_system_cxx_lib
@@ -17,11 +16,12 @@
 // test container debugging
 
 #define _LIBCPP_DEBUG 1
-#define _LIBCPP_DEBUG_USE_EXCEPTIONS
+
 #include <forward_list>
 #include <list>
 #include <vector>
 #include <deque>
+#include "container_debug_tests.hpp"
 #include "debug_mode_helper.h"
 
 using namespace IteratorDebugChecks;
@@ -39,11 +39,10 @@ struct SequenceContainerChecks : BasicContainerChecks<Container, CT> {
 public:
   static void run() {
     Base::run();
-    try {
-      SanityTest();
-      FrontOnEmptyContainer();
+    SanityTest();
+    FrontOnEmptyContainer();
 
-      if constexpr (CT != CT_ForwardList) {
+    if constexpr(CT != CT_ForwardList) {
         AssignInvalidates();
         BackOnEmptyContainer();
         InsertIterValue();
@@ -51,24 +50,22 @@ public:
         InsertIterIterIter();
         EmplaceIterValue();
         EraseIterIter();
-      } else {
-        SpliceFirstElemAfter();
       }
-      if constexpr (CT == CT_Vector || CT == CT_Deque || CT == CT_List) {
-        PopBack();
-      }
-      if constexpr (CT == CT_List || CT == CT_Deque) {
-        PopFront(); // FIXME: Run with forward list as well
-      }
-      if constexpr (CT == CT_List || CT == CT_ForwardList) {
-        RemoveFirstElem();
-      }
-      if constexpr (CT == CT_List) {
-        SpliceFirstElem();
-        SpliceSameContainer();
-      }
-    } catch (...) {
-      assert(false && "uncaught debug exception");
+    else {
+      SpliceFirstElemAfter();
+    }
+    if constexpr (CT == CT_Vector || CT == CT_Deque || CT == CT_List) {
+      PopBack();
+    }
+    if constexpr (CT == CT_List || CT == CT_Deque) {
+      PopFront(); // FIXME: Run with forward list as well
+    }
+    if constexpr (CT == CT_List || CT == CT_ForwardList) {
+      RemoveFirstElem();
+    }
+    if constexpr (CT == CT_List) {
+      SpliceFirstElem();
+      SpliceSameContainer();
     }
   }
 

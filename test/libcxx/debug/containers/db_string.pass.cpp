@@ -7,9 +7,8 @@
 //===----------------------------------------------------------------------===//
 
 // UNSUPPORTED: c++98, c++03, c++11, c++14
-// UNSUPPORTED: libcpp-no-exceptions, libcpp-no-if-constexpr
+// UNSUPPORTED: libcpp-no-if-constexpr
 // MODULES_DEFINES: _LIBCPP_DEBUG=1
-// MODULES_DEFINES: _LIBCPP_DEBUG_USE_EXCEPTIONS
 
 // Can't test the system lib because this test enables debug mode
 // UNSUPPORTED: with_system_cxx_lib
@@ -21,6 +20,7 @@
 #include <vector>
 
 #include "test_macros.h"
+#include "container_debug_tests.hpp"
 #include "debug_mode_helper.h"
 
 using namespace IteratorDebugChecks;
@@ -42,14 +42,11 @@ public:
   static void run() {
     Base::run_iterator_tests();
     Base::run_allocator_aware_tests();
-    try {
-      for (int N : {3, 128}) {
-        FrontOnEmptyContainer(N);
-        BackOnEmptyContainer(N);
-        PopBack(N);
-      }
-    } catch (...) {
-      assert(false && "uncaught debug exception");
+
+    for (int N : {3, 128}) {
+      FrontOnEmptyContainer(N);
+      BackOnEmptyContainer(N);
+      PopBack(N);
     }
   }
 
