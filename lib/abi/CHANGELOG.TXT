@@ -33,10 +33,23 @@ Version 9.0
   This patch removes the throwing debug handler, and rewrites the debug tests using 'fork-ing' style
   death tests.
 
-   x86_64-unknown-linux-gnu
-  ------------------------
-  Symbol added: _ZNSt3__111__libcpp_db10__insert_cEPvPFPNS_8__c_nodeES1_S1_S3_E
-  symbol removed: _ZNSt3__111__libcpp_db10__insert_cEPv
+  All Platforms (ignoring versioning namespaces)
+  ----------------------------------------------
+  Symbol added: _ZNKSt3__119__libcpp_debug_info4whatEv
+  Symbol removed: _ZNKSt3__124__libcpp_debug_exception4whatEv
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC1ERKNS_19__libcpp_debug_infoE
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC1ERKS0_
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC1Ev
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC2ERKNS_19__libcpp_debug_infoE
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC2ERKS0_
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionC2Ev
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionD0Ev
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionD1Ev
+  Symbol removed: _ZNSt3__124__libcpp_debug_exceptionD2Ev
+  Symbol removed: _ZNSt3__129__libcpp_throw_debug_functionERKNS_19__libcpp_debug_infoE
+  Symbol removed: _ZTINSt3__124__libcpp_debug_exceptionE
+  Symbol removed: _ZTSNSt3__124__libcpp_debug_exceptionE
+  Symbol removed: _ZTVNSt3__124__libcpp_debug_exceptionE
 
 
     x86_64-apple-apple-darwin
