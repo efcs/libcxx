@@ -72,12 +72,11 @@ class NMExtractor(object):
             'name': bits[0],
             'type': bits[1],
             'is_defined': (bits[1].lower() != 'u'),
-            'raw_type': bits[1],
         }
         new_sym['name'] = new_sym['name'].replace('@@', '@')
         new_sym = self._transform_sym_type(new_sym)
         # NM types which we want to save the size for.
-        if new_sym['type'] == 'OBJECT' and len(bits) > 3:
+        if new_sym['type'] in ['OBJECT', 'TLS'] and len(bits) > 3:
             new_sym['size'] = int(bits[3], 16)
         return new_sym
 
@@ -216,7 +215,6 @@ class ReadElfExtractor(object):
                 'size': int(parts[2]),
                 'type': parts[3],
                 'is_defined': (parts[6] != 'UND'),
-                'raw_type': parts[3],
                 'bind': parts[4],
                 'vis': parts[5]
             }
@@ -225,8 +223,6 @@ class ReadElfExtractor(object):
                 continue
             if new_sym['type'] in ['NOTYPE', 'FILE']:
                 continue
-            if new_sym['type'] == 'TLS':
-                new_sym['type'] = 'OBJECT'
             if new_sym['type'] == 'FUNC':
                 del new_sym['size']
             if self.static_lib:

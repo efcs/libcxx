@@ -37,9 +37,8 @@ def removed_symbols(old, new):
 def are_keys_eq(old, new, ignore=[]):
     old_keys = set(old.keys()).difference(set(ignore))
     new_keys = set(new.keys()).difference(set(ignore))
-    if old_keys != new_keys:
-        return False
-    for k in old_keys:
+    common_keys = set(old_keys).intersection(new_keys)
+    for k in common_keys:
         if new[k] != old[k]:
             return False
     return True
