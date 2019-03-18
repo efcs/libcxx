@@ -168,6 +168,7 @@ struct DeathTest {
     return RunForParent();
   }
 
+  int getChildExitCode() const { return exit_code_; }
   std::string const& getChildStdOut() const { return stdout_from_child_; }
   std::string const& getChildStdErr() const { return stderr_from_child_; }
 private:
@@ -261,6 +262,9 @@ inline bool ExpectDeath(const char* stmt, Func&& func, DebugInfoMatcher Matcher)
   DeathTest::ResultKind RK = DT.Run(func);
   auto OnFailure = [&](const char* msg) {
     std::cerr << "EXPECT_DEATH( " << stmt << " ) failed! (" << msg << ")\n\n";
+    if (RK != DeathTest::RK_Unknown) {
+      std::cerr << "child exit code: " << DT.getChildExitCode() << "\n";
+    }
     if (!DT.getChildStdErr().empty()) {
       std::cerr << "---------- standard err ----------\n";
       std::cerr << DT.getChildStdErr() << "\n";
