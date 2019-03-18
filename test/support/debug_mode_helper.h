@@ -23,7 +23,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cassert>
-#include <string>
+#include <string_view>
 #include <sstream>
 #include <iostream>
 
@@ -33,34 +33,33 @@
 #include "assert_checkpoint.h"
 #include "test_allocator.h"
 
+#if TEST_STD_VER < 11
+# error "C++11 or greater is required to use this header"
+#endif
+
 struct DebugInfoMatcher {
   static const int any_line = -1;
   static constexpr const char* any_file = "*";
   static constexpr const char* any_msg = "*";
 
-  constexpr DebugInfoMatcher() : msg(nullptr), file(any_file), line(any_line) { }
+  constexpr DebugInfoMatcher() : is_empty(true), msg(any_msg), file(any_file), line(any_line) { }
   constexpr DebugInfoMatcher(const char* msg, const char* file = any_file, int line = any_line)
-    : msg(msg), file(file), line(line) {}
+    : is_empty(false), msg(msg), file(file), line(line) {}
 
   bool Matches(std::__libcpp_debug_info const& got) const {
-    assert(msg && "empty matcher");
-    bool IsMatch = [&]() {
-      if (line != any_line && line != got.__line_)
-        return false;
-      if (file != std::string(any_file) && std::string(got.__file_).find(file) == std::string::npos)
-        return false;
-      if (msg != std::string(any_msg) && std::string(got.__msg_).find(msg) == std::string::npos)
-        return false;
-      return true;
-    }();
-    if (!IsMatch) {
-      std::cout << "Failed to match debug info!\n"
-                << ToString() << "\n"
-                << "VS\n"
-                << got.what() << "\n";
+    assert(!empty() && "empty matcher");
+
+    if (CheckLineMatches(got.__line_) && CheckFileMatches(got.__file_) &&
+        CheckMessageMatches(got.__msg_))
+        return true;
+    // Write to stdout because that's the file descriptor captured by the parent
+    // process.
+    std::cout << "Failed to match debug info!\n"
+              << ToString() << "\n"
+              << "VS\n"
+              << got.what() << "\n";
+      return false;
     }
-    return IsMatch;
-  }
 
   std::string ToString() const {
     std::stringstream ss;
@@ -70,11 +69,46 @@ struct DebugInfoMatcher {
     return ss.str();
   }
 
-  bool empty() const { return msg == nullptr; }
-
+  bool empty() const { return is_empty; }
 private:
-  const char* msg;
-  const char* file;
+  bool CheckLineMatches(int got_line) const {
+    if (line == any_line)
+      return true;
+    return got_line == line;
+  }
+
+  bool CheckFileMatches(std::string_view got_file) const {
+    assert(!empty() && "empty matcher");
+    if (file == any_file)
+      return true;
+    std::size_t found_at = got_file.find(file);
+    if (found_at == std::string_view::npos)
+      return false;
+    // require the match start at the beginning of the file or immediately after
+    // a directory separator.
+    if (found_at != 0) {
+      char last_char = got_file[found_at - 1];
+      if (last_char != '/' && last_char != '\\')
+        return false;
+    }
+    // require the match goes until the end of the string.
+    return got_file.substr(found_at) == file;
+  }
+
+  bool CheckMessageMatches(std::string_view got_msg) const {
+    assert(!empty() && "empty matcher");
+    if (msg == any_msg)
+      return true;
+    std::size_t found_at = got_msg.find(msg);
+    if (found_at == std::string_view::npos)
+      return false;
+    // Allow any match
+    return true;
+  }
+private:
+  bool is_empty;
+  std::string_view msg;
+  std::string_view file;
   int line;
 };
 
@@ -87,8 +121,24 @@ inline DebugInfoMatcher& GlobalMatcher() {
 
 struct DeathTest {
   enum ResultKind {
-    RK_MatchFound, RK_MatchFailure, RK_DidNotDie, RK_Unknown
+    RK_DidNotDie, RK_MatchFound, RK_MatchFailure, RK_SetupFailure, RK_Unknown
   };
+
+  static const char* ResultKindToString(ResultKind RK) {
+#define CASE(K) case K: return #K
+    switch (RK) {
+    CASE(RK_MatchFailure);
+    CASE(RK_DidNotDie);
+    CASE(RK_SetupFailure);
+    CASE(RK_MatchFound);
+    CASE(RK_Unknown);
+    }
+    return "not a result kind";
+  }
+
+  static bool IsValidResultKind(int val) {
+    return val >= RK_DidNotDie && val <= RK_Unknown;
+  }
 
   TEST_NORETURN static void DeathTestDebugHandler(std::__libcpp_debug_info const& info) {
     assert(!GlobalMatcher().empty());
@@ -103,11 +153,13 @@ struct DeathTest {
 
   template <class Func>
   ResultKind Run(Func&& f) {
-    int pipe_res = pipe(pipe_fd);
-    assert(pipe_res != -1);
-
+    int pipe_res = pipe(stdout_pipe_fd);
+    assert(pipe_res != -1 && "failed to create pipe");
+    pipe_res = pipe(stderr_pipe_fd);
+    assert(pipe_res != -1 && "failed to create pipe");
     pid_t child_pid = fork();
-    assert(child_pid != -1);
+    assert(child_pid != -1 &&
+        "failed to fork a process to perform a death test");
     child_pid_ = child_pid;
     if (child_pid_ == 0) {
       RunForChild(std::forward<Func>(f));
@@ -116,46 +168,61 @@ struct DeathTest {
     return RunForParent();
   }
 
-  std::string const& getError() const { return error_msg_; }
-
+  std::string const& getChildStdOut() const { return stdout_from_child_; }
+  std::string const& getChildStdErr() const { return stderr_from_child_; }
 private:
   template <class Func>
   TEST_NORETURN void RunForChild(Func&& f) {
-    close(pipe_fd[0]);
-    while ((dup2(pipe_fd[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+    close(GetStdOutReadFD()); // don't need to read from the pipe in the child.
+    close(GetStdErrReadFD());
+    auto DupFD = [](int DestFD, int TargetFD) {
+      int dup_result = dup2(DestFD, TargetFD);
+      if (dup_result == -1)
+        std::exit(RK_SetupFailure);
+    };
+    DupFD(GetStdOutWriteFD(), STDOUT_FILENO);
+    DupFD(GetStdErrWriteFD(), STDERR_FILENO);
+
     GlobalMatcher() = matcher_;
     std::__libcpp_set_debug_function(&DeathTestDebugHandler);
     f();
     std::exit(RK_DidNotDie);
   }
 
-  void CaptureIO() {
-    close(pipe_fd[1]);
-    int read_fd = pipe_fd[0];
+  static std::string ReadChildIOUntilEnd(int FD) {
+    std::string error_msg;
     char buffer[256];
     int num_read;
     do {
-      while ((num_read = read(read_fd, buffer, 255)) > 0) {
+      while ((num_read = read(FD, buffer, 255)) > 0) {
         buffer[num_read] = '\0';
-        error_msg_ += buffer;
+        error_msg += buffer;
       }
     } while (num_read == -1 && errno == EINTR);
-    close(read_fd);
+    return error_msg;
+  }
+
+  void CaptureIOFromChild() {
+    close(GetStdOutWriteFD()); // no need to write from the parent process
+    close(GetStdErrWriteFD());
+    stdout_from_child_ = ReadChildIOUntilEnd(GetStdOutReadFD());
+    stderr_from_child_ = ReadChildIOUntilEnd(GetStdErrReadFD());
+    close(GetStdOutReadFD());
+    close(GetStdErrReadFD());
   }
 
   ResultKind RunForParent() {
-    CaptureIO();
+    CaptureIOFromChild();
 
     int status_value;
     pid_t result = waitpid(child_pid_, &status_value, 0);
-    assert(result != 1);
-    status_ = status_value;
+    assert(result != -1 && "there is no child process to wait for");
 
     if (WIFEXITED(status_value)) {
-      int exit_status = WEXITSTATUS(status_value);
-      assert(exit_status == RK_MatchFound || exit_status == RK_MatchFailure ||
-            exit_status == RK_DidNotDie);
-      return static_cast<ResultKind>(exit_status);
+      exit_code_ = WEXITSTATUS(status_value);
+      if (!IsValidResultKind(exit_code_))
+        return RK_Unknown;
+      return static_cast<ResultKind>(exit_code_);
     }
     return RK_Unknown;
   }
@@ -163,12 +230,29 @@ private:
   DeathTest(DeathTest const&) = delete;
   DeathTest& operator=(DeathTest const&) = delete;
 
+  int GetStdOutReadFD() const {
+    return stdout_pipe_fd[0];
+  }
+
+  int GetStdOutWriteFD() const {
+    return stdout_pipe_fd[1];
+  }
+
+  int GetStdErrReadFD() const {
+    return stderr_pipe_fd[0];
+  }
+
+  int GetStdErrWriteFD() const {
+    return stderr_pipe_fd[1];
+  }
 private:
   DebugInfoMatcher matcher_;
   pid_t child_pid_ = -1;
-  int status_ = -1;
-  int pipe_fd[2];
-  std::string error_msg_;
+  int exit_code_ = -1;
+  int stdout_pipe_fd[2];
+  int stderr_pipe_fd[2];
+  std::string stdout_from_child_;
+  std::string stderr_from_child_;
 };
 
 template <class Func>
@@ -177,13 +261,21 @@ inline bool ExpectDeath(const char* stmt, Func&& func, DebugInfoMatcher Matcher)
   DeathTest::ResultKind RK = DT.Run(func);
   auto OnFailure = [&](const char* msg) {
     std::cerr << "EXPECT_DEATH( " << stmt << " ) failed! (" << msg << ")\n\n";
-    if (!DT.getError().empty())
-      std::cerr << DT.getError() << "\n";
+    if (!DT.getChildStdErr().empty()) {
+      std::cerr << "---------- standard err ----------\n";
+      std::cerr << DT.getChildStdErr() << "\n";
+    }
+    if (!DT.getChildStdOut().empty()) {
+      std::cerr << "---------- standard out ----------\n";
+      std::cerr << DT.getChildStdOut() << "\n";
+    }
     return false;
   };
   switch (RK) {
   case DeathTest::RK_MatchFound:
     return true;
+  case DeathTest::RK_SetupFailure:
+    return OnFailure("child failed to setup test environment");
   case DeathTest::RK_Unknown:
       return OnFailure("reason unknown");
   case DeathTest::RK_DidNotDie:
