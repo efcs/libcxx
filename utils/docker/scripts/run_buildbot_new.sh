@@ -102,6 +102,3 @@ shutdown now
 
 echo "Failed to start any buildbot"
 shutdown now
-
-
-
