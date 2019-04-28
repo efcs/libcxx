@@ -6,7 +6,7 @@ script_dir=`dirname "$0"`
 BOT_DIR=/b
 if [ "$1" == "--new" ]; then
   shift
-  $script_dir/run_buildbots_new.sh "$@"
+  $script_dir/run_buildbot_new.sh "$@"
   shutdown now
 fi
 
