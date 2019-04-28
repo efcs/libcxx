@@ -36,6 +36,7 @@ RUN apt-get update && \
       software-properties-common \
       gnupg \
       apt-transport-https \
+      sudo \
       systemd \
       sysvinit-utils \
       systemd-sysv && \
