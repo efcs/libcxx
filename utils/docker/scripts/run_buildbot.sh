@@ -2,7 +2,7 @@
 set -x
 
 BOT_ROOT=/b
-BOT_BASE_NAME=$1
+BOT_ROOT_NAME=$1
 BOT_PASS=$2
 
 pushd /tmp
@@ -34,6 +34,7 @@ function setup_numbered_bot {
 
   buildslave stop $BOT_DIR
   chown buildbot:buildbot $BOT_DIR
+  rm -rf $BOT_DIR/*
 
   buildslave create-slave --allow-shutdown=signal $BOT_DIR lab.llvm.org:9990 \
       $BOT_NAME $BOT_PASS
@@ -67,11 +68,13 @@ function try_start_builder {
   local BOT_NAME=$BOT_ROOT_NAME$N
   setup_numbered_bot $BOT_NAME $BOT_DIR
   /usr/bin/buildslave start $BOT_DIR
+
   sleep 30
-  if grep "slave is ready" $BOT_DIR/twistd.log; then
+  cat /tmp/twistd.log
+  if grep --quiet "slave is ready" $BOT_DIR/twistd.log; then
     return 0
   fi
-  if grep --quiet "rejecting duplicate slave" $BOT_DIR/twistd.log; then
+  if grep "rejecting duplicate slave" $BOT_DIR/twistd.log; then
     return 1
   fi
   echo "Unknown error"
@@ -83,13 +86,17 @@ function try_start_builder {
 for N in 1 2 3 4 5
 do
   if try_start_builder $N; then
-    # GCE can restart instance after 24h in the middle of the build.
-    # Gracefully restart before that happen.
-    sleep 72000
-    while pkill -SIGHUP buildslave; do sleep 5; done;
-    shutdown now
+    break
   fi
+  echo "failed to start any buildbot"
+  shutdown now
 done
+
+# GCE can restart instance after 24h in the middle of the build.
+# Gracefully restart before that happen.
+sleep 72000
+while pkill -SIGHUP buildslave; do sleep 5; done;
+shutdown now
 
 echo "Failed to start any buildbot"
 shutdown now
