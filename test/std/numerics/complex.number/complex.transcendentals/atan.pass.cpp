@@ -15,6 +15,8 @@
 #include <complex>
 #include <cassert>
 
+#include "truncate_fp.h"
+
 #include "../cases.h"
 
 template <class T>
@@ -47,12 +49,15 @@ void test_edges()
             assert(real(r) == real(z));
             assert(std::signbit(real(r)) == std::signbit(real(z)));
         }
-        if (std::isnan(imag(r)))
-            assert(std::isnan(imag(z)));
+
+        double imag_r = truncate_fp(imag(r));
+        double imag_z = truncate_fp(imag(z));
+        if (std::isnan(imag_r))
+            assert(std::isnan(imag_z));
         else
         {
-            assert(imag(r) == imag(z));
-            assert(std::signbit(imag(r)) == std::signbit(imag(z)));
+            assert(imag_r == imag_z);
+            assert(std::signbit(imag_r) == std::signbit(imag_z));
         }
     }
 }
