@@ -38,10 +38,10 @@ void test_edges()
     const unsigned N = sizeof(testcases) / sizeof(testcases[0]);
     for (unsigned i = 0; i < N; ++i)
     {
-        std::complex<double> r = atan(testcases[i]);
+        std::complex<double> r = std::atan(testcases[i]);
         std::complex<double> t1(-imag(testcases[i]), real(testcases[i]));
         std::complex<double> t2 = atanh(t1);
-        std::complex<double> z(imag(t2), -real(t2));
+        std::complex<double> z(truncate_fp(imag(t2)), truncate_fp(-real(t2)));
         if (std::isnan(real(r)))
             assert(std::isnan(real(z)));
         else
