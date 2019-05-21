@@ -108,11 +108,37 @@ void test() {
 }
 }
 
+namespace reference_qualified_functions {
+struct T {
+  T() : lvalue_called(0), rvalue_called(0) {}
+  void foo() const & { lvalue_called++; }
+  void foo() && { rvalue_called++; }
+  mutable int lvalue_called;
+  int rvalue_called;
+};
+
+void test() {
+  {
+    T t;
+    t.foo();
+    assert(t.lvalue_called == 1);
+    assert(t.rvalue_called == 0);
+  }
+  {
+    T t;
+    static_cast<T&&>(t).foo();
+    assert(t.lvalue_called == 0);
+    assert(t.rvalue_called == 1);
+  }
+}
+}
+
 
 int main(int, char**) {
   variadics_templates::test();
   rvalue_references_move_semantics::test();
   rvalue_references_perfect_forwarding::test();
   default_values_for_nttp::test();
+  reference_qualified_functions::test();
   return 0;
 }

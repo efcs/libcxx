@@ -98,6 +98,10 @@
 #endif
 #endif
 
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
+#define TEST_MINIMAL_CXX11
+#endif
+
 // Attempt to deduce the GLIBC version
 #if (defined(__has_include) && __has_include(<features.h>)) || \
     defined(__linux__)

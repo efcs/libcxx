@@ -23,7 +23,7 @@ class A
 
 int main(int, char**)
 {
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
     static_assert((std::is_same<decltype(std::declval<A>()), A&&>::value), "");
 #else
     static_assert((std::is_same<decltype(std::declval<A>()), A&>::value), "");

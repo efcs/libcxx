@@ -139,7 +139,7 @@ private:
         runTest<Expect const&>         (M, C_<T const&>(obj),          expect);
         runTest<Expect volatile&>      (M, C_<T volatile&>(obj),       expect);
         runTest<Expect const volatile&>(M, C_<T const volatile&>(obj), expect);
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
         runTest<Expect&&>               (M, C_<T&&>(obj),                expect);
         runTest<Expect const&&>         (M, C_<T const&&>(obj),          expect);
         runTest<Expect volatile&&>      (M, C_<T volatile&&>(obj),       expect);
@@ -161,7 +161,7 @@ private:
         runTest<Expect&>(M, C_<T const&>(obj),          expect);
         runTest<Expect&>(M, C_<T volatile&>(obj),       expect);
         runTest<Expect&>(M, C_<T const volatile&>(obj), expect);
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
         runTest<Expect&>(M, C_<T&&>(obj),                expect);
         runTest<Expect&>(M, C_<T const&&>(obj),          expect);
         runTest<Expect&>(M, C_<T volatile&&>(obj),       expect);
@@ -179,7 +179,7 @@ private:
     }
 
     template <class Expect, class Fn, class T>
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
     void runTest(Fn M, T&& obj, ObjectType* expect) {
 #else
     void runTest(Fn M, T& obj, ObjectType* expect ) {

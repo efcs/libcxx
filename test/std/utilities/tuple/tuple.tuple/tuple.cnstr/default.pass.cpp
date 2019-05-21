@@ -12,13 +12,15 @@
 
 // constexpr tuple();
 
-// UNSUPPORTED: c++98, c++03
+// UNSUPPORTED: gcc && c++98
+// UNSUPPORTED: gcc && c++03
 
 #include <tuple>
 #include <string>
 #include <cassert>
 #include <type_traits>
 
+#include "test_macros.h"
 #include "DefaultOnly.h"
 
 struct NoDefault {
@@ -27,7 +29,7 @@ struct NoDefault {
 };
 
 struct NoExceptDefault {
-    NoExceptDefault() noexcept = default;
+    NoExceptDefault() TEST_NOEXCEPT = default;
 };
 
 struct ThrowingDefault {
@@ -37,7 +39,7 @@ struct ThrowingDefault {
 struct IllFormedDefault {
     IllFormedDefault(int x) : value(x) {}
     template <bool Pred = false>
-    constexpr IllFormedDefault() {
+    TEST_CONSTEXPR IllFormedDefault() {
         static_assert(Pred,
             "The default constructor should not be instantiated");
     }
@@ -74,10 +76,11 @@ int main(int, char**)
     }
     {
         // See bug #21157.
-        static_assert(!std::is_default_constructible<std::tuple<NoDefault>>(), "");
-        static_assert(!std::is_default_constructible<std::tuple<DefaultOnly, NoDefault>>(), "");
-        static_assert(!std::is_default_constructible<std::tuple<NoDefault, DefaultOnly, NoDefault>>(), "");
+        static_assert(!std::is_default_constructible<std::tuple<NoDefault> >::value, "");
+        static_assert(!std::is_default_constructible<std::tuple<DefaultOnly, NoDefault> >::value, "");
+        static_assert(!std::is_default_constructible<std::tuple<NoDefault, DefaultOnly, NoDefault> >::value, "");
     }
+#if 0
     {
         static_assert(noexcept(std::tuple<NoExceptDefault>()), "");
         static_assert(noexcept(std::tuple<NoExceptDefault, NoExceptDefault>()), "");
@@ -86,6 +89,8 @@ int main(int, char**)
         static_assert(!noexcept(std::tuple<NoExceptDefault, ThrowingDefault>()), "");
         static_assert(!noexcept(std::tuple<ThrowingDefault, ThrowingDefault>()), "");
     }
+#endif
+#if TEST_STD_VER >= 11
     {
         constexpr std::tuple<> t;
         (void)t;
@@ -99,6 +104,7 @@ int main(int, char**)
         assert(std::get<0>(t) == 0);
         assert(std::get<1>(t) == nullptr);
     }
+#endif
     {
     // Check that the SFINAE on the default constructor is not evaluated when
     // it isn't needed. If the default constructor is evaluated then this test

@@ -148,7 +148,7 @@ template <class... Types>
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 
 // __tuple_leaf
@@ -172,13 +172,13 @@ class __tuple_leaf
     _Hp __value_;
 
     template <class _Tp>
-    static constexpr bool __can_bind_reference() {
+    using __can_bind_reference = std::integral_constant<bool,
 #if __has_keyword(__reference_binds_to_temporary)
-      return !__reference_binds_to_temporary(_Hp, _Tp);
+      !__reference_binds_to_temporary(_Hp, _Tp)
 #else
-      return true;
+      true
 #endif
-    }
+    >;
 
     __tuple_leaf& operator=(const __tuple_leaf&);
 public:
@@ -211,7 +211,7 @@ public:
     template <class _Tp,
               class = typename enable_if<
                   __lazy_and<
-                      __lazy_not<is_same<typename __uncvref<_Tp>::type, __tuple_leaf>>
+                      __lazy_not<is_same<typename __uncvref<_Tp>::type, __tuple_leaf> >
                     , is_constructible<_Hp, _Tp>
                     >::value
                 >::type
@@ -219,14 +219,14 @@ public:
         _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR_AFTER_CXX11
         explicit __tuple_leaf(_Tp&& __t) _NOEXCEPT_((is_nothrow_constructible<_Hp, _Tp>::value))
             : __value_(_VSTD::forward<_Tp>(__t))
-        {static_assert(__can_bind_reference<_Tp&&>(),
+        {static_assert(__can_bind_reference<_Tp&&>::value,
        "Attempted construction of reference element binds to a temporary whose lifetime has ended");}
 
     template <class _Tp, class _Alloc>
         _LIBCPP_INLINE_VISIBILITY
         explicit __tuple_leaf(integral_constant<int, 0>, const _Alloc&, _Tp&& __t)
             : __value_(_VSTD::forward<_Tp>(__t))
-        {static_assert(__can_bind_reference<_Tp&&>(),
+        {static_assert(__can_bind_reference<_Tp&&>::value,
        "Attempted construction of reference element binds to a temporary whose lifetime has ended");}
 
     template <class _Tp, class _Alloc>
@@ -293,7 +293,7 @@ public:
     template <class _Tp,
               class = typename enable_if<
                   __lazy_and<
-                        __lazy_not<is_same<typename __uncvref<_Tp>::type, __tuple_leaf>>
+                        __lazy_not<is_same<typename __uncvref<_Tp>::type, __tuple_leaf> >
                       , is_constructible<_Hp, _Tp>
                     >::value
                 >::type
@@ -352,7 +352,7 @@ template <class _Tp>
 struct __all_default_constructible;
 
 template <class ..._Tp>
-struct __all_default_constructible<__tuple_types<_Tp...>>
+struct __all_default_constructible<__tuple_types<_Tp...> >
     : __all<is_default_constructible<_Tp>::value...>
 { };
 
@@ -473,9 +473,9 @@ class _LIBCPP_TEMPLATE_VIS tuple
     _BaseT __base_;
 
 #if defined(_LIBCPP_ENABLE_TUPLE_IMPLICIT_REDUCED_ARITY_EXTENSION)
-    static constexpr bool _EnableImplicitReducedArityExtension = true;
+    static const bool _EnableImplicitReducedArityExtension = true;
 #else
-    static constexpr bool _EnableImplicitReducedArityExtension = false;
+    static const bool _EnableImplicitReducedArityExtension = false;
 #endif
 
     template <class ..._Args>
@@ -492,13 +492,11 @@ class _LIBCPP_TEMPLATE_VIS tuple
     struct _CheckArgsConstructor<true, _Dummy>
     {
         template <class ..._Args>
-        static constexpr bool __enable_default() {
-            return __all<is_default_constructible<_Args>::value...>::value;
-        }
+        using __enable_default = __all<is_default_constructible<_Args>::value...>;
+
 
         template <class ..._Args>
-        static constexpr bool __enable_explicit() {
-            return
+        using __enable_explicit =  std::integral_constant<bool,
                 __tuple_constructible<
                     tuple<_Args...>,
                     typename __make_tuple_types<tuple,
@@ -518,12 +516,11 @@ class _LIBCPP_TEMPLATE_VIS tuple
                              sizeof...(_Args) < sizeof...(_Tp) ?
                                  sizeof...(_Args) :
                                  sizeof...(_Tp)>::type
-                >::value;
-        }
+                >::value
+        >;
 
         template <class ..._Args>
-        static constexpr bool __enable_implicit() {
-            return
+        using __enable_implicit = std::integral_constant<bool,
                 __tuple_convertible<
                     tuple<_Args...>,
                     typename __make_tuple_types<tuple,
@@ -536,8 +533,8 @@ class _LIBCPP_TEMPLATE_VIS tuple
                              sizeof...(_Args) < sizeof...(_Tp) ?
                                  sizeof...(_Args) :
                                  sizeof...(_Tp)>::type
-                >::value;
-        }
+                >::value
+          >;
     };
 
     template <bool _MaybeEnable,
@@ -549,15 +546,13 @@ class _LIBCPP_TEMPLATE_VIS tuple
     struct _CheckTupleLikeConstructor<true, false, _Dummy>
     {
         template <class _Tuple>
-        static constexpr bool __enable_implicit() {
-            return __tuple_convertible<_Tuple, tuple>::value;
-        }
+        using __enable_implicit =  __tuple_convertible<_Tuple, tuple>;
 
         template <class _Tuple>
-        static constexpr bool __enable_explicit() {
-            return __tuple_constructible<_Tuple, tuple>::value
-               && !__tuple_convertible<_Tuple, tuple>::value;
-        }
+        using __enable_explicit = std::integral_constant<bool,
+             __tuple_constructible<_Tuple, tuple>::value
+               && !__tuple_convertible<_Tuple, tuple>::value
+        >;
     };
 
     template <class _Dummy>
@@ -572,27 +567,23 @@ class _LIBCPP_TEMPLATE_VIS tuple
             // has the same type as this tuple.
             is_same<typename __uncvref<_Tuple>::type, tuple>,
             __lazy_and<
-                __lazy_not<is_constructible<_Tp..., _Tuple>>,
-                __lazy_not<is_convertible<_Tuple, _Tp...>>
+                __lazy_not<is_constructible<_Tp..., _Tuple> >,
+                __lazy_not<is_convertible<_Tuple, _Tp...> >
             >
         >;
 
         template <class _Tuple>
-        static constexpr bool __enable_implicit() {
-            return __lazy_and<
+        using __enable_implicit =__lazy_and<
                 __tuple_convertible<_Tuple, tuple>,
                 _PreferTupleLikeConstructor<_Tuple>
-            >::value;
-        }
+            >;
 
         template <class _Tuple>
-        static constexpr bool __enable_explicit() {
-            return __lazy_and<
+        using __enable_explicit = __lazy_and<
                 __tuple_constructible<_Tuple, tuple>,
                 _PreferTupleLikeConstructor<_Tuple>,
-                __lazy_not<__tuple_convertible<_Tuple, tuple>>
-            >::value;
-        }
+                __lazy_not<__tuple_convertible<_Tuple, tuple> >
+            >;
     };
 
     template <size_t _Jp, class ..._Up> friend _LIBCPP_CONSTEXPR_AFTER_CXX11
@@ -606,7 +597,7 @@ class _LIBCPP_TEMPLATE_VIS tuple
 public:
 
     template <bool _Dummy = true, class = typename enable_if<
-        _CheckArgsConstructor<_Dummy>::template __enable_default<_Tp...>()
+        _CheckArgsConstructor<_Dummy>::template __enable_default<_Tp...>::value
     >::type>
     _LIBCPP_INLINE_VISIBILITY
     _LIBCPP_CONSTEXPR tuple()
@@ -633,7 +624,7 @@ public:
                       <
                          _CheckArgsConstructor<
                             _Dummy
-                         >::template __enable_implicit<_Tp const&...>(),
+                         >::template __enable_implicit<_Tp const&...>::value,
                          bool
                       >::type = false
         >
@@ -651,7 +642,7 @@ public:
                       <
                          _CheckArgsConstructor<
                             _Dummy
-                         >::template __enable_explicit<_Tp const&...>(),
+                         >::template __enable_explicit<_Tp const&...>::value,
                          bool
                       >::type = false
         >
@@ -669,7 +660,7 @@ public:
                       <
                          _CheckArgsConstructor<
                             _Dummy
-                         >::template __enable_implicit<_Tp const&...>(),
+                         >::template __enable_implicit<_Tp const&...>::value,
                          bool
                       >::type = false
         >
@@ -688,7 +679,7 @@ public:
                       <
                          _CheckArgsConstructor<
                             _Dummy
-                         >::template __enable_explicit<_Tp const&...>(),
+                         >::template __enable_explicit<_Tp const&...>::value,
                          bool
                       >::type = false
         >
@@ -710,12 +701,12 @@ public:
                          _CheckArgsConstructor<
                              sizeof...(_Up) == sizeof...(_Tp)
                              && !_PackIsTuple
-                         >::template __enable_implicit<_Up...>() ||
+                         >::template __enable_implicit<_Up...>::value ||
                         _CheckArgsConstructor<
                             _EnableImplicitReducedArityExtension
                             && sizeof...(_Up) < sizeof...(_Tp)
                             && !_PackIsTuple
-                         >::template __enable_implicit<_Up...>(),
+                         >::template __enable_implicit<_Up...>::value,
                          bool
                       >::type = false
              >
@@ -742,12 +733,12 @@ public:
                          _CheckArgsConstructor<
                              sizeof...(_Up) <= sizeof...(_Tp)
                              && !_PackExpandsToThisTuple<_Up...>::value
-                         >::template __enable_explicit<_Up...>() ||
+                         >::template __enable_explicit<_Up...>::value ||
                          _CheckArgsConstructor<
                             !_EnableImplicitReducedArityExtension
                             && sizeof...(_Up) < sizeof...(_Tp)
                             && !_PackExpandsToThisTuple<_Up...>::value
-                         >::template __enable_implicit<_Up...>(),
+                         >::template __enable_implicit<_Up...>::value,
                          bool
                       >::type = false
              >
@@ -775,7 +766,7 @@ public:
                          _CheckArgsConstructor<
                              sizeof...(_Up) == sizeof...(_Tp) &&
                              !_PackExpandsToThisTuple<_Up...>::value
-                         >::template __enable_implicit<_Up...>(),
+                         >::template __enable_implicit<_Up...>::value,
                          bool
                       >::type = false
              >
@@ -794,7 +785,7 @@ public:
                          _CheckArgsConstructor<
                              sizeof...(_Up) == sizeof...(_Tp) &&
                              !_PackExpandsToThisTuple<_Up...>::value
-                         >::template __enable_explicit<_Up...>(),
+                         >::template __enable_explicit<_Up...>::value,
                          bool
                       >::type = false
              >
@@ -814,7 +805,7 @@ public:
                          _CheckTupleLikeConstructor<
                              __tuple_like_with_size<_Tuple, sizeof...(_Tp)>::value
                              && !_PackExpandsToThisTuple<_Tuple>::value
-                         >::template __enable_implicit<_Tuple>(),
+                         >::template __enable_implicit<_Tuple>::value,
                          bool
                       >::type = false
              >
@@ -828,7 +819,7 @@ public:
                          _CheckTupleLikeConstructor<
                              __tuple_like_with_size<_Tuple, sizeof...(_Tp)>::value
                              && !_PackExpandsToThisTuple<_Tuple>::value
-                         >::template __enable_explicit<_Tuple>(),
+                         >::template __enable_explicit<_Tuple>::value,
                          bool
                       >::type = false
              >
@@ -842,7 +833,7 @@ public:
                       <
                          _CheckTupleLikeConstructor<
                              __tuple_like_with_size<_Tuple, sizeof...(_Tp)>::value
-                         >::template __enable_implicit<_Tuple>(),
+                         >::template __enable_implicit<_Tuple>::value,
                          bool
                       >::type = false
              >
@@ -855,7 +846,7 @@ public:
                       <
                          _CheckTupleLikeConstructor<
                              __tuple_like_with_size<_Tuple, sizeof...(_Tp)>::value
-                         >::template __enable_explicit<_Tuple>(),
+                         >::template __enable_explicit<_Tuple>::value,
                          bool
                       >::type = false
              >
@@ -1074,7 +1065,7 @@ struct __ignore_t
 };
 
 namespace {
-  _LIBCPP_INLINE_VAR constexpr __ignore_t<unsigned char> ignore = __ignore_t<unsigned char>();
+  _LIBCPP_INLINE_VAR const _LIBCPP_CONSTEXPR __ignore_t<unsigned char> ignore = __ignore_t<unsigned char>();
 }
 
 template <class... _Tp>
@@ -1367,7 +1358,7 @@ constexpr decltype(auto) apply(_Fn && __f, _Tuple && __t)
 _LIBCPP_NOEXCEPT_RETURN(
     _VSTD::__apply_tuple_impl(
         _VSTD::forward<_Fn>(__f), _VSTD::forward<_Tuple>(__t),
-        typename __make_tuple_indices<tuple_size_v<remove_reference_t<_Tuple>>>::type{})
+        typename __make_tuple_indices<tuple_size_v<remove_reference_t<_Tuple> > >::type{})
 )
 
 template <class _Tp, class _Tuple, size_t... _Idx>
@@ -1382,14 +1373,14 @@ inline _LIBCPP_INLINE_VISIBILITY
 constexpr _Tp make_from_tuple(_Tuple&& __t)
 _LIBCPP_NOEXCEPT_RETURN(
     _VSTD::__make_from_tuple_impl<_Tp>(_VSTD::forward<_Tuple>(__t),
-        typename __make_tuple_indices<tuple_size_v<remove_reference_t<_Tuple>>>::type{})
+        typename __make_tuple_indices<tuple_size_v<remove_reference_t<_Tuple> > >::type{})
 )
 
 #undef _LIBCPP_NOEXCEPT_RETURN
 
 #endif // _LIBCPP_STD_VER > 14
 
-#endif // !defined(_LIBCPP_CXX03_LANG)
+#endif // defined(_LIBCPP_MINIMAL_CXX11_LANG)
 
 _LIBCPP_END_NAMESPACE_STD
 

@@ -21,12 +21,12 @@ libc++ expects Clang  to provide are:
 * R-Value References.
 * Alias Templates
 * `= default` and `= delete`
+* Reference qualified functions
 
 There are also features that Clang *does not* provide as an extension in C++03
 mode. These include:
 
 * `constexpr` and `noexcept`
-* `auto` type specifier.
 *  Trailing return types.
 * `>>` without a space.
 

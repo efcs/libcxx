@@ -250,7 +250,7 @@ struct __weak_result_type<_Rp (_Cp::*)(_A1) const volatile>
 };
 
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 // 3 or more arguments
 
 template <class _Rp, class _A1, class _A2, class _A3, class ..._A4>
@@ -311,7 +311,7 @@ struct __invoke_return
 template <class _Ret>
 struct __invoke_void_return_wrapper
 {
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     template <class ..._Args>
     static _Ret __call(_Args&&... __args) {
         return __invoke(_VSTD::forward<_Args>(__args)...);
@@ -342,7 +342,7 @@ struct __invoke_void_return_wrapper
 template <>
 struct __invoke_void_return_wrapper<void>
 {
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     template <class ..._Args>
     static void __call(_Args&&... __args) {
         __invoke(_VSTD::forward<_Args>(__args)...);
@@ -384,7 +384,7 @@ public:
     // construct/copy/destroy
     _LIBCPP_INLINE_VISIBILITY reference_wrapper(type& __f) _NOEXCEPT
         : __f_(_VSTD::addressof(__f)) {}
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     private: reference_wrapper(type&&); public: // = delete; // do not bind to temps
 #endif
 
@@ -392,7 +392,7 @@ public:
     _LIBCPP_INLINE_VISIBILITY operator type&    () const _NOEXCEPT {return *__f_;}
     _LIBCPP_INLINE_VISIBILITY          type& get() const _NOEXCEPT {return *__f_;}
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     // invoke
     template <class... _ArgTypes>
     _LIBCPP_INLINE_VISIBILITY
@@ -541,7 +541,7 @@ cref(reference_wrapper<_Tp> __t) _NOEXCEPT
     return cref(__t.get());
 }
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 template <class _Tp> void ref(const _Tp&&) = delete;
 template <class _Tp> void cref(const _Tp&&) = delete;
 #endif
@@ -603,7 +603,7 @@ template <class _Tp, class _Alloc>
 _LIBCPP_INLINE_VAR constexpr size_t uses_allocator_v = uses_allocator<_Tp, _Alloc>::value;
 #endif
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 // allocator construction
 

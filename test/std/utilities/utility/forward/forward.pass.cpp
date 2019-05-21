@@ -6,7 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-// UNSUPPORTED: c++98, c++03
+// UNSUPPORTED: gcc && c++98
+// UNSUPPORTED: gcc && c++03
 
 // test forward
 
@@ -20,11 +21,11 @@ struct A
 {
 };
 
-A source() noexcept {return A();}
-const A csource() noexcept {return A();}
+A source() TEST_NOEXCEPT {return A();}
+const A csource() TEST_NOEXCEPT {return A();}
 
 
-constexpr bool test_constexpr_forward() {
+TEST_CONSTEXPR bool test_constexpr_forward() {
 #if TEST_STD_VER > 11
     int x = 42;
     const int cx = 101;
@@ -49,26 +50,26 @@ int main(int, char**)
     ((void)a); // Prevent unused warning
     ((void)ca); // Prevent unused warning
 
-    static_assert(std::is_same<decltype(std::forward<A&>(a)), A&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<A>(a)), A&&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<A>(source())), A&&>::value, "");
-    static_assert(noexcept(std::forward<A&>(a)), "");
-    static_assert(noexcept(std::forward<A>(a)), "");
-    static_assert(noexcept(std::forward<A>(source())), "");
+    ASSERT_SAME_TYPE(decltype(std::forward<A&>(a)), A&);
+    ASSERT_SAME_TYPE(decltype(std::forward<A>(a)), A&&);
+    ASSERT_SAME_TYPE(decltype(std::forward<A>(source())), A&&);
+    ASSERT_NOEXCEPT(std::forward<A&>(a))
+    ASSERT_NOEXCEPT(std::forward<A>(a));
+    ASSERT_NOEXCEPT(std::forward<A>(source()));
 
-    static_assert(std::is_same<decltype(std::forward<const A&>(a)), const A&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<const A>(a)), const A&&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<const A>(source())), const A&&>::value, "");
-    static_assert(noexcept(std::forward<const A&>(a)), "");
-    static_assert(noexcept(std::forward<const A>(a)), "");
-    static_assert(noexcept(std::forward<const A>(source())), "");
+    ASSERT_SAME_TYPE(decltype(std::forward<const A&>(a)), const A&);
+    ASSERT_SAME_TYPE(decltype(std::forward<const A>(a)), const A&&);
+    ASSERT_SAME_TYPE(decltype(std::forward<const A>(source())), const A&&);
+    ASSERT_NOEXCEPT(std::forward<const A&>(a));
+    ASSERT_NOEXCEPT(std::forward<const A>(a));
+    ASSERT_NOEXCEPT(std::forward<const A>(source()));
 
-    static_assert(std::is_same<decltype(std::forward<const A&>(ca)), const A&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<const A>(ca)), const A&&>::value, "");
-    static_assert(std::is_same<decltype(std::forward<const A>(csource())), const A&&>::value, "");
-    static_assert(noexcept(std::forward<const A&>(ca)), "");
-    static_assert(noexcept(std::forward<const A>(ca)), "");
-    static_assert(noexcept(std::forward<const A>(csource())), "");
+    ASSERT_SAME_TYPE(decltype(std::forward<const A&>(ca)), const A&);
+    ASSERT_SAME_TYPE(decltype(std::forward<const A>(ca)), const A&&);
+    ASSERT_SAME_TYPE(decltype(std::forward<const A>(csource())), const A&&);
+    ASSERT_NOEXCEPT(std::forward<const A&>(ca));
+    ASSERT_NOEXCEPT(std::forward<const A>(ca));
+    ASSERT_NOEXCEPT(std::forward<const A>(csource()));
 
 #if TEST_STD_VER > 11
     {

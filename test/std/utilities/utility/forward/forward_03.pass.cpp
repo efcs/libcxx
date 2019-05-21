@@ -36,7 +36,7 @@ int main(int, char**)
     ((void)a); // Prevent unused warning
     ((void)ca); // Prevent unused warning
 
-#if TEST_STD_VER < 11
+#if TEST_STD_VER < 11 && !defined(TEST_MINIMAL_CXX11)
     static_assert(sizeof(test(std::forward<A&>(a))) == 1, "");
     static_assert(sizeof(test(std::forward<A>(a))) == 1, "");
 
@@ -53,6 +53,10 @@ int main(int, char**)
     static_assert(sizeof(test(std::forward<const A&>(csource()))) == 2, "");
     static_assert(sizeof(test(std::forward<const A>(ca))) == 2, "");
     static_assert(sizeof(test(std::forward<const A>(csource()))) == 2, "");
+
+#else
+
+
 #endif
 
   return 0;

@@ -831,9 +831,11 @@ _LIBCPP_BEGIN_NAMESPACE_STD _LIBCPP_END_NAMESPACE_STD
 #ifndef _LIBCPP_HAS_NO_NOEXCEPT
 #  define _NOEXCEPT noexcept
 #  define _NOEXCEPT_(x) noexcept(x)
+#  define _NOEXCEPT_KW noexcept
 #else
 #  define _NOEXCEPT throw()
 #  define _NOEXCEPT_(x)
+#  define _NOEXCEPT_KW
 #endif
 
 #ifdef _LIBCPP_HAS_NO_UNICODE_CHARS
@@ -847,7 +849,7 @@ typedef unsigned int   char32_t;
 
 #ifdef _LIBCPP_CXX03_LANG
 #  if __has_extension(c_static_assert)
-#    define static_assert(__b, __m) _Static_assert(__b, __m)
+#    define static_assert _Static_assert
 #  else
 extern "C++" {
 template <bool> struct __static_assert_test;
@@ -863,9 +865,9 @@ template <unsigned> struct __static_assert_check {};
 #ifdef _LIBCPP_HAS_NO_DECLTYPE
 // GCC 4.6 provides __decltype in all standard modes.
 #  if __has_keyword(__decltype) || _LIBCPP_CLANG_VER >= 304 || defined(_LIBCPP_COMPILER_GCC)
-#    define decltype(__x) __decltype(__x)
+#    define decltype  __decltype
 #  else
-#    define decltype(__x) __typeof__(__x)
+#    define decltype  __typeof__
 #  endif
 #endif
 

@@ -52,7 +52,7 @@ struct Caster {
     struct apply {
         typedef typename std::remove_reference<T>::type RawType;
         typedef typename QualTag::template apply<RawType>::type CVType;
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
         typedef typename std::conditional<RValue,
             CVType&&, CVType&
         >::type type;
@@ -165,7 +165,7 @@ struct DerefPropType {
     template <class Up>
     explicit DerefPropType(Up const& val) : object(val) {}
 
-#if TEST_STD_VER < 11
+#if TEST_STD_VER < 11 && !defined(TEST_MINIMAL_CXX11)
     To& operator*() { return object; }
     To const& operator*() const { return object; }
     To volatile& operator*() volatile  { return object; }

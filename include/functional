@@ -1282,7 +1282,7 @@ private:
 public:
     _LIBCPP_INLINE_VISIBILITY __mem_fn(type __f) _NOEXCEPT : __f_(__f) {}
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     // invoke
     template <class... _ArgTypes>
     _LIBCPP_INLINE_VISIBILITY
@@ -2404,7 +2404,7 @@ void
 swap(function<_Rp(_ArgTypes...)>& __x, function<_Rp(_ArgTypes...)>& __y) _NOEXCEPT
 {return __x.swap(__y);}
 
-#else // _LIBCPP_CXX03_LANG
+#else // !_LIBCPP_MINIMAL_CXX11_LANG
 
 #include <__functional_03>
 

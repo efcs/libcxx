@@ -21,7 +21,7 @@ const A csource() {return A();}
 
 int main(int, char**)
 {
-#if TEST_STD_VER >= 11
+#if TEST_STD_VER >= 11 || defined(TEST_MINIMAL_CXX11)
     {
         std::forward<A&>(source());  // expected-note {{requested here}}
         // expected-error-re@type_traits:* 1 {{static_assert failed{{.*}} "can not forward an rvalue as an lvalue"}}

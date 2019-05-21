@@ -1606,8 +1606,8 @@ struct __is_nothrow_convertible_helper: decltype(__is_nothrow_convertible_test<_
 
 template <typename _Fm, typename _To>
 struct is_nothrow_convertible : __or_<
-    __and_<is_void<_To>, is_void<_Fm>>,
-    __and_<is_convertible<_Fm, _To>, __is_nothrow_convertible_helper<_Fm, _To>>
+    __and_<is_void<_To>, is_void<_Fm> >,
+    __and_<is_convertible<_Fm, _To>, __is_nothrow_convertible_helper<_Fm, _To> >
 >::type { };
 
 template <typename _Fm, typename _To>
@@ -1704,7 +1704,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool has_virtual_destructor_v
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS has_unique_object_representations
     : public integral_constant<bool,
-       __has_unique_object_representations(remove_cv_t<remove_all_extents_t<_Tp>>)> {};
+       __has_unique_object_representations(remove_cv_t<remove_all_extents_t<_Tp> >)> {};
 
 #if !defined(_LIBCPP_HAS_NO_VARIABLE_TEMPLATES)
 template <class _Tp>
@@ -2218,6 +2218,11 @@ template <class ..._Tp> using common_type_t = typename common_type<_Tp...>::type
 
 // is_assignable
 
+#ifdef _LIBCPP_COMPILER_CLANG
+template <class _Tp, class _Arg>
+struct is_assignable
+    : public integral_constant<bool, __is_assignable(_Tp, _Arg)> {};
+#else
 template<typename, typename _Tp> struct __select_2nd { typedef _Tp type; };
 
 template <class _Tp, class _Arg>
@@ -2241,6 +2246,7 @@ struct __is_assignable_imp<_Tp, _Arg, true>
 template <class _Tp, class _Arg>
 struct is_assignable
     : public __is_assignable_imp<_Tp, _Arg> {};
+#endif
 
 #if _LIBCPP_STD_VER > 14 && !defined(_LIBCPP_HAS_NO_VARIABLE_TEMPLATES)
 template <class _Tp, class _Arg>
@@ -2916,7 +2922,7 @@ struct __member_pointer_class_type<_Ret _ClassType::*> {
 
 template <class _Callable> class result_of;
 
-#ifdef _LIBCPP_HAS_NO_VARIADICS
+#ifndef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Fn, bool, bool>
 class __result_of
@@ -3062,7 +3068,7 @@ class _LIBCPP_TEMPLATE_VIS result_of<_Fn(_A0, _A1, _A2)>
 {
 };
 
-#endif  // _LIBCPP_HAS_NO_VARIADICS
+#endif  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 // template <class T, class... Args> struct is_constructible;
 
@@ -3083,9 +3089,9 @@ struct __is_invalid_base_to_derived_cast {
   using _RawFrom = __uncvref_t<_From>;
   using _RawTo = __uncvref_t<_To>;
   static const bool value = __lazy_and<
-        __lazy_not<is_same<_RawFrom, _RawTo>>,
+        __lazy_not<is_same<_RawFrom, _RawTo> >,
         is_base_of<_RawFrom, _RawTo>,
-        __lazy_not<__libcpp_is_constructible<_RawTo, _From>>
+        __lazy_not<__libcpp_is_constructible<_RawTo, _From> >
   >::value;
 };
 
@@ -3099,10 +3105,10 @@ struct __is_invalid_lvalue_to_rvalue_cast<_ToRef&&, _FromRef&> {
   using _RawFrom = __uncvref_t<_FromRef>;
   using _RawTo = __uncvref_t<_ToRef>;
   static const bool value = __lazy_and<
-      __lazy_not<is_function<_RawTo>>,
+      __lazy_not<is_function<_RawTo> >,
       __lazy_or<
         is_same<_RawFrom, _RawTo>,
-        is_base_of<_RawTo, _RawFrom>>
+        is_base_of<_RawTo, _RawFrom> >
     >::value;
 };
 
@@ -4245,7 +4251,7 @@ template <class _Tp> struct __is_reference_wrapper_impl<reference_wrapper<_Tp> >
 template <class _Tp> struct __is_reference_wrapper
     : public __is_reference_wrapper_impl<typename remove_cv<_Tp>::type> {};
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Fp, class _A0,
          class _DecayFp = typename decay<_Fp>::type,
@@ -4311,101 +4317,114 @@ using __enable_if_bullet6 = typename enable_if
 
 // fall back - none of the bullets
 
+#ifdef _LIBCPP_CXX03_LANG
 #define _LIBCPP_INVOKE_RETURN(...) \
-    noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) \
     { return __VA_ARGS__; }
+#else
+
+#define _LIBCPP_INVOKE_RETURN(...) \
+    noexcept(noexcept(__VA_ARGS__)) \
+    { return __VA_ARGS__; }
+#endif
+
 
 template <class ..._Args>
-auto __invoke(__any, _Args&& ...__args) -> __nat;
+__nat __invoke(__any, _Args&& ...__args);
 
 template <class ..._Args>
-auto __invoke_constexpr(__any, _Args&& ...__args) -> __nat;
+__nat __invoke_constexpr(__any, _Args&& ...__args);
 
 // bullets 1, 2 and 3
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet1<_Fp, _A0>>
+          class = __enable_if_bullet1<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype((_VSTD::declval<_A0>().*_VSTD::declval<_Fp>())(_VSTD::declval<_Args>()...))
 __invoke(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN((_VSTD::forward<_A0>(__a0).*__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet1<_Fp, _A0>>
+          class = __enable_if_bullet1<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype((_VSTD::declval<_A0>().*_VSTD::declval<_Fp>())(_VSTD::declval<_Args>()...))
 __invoke_constexpr(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN((_VSTD::forward<_A0>(__a0).*__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet2<_Fp, _A0>>
+          class = __enable_if_bullet2<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype((std::declval<_A0&>().get().*std::declval<_Fp&>())(std::declval<_Args>()...))
 __invoke(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN((__a0.get().*__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet2<_Fp, _A0>>
+          class = __enable_if_bullet2<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype((std::declval<_A0&>().get().*std::declval<_Fp>())(std::declval<_Args>()...))
 __invoke_constexpr(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN((__a0.get().*__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet3<_Fp, _A0>>
+          class = __enable_if_bullet3<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype(((*std::declval<_A0>()).*std::declval<_Fp>())(std::declval<_Args>()...))
 __invoke(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN(((*_VSTD::forward<_A0>(__a0)).*__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class _A0, class ..._Args,
-          class = __enable_if_bullet3<_Fp, _A0>>
+          class = __enable_if_bullet3<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype(((*std::declval<_A0>()).*std::declval<_Fp>())(std::declval<_Args>()...))
 __invoke_constexpr(_Fp&& __f, _A0&& __a0, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN(((*_VSTD::forward<_A0>(__a0)).*__f)(_VSTD::forward<_Args>(__args)...))
 
 // bullets 4, 5 and 6
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet4<_Fp, _A0>>
+          class = __enable_if_bullet4<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype(std::declval<_A0>().*std::declval<_Fp&>())
 __invoke(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN(_VSTD::forward<_A0>(__a0).*__f)
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet4<_Fp, _A0>>
+          class = __enable_if_bullet4<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype(std::declval<_A0>().*std::declval<_Fp&>())
 __invoke_constexpr(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN(_VSTD::forward<_A0>(__a0).*__f)
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet5<_Fp, _A0>>
+          class = __enable_if_bullet5<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype(std::declval<_A0&>().get().*std::declval<_Fp&>())
 __invoke(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN(__a0.get().*__f)
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet5<_Fp, _A0>>
+          class = __enable_if_bullet5<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype(std::declval<_A0&>().get().*std::declval<_Fp&>())
 __invoke_constexpr(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN(__a0.get().*__f)
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet6<_Fp, _A0>>
+          class = __enable_if_bullet6<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype((*_VSTD::declval<_A0>()).*std::declval<_Fp&>())
 __invoke(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN((*_VSTD::forward<_A0>(__a0)).*__f)
 
 template <class _Fp, class _A0,
-          class = __enable_if_bullet6<_Fp, _A0>>
+          class = __enable_if_bullet6<_Fp, _A0> >
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype((*_VSTD::declval<_A0>()).*std::declval<_Fp&>())
 __invoke_constexpr(_Fp&& __f, _A0&& __a0)
 _LIBCPP_INVOKE_RETURN((*_VSTD::forward<_A0>(__a0)).*__f)
 
@@ -4413,13 +4432,14 @@ _LIBCPP_INVOKE_RETURN((*_VSTD::forward<_A0>(__a0)).*__f)
 
 template <class _Fp, class ..._Args>
 inline _LIBCPP_INLINE_VISIBILITY
-auto
+decltype(_VSTD::declval<_Fp>()(_VSTD::declval<_Args>()...))
 __invoke(_Fp&& __f, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN(_VSTD::forward<_Fp>(__f)(_VSTD::forward<_Args>(__args)...))
 
 template <class _Fp, class ..._Args>
 inline _LIBCPP_INLINE_VISIBILITY
-_LIBCPP_CONSTEXPR auto
+_LIBCPP_CONSTEXPR
+decltype(_VSTD::declval<_Fp>()(_VSTD::declval<_Args>()...))
 __invoke_constexpr(_Fp&& __f, _Args&& ...__args)
 _LIBCPP_INVOKE_RETURN(_VSTD::forward<_Fp>(__f)(_VSTD::forward<_Args>(__args)...))
 
@@ -4430,8 +4450,7 @@ template <class _Ret, class _Fp, class ..._Args>
 struct __invokable_r
 {
   template <class _XFp, class ..._XArgs>
-  static auto __try_call(int) -> decltype(
-    _VSTD::__invoke(_VSTD::declval<_XFp>(), _VSTD::declval<_XArgs>()...));
+  static decltype(_VSTD::__invoke(_VSTD::declval<_XFp>(), _VSTD::declval<_XArgs>()...)) __try_call(int);
   template <class _XFp, class ..._XArgs>
   static __nat __try_call(...);
 
@@ -4465,17 +4484,24 @@ struct __nothrow_invokable_r_imp<true, false, _Ret, _Fp, _Args...>
     typedef __nothrow_invokable_r_imp _ThisT;
 
     template <class _Tp>
-    static void __test_noexcept(_Tp) noexcept;
-
+    static void __test_noexcept(_Tp) _NOEXCEPT;
+#ifdef _LIBCPP_CXX03_LANG
+    static const bool value = false;
+#else
     static const bool value = noexcept(_ThisT::__test_noexcept<_Ret>(
         _VSTD::__invoke(_VSTD::declval<_Fp>(), _VSTD::declval<_Args>()...)));
+#endif
 };
 
 template <class _Ret, class _Fp, class ..._Args>
 struct __nothrow_invokable_r_imp<true, true, _Ret, _Fp, _Args...>
 {
+#ifndef _LIBCPP_CXX03_LANG
     static const bool value = noexcept(
         _VSTD::__invoke(_VSTD::declval<_Fp>(), _VSTD::declval<_Args>()...));
+#else
+    static const bool value = false;
+#endif
 };
 
 template <class _Ret, class _Fp, class ..._Args>
@@ -4564,7 +4590,7 @@ _LIBCPP_INLINE_VAR constexpr bool is_nothrow_invocable_r_v
 
 #endif // _LIBCPP_STD_VER > 14
 
-#endif  // !defined(_LIBCPP_CXX03_LANG)
+#endif  // defined(_LIBCPP_MINIMAL_CXX11_LANG)
 
 template <class _Tp> struct __is_swappable;
 template <class _Tp> struct __is_nothrow_swappable;
@@ -4860,7 +4886,7 @@ struct __can_extract_key
                   __extract_key_fail_tag>::type {};
 
 template <class _Pair, class _Key, class _First, class _Second>
-struct __can_extract_key<_Pair, _Key, pair<_First, _Second>>
+struct __can_extract_key<_Pair, _Key, pair<_First, _Second> >
     : conditional<is_same<typename remove_const<_First>::type, _Key>::value,
                   __extract_key_first_tag, __extract_key_fail_tag>::type {};
 
