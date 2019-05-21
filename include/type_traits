@@ -520,8 +520,8 @@ addressof(__unsafe_unretained _Tp& __x) _NOEXCEPT
 }
 #endif
 
-#if !defined(_LIBCPP_CXX03_LANG)
-template <class _Tp> _Tp* addressof(const _Tp&&) noexcept = delete;
+#if !defined(_LIBCPP_HAS_NO_MINIMAL_CXX11)
+template <class _Tp> _Tp* addressof(const _Tp&&) _NOEXCEPT = delete;
 #endif
 
 struct __two {char __lx[2];};
@@ -556,7 +556,7 @@ using bool_constant = integral_constant<bool, __b>;
 typedef _LIBCPP_BOOL_CONSTANT(true)  true_type;
 typedef _LIBCPP_BOOL_CONSTANT(false) false_type;
 
-#if !defined(_LIBCPP_CXX03_LANG)
+#if !defined(_LIBCPP_CXX03_LANG) || defined(_LIBCPP_EXTENDED_CXX03_LANG)
 
 // __lazy_and
 
@@ -631,7 +631,7 @@ struct __or_<_B0, _B1, _B2, _Bn...>
 template<class _Tp>
 struct __not_ : conditional<_Tp::value, false_type, true_type>::type {};
 
-#endif // !defined(_LIBCPP_CXX03_LANG)
+#endif // !defined(_LIBCPP_CXX03_LANG) || defined(_LIBCPP_EXTENDED_CXX03_LANG)
 
 // is_const
 
@@ -808,13 +808,13 @@ template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_lvalue_reference       : pub
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_lvalue_reference<_Tp&> : public true_type {};
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_rvalue_reference        : public false_type {};
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_rvalue_reference<_Tp&&> : public true_type {};
 #endif
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_reference        : public false_type {};
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_reference<_Tp&>  : public true_type {};
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_reference<_Tp&&> : public true_type {};
 #endif
 
@@ -1130,7 +1130,7 @@ template <class _Tp> using add_cv_t = typename add_cv<_Tp>::type;
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS remove_reference        {typedef _Tp type;};
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS remove_reference<_Tp&>  {typedef _Tp type;};
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS remove_reference<_Tp&&> {typedef _Tp type;};
 #endif
 
@@ -1150,7 +1150,7 @@ template <class _Tp> struct _LIBCPP_TEMPLATE_VIS add_lvalue_reference
 template <class _Tp> using add_lvalue_reference_t = typename add_lvalue_reference<_Tp>::type;
 #endif
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp, bool = __is_referenceable<_Tp>::value> struct __add_rvalue_reference_impl            { typedef _Tp   type; };
 template <class _Tp                                       > struct __add_rvalue_reference_impl<_Tp, true> { typedef _Tp&& type; };
@@ -1162,9 +1162,9 @@ template <class _Tp> struct _LIBCPP_TEMPLATE_VIS add_rvalue_reference
 template <class _Tp> using add_rvalue_reference_t = typename add_rvalue_reference<_Tp>::type;
 #endif
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp> _Tp&& __declval(int);
 template <class _Tp> _Tp   __declval(long);
@@ -1173,13 +1173,13 @@ template <class _Tp>
 decltype(_VSTD::__declval<_Tp>(0))
 declval() _NOEXCEPT;
 
-#else  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#else  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 typename add_lvalue_reference<_Tp>::type
 declval();
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
 // __uncvref
 
@@ -1193,7 +1193,7 @@ struct __unconstref {
     typedef typename remove_const<typename remove_reference<_Tp>::type>::type type;
 };
 
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 template <class _Tp>
 using __uncvref_t = typename __uncvref<_Tp>::type;
 #endif
@@ -2263,7 +2263,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_copy_assignable_v
 // is_move_assignable
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_move_assignable
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     : public is_assignable<typename add_lvalue_reference<_Tp>::type,
                            typename add_rvalue_reference<_Tp>::type> {};
 #else
@@ -2342,7 +2342,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_destructible_v
 
 // move
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 inline _LIBCPP_INLINE_VISIBILITY _LIBCPP_CONSTEXPR
@@ -2371,7 +2371,15 @@ forward(typename remove_reference<_Tp>::type&& __t) _NOEXCEPT
     return static_cast<_Tp&&>(__t);
 }
 
-#else  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+template <class _Tp>
+inline _LIBCPP_INLINE_VISIBILITY
+typename decay<_Tp>::type
+__decay_copy(_Tp&& __t)
+{
+    return _VSTD::forward<_Tp>(__t);
+}
+
+#else  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 inline _LIBCPP_INLINE_VISIBILITY
@@ -2397,6 +2405,15 @@ forward(typename remove_reference<_Tp>::type& __t) _NOEXCEPT
     return __t;
 }
 
+template <class _Tp>
+inline _LIBCPP_INLINE_VISIBILITY
+typename decay<_Tp>::type
+__decay_copy(const _Tp& __t)
+{
+    return _VSTD::forward<_Tp>(__t);
+}
+
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 class __rv
@@ -2410,31 +2427,7 @@ public:
     explicit __rv(_Trr& __t) : t_(__t) {}
 };
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
-
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
-
-template <class _Tp>
-inline _LIBCPP_INLINE_VISIBILITY
-typename decay<_Tp>::type
-__decay_copy(_Tp&& __t)
-{
-    return _VSTD::forward<_Tp>(__t);
-}
-
-#else
-
-template <class _Tp>
-inline _LIBCPP_INLINE_VISIBILITY
-typename decay<_Tp>::type
-__decay_copy(const _Tp& __t)
-{
-    return _VSTD::forward<_Tp>(__t);
-}
-
-#endif
-
-#ifndef _LIBCPP_HAS_NO_VARIADICS
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Rp, class _Class, class ..._Param>
 struct __member_pointer_traits_imp<_Rp (_Class::*)(_Param...), true, false>
@@ -2632,7 +2625,7 @@ struct __member_pointer_traits_imp<_Rp (_Class::*)(_Param..., ...) const volatil
 
 #endif  // __has_feature(cxx_reference_qualified_functions) || defined(_LIBCPP_COMPILER_GCC)
 
-#else  // _LIBCPP_HAS_NO_VARIADICS
+#else  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Rp, class _Class>
 struct __member_pointer_traits_imp<_Rp (_Class::*)(), true, false>
@@ -3469,7 +3462,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_copy_constructible_v
 
 template <class _Tp>
 struct _LIBCPP_TEMPLATE_VIS is_move_constructible
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     : public is_constructible<_Tp, typename add_rvalue_reference<_Tp>::type>
 #else
     : public is_copy_constructible<_Tp>
@@ -3484,7 +3477,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_move_constructible_v
 
 // is_trivially_constructible
 
-#ifndef _LIBCPP_HAS_NO_VARIADICS
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 #if __has_feature(is_trivially_constructible) || _GNUC_VER >= 501
 
@@ -3513,7 +3506,7 @@ struct _LIBCPP_TEMPLATE_VIS is_trivially_constructible<_Tp>
 };
 
 template <class _Tp>
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 struct _LIBCPP_TEMPLATE_VIS is_trivially_constructible<_Tp, _Tp&&>
 #else
 struct _LIBCPP_TEMPLATE_VIS is_trivially_constructible<_Tp, _Tp>
@@ -3536,7 +3529,7 @@ struct _LIBCPP_TEMPLATE_VIS is_trivially_constructible<_Tp, _Tp&>
 
 #endif  // !__has_feature(is_trivially_constructible)
 
-#else  // _LIBCPP_HAS_NO_VARIADICS
+#else  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp, class _A0 = __is_construct::__nat,
                      class _A1 = __is_construct::__nat>
@@ -3642,7 +3635,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_trivially_copy_constructible_v
 // is_trivially_move_constructible
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_trivially_move_constructible
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     : public is_trivially_constructible<_Tp, typename add_rvalue_reference<_Tp>::type>
 #else
     : public is_trivially_copy_constructible<_Tp>
@@ -3683,13 +3676,13 @@ template <class _Tp>
 struct is_trivially_assignable<_Tp&, const _Tp&>
     : integral_constant<bool, is_scalar<_Tp>::value> {};
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 struct is_trivially_assignable<_Tp&, _Tp&&>
     : integral_constant<bool, is_scalar<_Tp>::value> {};
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
 #endif  // !__has_feature(is_trivially_assignable)
 
@@ -3715,7 +3708,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_trivially_copy_assignable_v
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_trivially_move_assignable
     : public is_trivially_assignable<typename add_lvalue_reference<_Tp>::type,
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
                                      typename add_rvalue_reference<_Tp>::type>
 #else
                                      typename add_lvalue_reference<_Tp>::type>
@@ -3762,7 +3755,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_trivially_destructible_v
 
 // is_nothrow_constructible
 
-#ifndef _LIBCPP_HAS_NO_VARIADICS
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 #if __has_keyword(__is_nothrow_constructible)
 
@@ -3826,7 +3819,7 @@ struct _LIBCPP_TEMPLATE_VIS is_nothrow_constructible<_Tp>
 };
 
 template <class _Tp>
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 struct _LIBCPP_TEMPLATE_VIS is_nothrow_constructible<_Tp, _Tp&&>
 #else
 struct _LIBCPP_TEMPLATE_VIS is_nothrow_constructible<_Tp, _Tp>
@@ -3861,7 +3854,7 @@ struct _LIBCPP_TEMPLATE_VIS is_nothrow_constructible<_Tp, _Tp&>
 
 #endif  // _LIBCPP_HAS_NO_NOEXCEPT
 
-#else  // _LIBCPP_HAS_NO_VARIADICS
+#else  // !_LIBCPP_MINIMAL_CXX11_LANG
 
 #if __has_keyword(__is_nothrow_constructible)
 
@@ -3932,7 +3925,7 @@ struct _LIBCPP_TEMPLATE_VIS is_nothrow_constructible<_Tp, _Tp&,
 };
 
 #endif  // __has_keyword(__is_nothrow_constructible)
-#endif  // _LIBCPP_HAS_NO_VARIADICS
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
 #if _LIBCPP_STD_VER > 14 && !defined(_LIBCPP_HAS_NO_VARIABLE_TEMPLATES) && !defined(_LIBCPP_HAS_NO_VARIADICS)
 template <class _Tp, class ..._Args>
@@ -3967,7 +3960,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_nothrow_copy_constructible_v
 // is_nothrow_move_constructible
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_nothrow_move_constructible
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
     : public is_nothrow_constructible<_Tp, typename add_rvalue_reference<_Tp>::type>
 #else
     : public is_nothrow_copy_constructible<_Tp>
@@ -4040,7 +4033,7 @@ struct _LIBCPP_TEMPLATE_VIS is_nothrow_assignable<_Tp&, const _Tp&>
     : integral_constant<bool, is_scalar<_Tp>::value> {};
 #endif
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 struct is_nothrow_assignable<_Tp&, _Tp&&>
@@ -4050,7 +4043,7 @@ struct is_nothrow_assignable<_Tp&, _Tp&&>
     : integral_constant<bool, is_scalar<_Tp>::value> {};
 #endif
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#endif  // _LIBCPP_MINIMAL_CXX11_LANG
 
 #endif  // _LIBCPP_HAS_NO_NOEXCEPT
 
@@ -4076,7 +4069,7 @@ _LIBCPP_INLINE_VAR _LIBCPP_CONSTEXPR bool is_nothrow_copy_assignable_v
 
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS is_nothrow_move_assignable
     : public is_nothrow_assignable<typename add_lvalue_reference<_Tp>::type,
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
                                      typename add_rvalue_reference<_Tp>::type>
 #else
                                      typename add_lvalue_reference<_Tp>::type>
@@ -4125,7 +4118,7 @@ struct _LIBCPP_TEMPLATE_VIS is_nothrow_destructible<_Tp&>
 {
 };
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 
 template <class _Tp>
 struct _LIBCPP_TEMPLATE_VIS is_nothrow_destructible<_Tp&&>
@@ -4578,7 +4571,7 @@ template <class _Tp> struct __is_nothrow_swappable;
 
 template <class _Tp>
 inline _LIBCPP_INLINE_VISIBILITY
-#ifndef _LIBCPP_CXX03_LANG
+#ifdef _LIBCPP_MINIMAL_CXX11_LANG
 typename enable_if
 <
     is_move_constructible<_Tp>::value &&

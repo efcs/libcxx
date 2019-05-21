@@ -130,10 +130,6 @@
 # define _LIBCPP_ABI_NAMESPACE _LIBCPP_CONCAT(__,_LIBCPP_ABI_VERSION)
 #endif
 
-#if __cplusplus < 201103L
-#define _LIBCPP_CXX03_LANG
-#endif
-
 #ifndef __has_attribute
 #define __has_attribute(__x) 0
 #endif
@@ -185,6 +181,17 @@
 
 #ifndef _LIBCPP_CLANG_VER
 #define _LIBCPP_CLANG_VER 0
+#endif
+
+#if __cplusplus < 201103L
+#define _LIBCPP_CXX03_LANG
+# ifdef _LIBCPP_COMPILER_CLANG
+#  define _LIBCPP_EXTENDED_CXX03_LANG
+# endif
+#endif
+
+#if !defined(_LIBCPP_CXX03_LANG) || defined(_LIBCPP_EXTENDED_CXX03_LANG)
+# define _LIBCPP_MINIMAL_CXX11_LANG
 #endif
 
 // FIXME: ABI detection should be done via compiler builtin macros. This
