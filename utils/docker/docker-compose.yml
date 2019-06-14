@@ -6,18 +6,38 @@ services:
       dockerfile: debian9/Dockerfile.base
       target: builder-base
     image: ericwf/builder-base:latest
-  compilers:
+  gcc-tot:
     build:
       context: .
-      dockerfile: debian9/Dockerfile.compilers
-      target: compilers
-    image: ericwf/compilers:latest
-  compilers-tot-builder:
+      dockerfile: debian9/Dockerfile.gcc
+      args:
+        install_prefix: /opt/gcc-tot
+        branch: master
+    image: ericwf/gcc-tot:latest
+  gcc-5:
+      build:
+        context: .
+        dockerfile: debian9/Dockerfile.gcc
+        args:
+          install_prefix: /opt/gcc-5
+          branch: gcc-5_5_0-release
+      image: ericwf/gcc-tot:latest
+  llvm-4:
     build:
       context: .
-      dockerfile: debian9/Dockerfile.compilers_tot
-      target: compilers-tot
-    image: ericwf/compilers-tot:latest
+      dockerfile: debian9/Dockerfile.clang
+      args:
+        install_prefix: /opt/llvm-4.0
+        branch: release/4.x
+    image: ericwf/llvm-4:latest
+  llvm-tot:
+    build:
+      context: .
+      dockerfile: debian9/Dockerfile.clang
+      args:
+        install_prefix: /opt/llvm-tot
+        branch: master
+    image: ericwf/llvm-tot:latest
   buildbot:
     build:
       context: .
