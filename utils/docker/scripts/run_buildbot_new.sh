@@ -5,27 +5,6 @@ readonly BOT_ROOT=/b
 readonly BOT_ROOT_NAME=$1
 readonly BOT_PASS=$2
 
-#pushd /tmp
-#curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh
-#bash install-monitoring-agent.sh
-#curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
-#bash install-logging-agent.sh --structured
-#popd
-
-apt-get update -y
-apt-get upgrade -y
-
-apt-get install sudo -y
-
-# FIXME(EricWF): Remove this hack. It's only in place to temporarily fix linking libclang_rt from the
-# debian packages.
-# WARNING: If you're not a buildbot, DO NOT RUN!
-apt-get install lld-9
-rm /usr/bin/ld
-ln -s /usr/bin/lld-9 /usr/bin/ld
-
-systemctl set-property buildslave.service TasksMax=100000
-
 function setup_numbered_bot() {
   local BOT_NAME=$1
   local BOT_DIR=$2
@@ -67,11 +46,9 @@ function try_start_builder {
   local BOT_DIR="$BOT_ROOT/b$N"
   local BOT_NAME="$BOT_ROOT_NAME$N"
 
-  systemctl daemon-reload
   service buildslave restart
   setup_numbered_bot "$BOT_NAME" "$BOT_DIR"
 
-  systemctl daemon-reload
   service buildslave restart
 
   chown -R buildbot:buildbot $BOT_DIR/
