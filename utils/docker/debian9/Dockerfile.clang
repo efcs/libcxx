@@ -16,4 +16,4 @@ ARG branch
 # Build additional LLVM versions
 
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
-RUN /tmp/build_llvm_version.sh --install $install_prefix --branch $branch
+RUN /tmp/build_llvm_version.sh --install "$install_prefix" --branch "$branch"
