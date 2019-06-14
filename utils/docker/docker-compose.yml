@@ -17,18 +17,10 @@ services:
       context: .
       dockerfile: debian9/Dockerfile.compilers
       target: builder-base
-    image: ericwf/released-compilers:latest
-
+    image: ericwf/compilers:latest
   buildbot:
     build:
       context: .
       dockerfile: debian9/Dockerfile.buildbot
       target: buildbot
     image: ericwf/libcxx-buildbot-base:latest
-  compiler-zoo:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.compiler_zoo
-      target: compiler-zoo
-    image: ericwf/compiler-zoo:latest:wq
-
