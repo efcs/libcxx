@@ -6,18 +6,18 @@ services:
       dockerfile: debian9/Dockerfile.base
       target: builder-base
     image: ericwf/builder-base:latest
-  compilers-tot-builder:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.compilers_tot
-      target: compilers-tot
-    image: ericwf/compilers-tot:latest
   compilers:
     build:
       context: .
       dockerfile: debian9/Dockerfile.compilers
       target: builder-base
     image: ericwf/compilers:latest
+  compilers-tot-builder:
+    build:
+      context: .
+      dockerfile: debian9/Dockerfile.compilers_tot
+      target: compilers-tot
+    image: ericwf/compilers-tot:latest
   buildbot:
     build:
       context: .
