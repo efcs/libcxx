@@ -26,10 +26,7 @@ ln -s /usr/bin/lld-9 /usr/bin/ld
 
 systemctl set-property buildslave.service TasksMax=100000
 
-systemctl daemon-reload
-service buildslave restart
-
-function setup_numbered_bot {
+function setup_numbered_bot() {
   local BOT_NAME=$1
   local BOT_DIR=$2
   mkdir -p $BOT_DIR
@@ -53,13 +50,16 @@ function setup_numbered_bot {
   } > $BOT_DIR/info/host
 
 
- # echo "SLAVE_RUNNER=/usr/bin/buildslave
- # SLAVE_ENABLED[1]=\"1\"
- # SLAVE_NAME[1]=\"buildslave$1\"
- # SLAVE_USER[1]=\"buildbot\"
- # SLAVE_BASEDIR[1]=\"$BOT_DIR\"
- # SLAVE_OPTIONS[1]=\"\"
- # SLAVE_PREFIXCMD[1]=\"\"" > $BOT_DIR/buildslave.cfg
+echo "SLAVE_RUNNER=/usr/bin/buildslave
+SLAVE_ENABLED[1]=\"1\"
+SLAVE_NAME[1]=\"$BOT_NAME\"
+SLAVE_USER[1]=\"buildbot\"
+SLAVE_BASEDIR[1]=\"$BOT_DIR\"
+SLAVE_OPTIONS[1]=\"\"
+SLAVE_PREFIXCMD[1]=\"\"" > $BOT_DIR/buildslave.cfg
+
+  ls $BOT_DIR/
+  cat $BOT_DIR/buildbot.tac
 
 }
 
@@ -67,7 +67,14 @@ function try_start_builder {
   local N=$1
   local BOT_DIR="$BOT_ROOT/b$N"
   local BOT_NAME="$BOT_ROOT_NAME$N"
+
+  systemctl daemon-reload
+  service buildslave restart
   setup_numbered_bot "$BOT_NAME" "$BOT_DIR"
+
+  systemctl daemon-reload
+  service buildslave restart
+
   chown -R buildbot:buildbot $BOT_DIR/
   sudo -u buildbot /usr/bin/buildslave start $BOT_DIR/
 
