@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: debian9/Dockerfile.compilers
-      target: builder-base
+      target: compilers
     image: ericwf/compilers:latest
   compilers-tot-builder:
     build:

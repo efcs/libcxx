@@ -7,95 +7,53 @@
 #===-------------------------------------------------------------------------------------------===//
 
 # Build GCC versions
-FROM ericwf/builder-base:latest as gcc-48-builder
+FROM ericwf/builder-base:latest as compilers
 LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-4.8.5 --branch gcc-4_8_5-release \
     --cherry-pick ec1cc0263f156f70693a62cf17b254a0029f4852
 
-FROM ericwf/builder-base:latest as gcc-49-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-4.9.4 --branch gcc-4_9_4-release
-
-FROM ericwf/builder-base:latest as gcc-5-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-5 --branch gcc-5_5_0-release
 
-FROM ericwf/builder-base:latest as gcc-6-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-6 --branch gcc-6_5_0-release
 
-FROM ericwf/builder-base:latest as gcc-7-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-7 --branch gcc-7_4_0-release
-
-FROM ericwf/builder-base:latest as gcc-8-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
 RUN /tmp/build_gcc_version.sh --install /opt/gcc-8 --branch gcc-8_2_0-release
 
 # Build additional LLVM versions
-FROM ericwf/builder-base:latest as llvm-36-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-3.6 --branch release/3.6.x
 
-FROM ericwf/builder-base:latest as llvm-37-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-3.7 --branch release/3.7.x
-
-FROM ericwf/builder-base:latest as llvm-38-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-3.8 --branch release/3.8.x
 
-FROM ericwf/builder-base:latest as llvm-39-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-3.9 --branch release/3.9.x
-
-FROM ericwf/builder-base:latest as llvm-4-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-4.0 --branch release/4.x
 
-FROM ericwf/builder-base:latest as llvm-5-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-5.0 --branch release/5.x
-
-FROM ericwf/builder-base:latest as llvm-6-builder
-LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-6.0 --branch release/6.x
 
-FROM ericwf/builder-base:latest as llvm-7-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-7.0 --branch release/7.x
 
-FROM ericwf/builder-base:latest as llvm-8-builder
-LABEL maintainer "libc++ Developers"
-
 ADD scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
 RUN /tmp/build_llvm_version.sh --install /opt/llvm-8.0 --branch release/8.x
-
