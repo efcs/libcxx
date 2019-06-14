@@ -38,12 +38,11 @@ function setup_numbered_bot {
   chown buildbot:buildbot $BOT_DIR
   rm -rf $BOT_DIR/*
 
-  buildslave create-slave --allow-shutdown=signal $BOT_DIR lab.llvm.org:9990 \
-      $BOT_NAME $BOT_PASS
+  buildslave create-slave --allow-shutdown=signal "$BOT_DIR" "lab.llvm.org:9990" "$BOT_NAME" "$BOT_PASS"
 
   echo "Eric Fiselier <ericwf@google.com>" > $BOT_DIR/info/admin
 
-  echo "Connecting as $BOT_BASE_NAME$1"
+  echo "Connecting as $1"
   {
     uname -a | head -n1
     cmake --version | head -n1
@@ -65,12 +64,12 @@ function setup_numbered_bot {
 }
 
 function try_start_builder {
-  local $N=$1
-  local BOT_DIR=$BOT_ROOT/b$N
-  local BOT_NAME=$BOT_ROOT_NAME$N
+  local N=$1
+  local BOT_DIR="$BOT_ROOT/b$N"
+  local BOT_NAME="$BOT_ROOT_NAME$N"
   setup_numbered_bot $BOT_NAME $BOT_DIR
   chown -R buildbot:buildbot $BOT_DIR/
-  sudo -u buildbot /usr/bin/buildslave start $BOT_DIR
+  sudo -u buildbot /usr/bin/buildslave start $BOT_DIR/
 
   sleep 30
   cat $BOT_DIR/twistd.log
