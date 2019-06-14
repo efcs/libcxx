@@ -5,12 +5,12 @@ BOT_ROOT=/b
 BOT_ROOT_NAME=$1
 BOT_PASS=$2
 
-pushd /tmp
-curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh
-bash install-monitoring-agent.sh
-curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
-bash install-logging-agent.sh --structured
-popd
+#pushd /tmp
+#curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh
+#bash install-monitoring-agent.sh
+#curl -sSO https://dl.google.com/cloudagents/install-logging-agent.sh
+#bash install-logging-agent.sh --structured
+#popd
 
 apt-get update -y
 apt-get upgrade -y
@@ -67,7 +67,7 @@ function try_start_builder {
   local N=$1
   local BOT_DIR="$BOT_ROOT/b$N"
   local BOT_NAME="$BOT_ROOT_NAME$N"
-  setup_numbered_bot $BOT_NAME $BOT_DIR
+  setup_numbered_bot "$BOT_NAME" "$BOT_DIR"
   chown -R buildbot:buildbot $BOT_DIR/
   sudo -u buildbot /usr/bin/buildslave start $BOT_DIR/
 
