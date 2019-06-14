@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -x
 
-BOT_ROOT=/b
-BOT_ROOT_NAME=$1
-BOT_PASS=$2
+readonly BOT_ROOT=/b
+readonly BOT_ROOT_NAME=$1
+readonly BOT_PASS=$2
 
 #pushd /tmp
 #curl -sSO https://dl.google.com/cloudagents/install-monitoring-agent.sh
@@ -50,17 +50,16 @@ function setup_numbered_bot() {
   } > $BOT_DIR/info/host
 
 
-echo "SLAVE_RUNNER=/usr/bin/buildslave
-SLAVE_ENABLED[1]=\"1\"
-SLAVE_NAME[1]=\"$BOT_NAME\"
-SLAVE_USER[1]=\"buildbot\"
-SLAVE_BASEDIR[1]=\"$BOT_DIR\"
-SLAVE_OPTIONS[1]=\"\"
-SLAVE_PREFIXCMD[1]=\"\"" > $BOT_DIR/buildslave.cfg
+#echo "SLAVE_RUNNER=/usr/bin/buildslave
+#SLAVE_ENABLED[1]=\"1\"
+#SLAVE_NAME[1]=\"$BOT_NAME\"
+#SLAVE_USER[1]=\"buildbot\"
+#SLAVE_BASEDIR[1]=\"$BOT_DIR\"
+#SLAVE_OPTIONS[1]=\"\"
+#SLAVE_PREFIXCMD[1]=\"\"" > $BOT_DIR/buildslave.cfg
 
   ls $BOT_DIR/
   cat $BOT_DIR/buildbot.tac
-
 }
 
 function try_start_builder {
