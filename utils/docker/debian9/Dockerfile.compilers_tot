@@ -6,7 +6,7 @@
 #
 #===-------------------------------------------------------------------------------------------===//
 
-FROM builder-base as compilers-tot
+FROM ericwf/builder-base:latest as compilers-tot
 LABEL maintainer "libc++ Developers"
 
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
