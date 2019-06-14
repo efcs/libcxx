@@ -15,4 +15,4 @@ ARG branch
 ARG cherry_pick=""
 
 ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
-RUN /tmp/build_gcc_version.sh --install $install_prefix --branch $branch --cherry-pick $cherry_pick
+RUN /tmp/build_gcc_version.sh --install "$install_prefix" --branch "$branch" --cherry-pick "$cherry_pick"
