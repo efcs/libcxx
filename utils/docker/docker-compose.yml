@@ -21,7 +21,7 @@ services:
         args:
           install_prefix: /opt/gcc-5
           branch: gcc-5_5_0-release
-      image: ericwf/gcc-tot:latest
+      image: ericwf/gcc-5:latest
   llvm-4:
     build:
       context: .
