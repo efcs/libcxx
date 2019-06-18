@@ -44,3 +44,9 @@ services:
       dockerfile: debian9/Dockerfile.buildbot
       target: buildbot
     image: ericwf/libcxx-buildbot-base:latest
+  gitlab:
+    build:
+      context: .
+      dockerfile: debian9/Dockerfile.gitlab
+      target: gitlab-runner
+    image: ericwf/gitlab-runner-base:latest

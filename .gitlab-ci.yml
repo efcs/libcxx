@@ -1,4 +1,4 @@
-image: ericwf/libcxx-buildbot-base:latest
+image: index.docker.io/ericwf/libcxx-buildbot-base:latest
 
 stages:
   - prepare
