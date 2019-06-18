@@ -1,4 +1,8 @@
 image: index.docker.io/ericwf/libcxx-buildbot-base:latest
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/libcxx-root/libcxx
+  JOB_ROOT: $CI_BUILDS_DIR/libcxx-root
+  LIBCXX_SOURCE_ROOT: $CI_BUILDS_DIR/libcxx-root/libcxx
 
 stages:
   - prepare
@@ -9,7 +13,10 @@ stages:
 prepare:
   stage: prepare
   script:
-    - echo "prepare"
+    - git clone --depth=1 https://git.llvm.org/llvm.git $JOB_ROOT/llvm
+    - git clone --depth=1 https://git.llvm.org/libcxxabi.git $JOB_ROOT/llvm/projects/libcxxabi
+    - cp -R $LIBCXX_SOURCE_ROOT $JOB_ROOT/llvm/projects/libcxx
+    - cd $JOB_ROOT
     - ls
     - pwd
     - ls ..
