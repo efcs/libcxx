@@ -20,6 +20,4 @@ RUN apt-get update && \
 ADD scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
 RUN /tmp/install_clang_packages.sh && rm /tmp/install_clang_packages.sh
 
-RUN  wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64
-
 RUN git clone https://git.llvm.org/git/libcxx.git /libcxx
