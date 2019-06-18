@@ -14,7 +14,12 @@ prepare:
 
 build:
   stage: build
-  script: echo "build"
+  script:
+    - echo "build"
+    - ls
+    - clang++ --version
+    - ninja --version
+    - cmake --version
   dependencies:
     - prepare
 
