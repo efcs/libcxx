@@ -1,0 +1,35 @@
+image: ericwf/libcxx-buildbot-base:latest
+
+stages:
+  - prepare
+  - build
+  - test
+  - finish
+
+prepare:
+  stage: prepare
+  script:
+    - echo "prepare"
+    - ls
+
+build:
+  stage: build
+  script: echo "build"
+  dependencies:
+    - prepare
+
+test:
+  stage: test
+  script:
+    - echo "test"
+  dependencies:
+    - build
+
+finish:
+  stage: finish
+  script:
+    - echo "finish"
+  dependencies:
+    - prepare
+    - build
+    - test
