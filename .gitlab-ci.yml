@@ -11,6 +11,10 @@ prepare:
   script:
     - echo "prepare"
     - ls
+    - pwd
+    - ls ..
+    - cd ..
+    - pwd
 
 build:
   stage: build
