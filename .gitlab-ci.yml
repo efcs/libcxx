@@ -15,6 +15,7 @@ prepare:
     - ls ..
     - cd ..
     - pwd
+    - env
 
 build:
   stage: build
