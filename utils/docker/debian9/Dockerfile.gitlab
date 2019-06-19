@@ -21,7 +21,7 @@ ADD scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
 RUN /tmp/install_clang_packages.sh && rm /tmp/install_clang_packages.sh
 
 
-ADD gitlab/config.toml /etc/.gitlab-runner/config.toml
+ADD gitlab/config.toml /etc/gitlab-runner/config.toml
 ADD gitlab/config.toml $HOME/.gitlab-runner/config.toml
 
 RUN git clone https://git.llvm.org/git/libcxx.git /libcxx
