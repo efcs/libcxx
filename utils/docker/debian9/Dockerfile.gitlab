@@ -2,7 +2,7 @@
 #===-------------------------------------------------------------------------------------------===//
 # buildslave
 #===-------------------------------------------------------------------------------------------===//
-FROM gitlab/gitlab-runner:latest AS gitlab-runner
+FROM ericwf/builder-base:latest AS libcxx-gitlab-runner
 
 # Copy over the GCC and Clang installations
 COPY --from=ericwf/gcc-5:latest /opt/gcc-5 /opt/gcc-5

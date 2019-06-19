@@ -48,5 +48,5 @@ services:
     build:
       context: .
       dockerfile: debian9/Dockerfile.gitlab
-      target: gitlab-runner
+      target: libcxx-gitlab-runner
     image: ericwf/libcxx-gitlab-runner:latest
