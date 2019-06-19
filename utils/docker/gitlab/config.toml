@@ -1,0 +1,5 @@
+concurrent = 4
+
+[[runners]]
+  [runners.custom_build_dir]
+    enabled = true
