@@ -25,6 +25,11 @@ prepare:
 build:
   stage: build
   script:
+    - ls
+    - pwd
+    - ls ..
+    - pwd
+    - env
     - echo "build"
     - ls
     - clang++ --version
