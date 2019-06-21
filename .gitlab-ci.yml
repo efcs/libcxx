@@ -38,7 +38,7 @@ stage_all:
   variables:
     GIT_STRATEGY: clone
   script:
-    - mkdir /tmp/$CI_PROJECT_PATH
+    - mkdir -p /tmp/$CI_PROJECT_PATH
     - mv -t /tmp/$CI_PROJECT_PATH/ *
     - ls
     - mkdir build/ stage/ ci/
