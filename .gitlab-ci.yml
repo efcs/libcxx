@@ -22,7 +22,7 @@ prepare:
     - env
     - cp -R $CI_PROJECT_DIR/ /tmp/libcxx.orig
     - mkdir ci/
-    - git clone --depth=1 https://git.llvm.org/llvm-project.git ci/llvm-project
+    - git clone --depth=1 https://github.com/llvm/llvm-project.git ci/llvm-project
     - rm -rf ci/llvm-project/libcxx/
     - cp -R  /tmp/libcxx.orig /tmp/llvm-project/libcxx
     - mkdir ci/build
