@@ -24,7 +24,7 @@ prepare:
     - mkdir ci/
     - git clone --depth=1 https://github.com/llvm/llvm-project.git ci/llvm-project
     - rm -rf ci/llvm-project/libcxx/
-    - cp -R  /tmp/libcxx.orig /tmp/llvm-project/libcxx
+    - cp -R  /tmp/libcxx.orig ci/llvm-project/libcxx
     - mkdir ci/build
     - touch ci/build/hello
   artifacts:
