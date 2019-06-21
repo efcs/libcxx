@@ -427,11 +427,98 @@ template <class _T1, class _T2> struct _LIBCPP_TEMPLATE_VIS pair;
 template <class _Tp> class _LIBCPP_TEMPLATE_VIS reference_wrapper;
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS hash;
 
-template <class>
-struct __void_t { typedef void type; };
+
+template <class _Tp, _Tp __v>
+struct _LIBCPP_TEMPLATE_VIS integral_constant
+{
+  static _LIBCPP_CONSTEXPR const _Tp      value = __v;
+  typedef _Tp               value_type;
+  typedef integral_constant type;
+  _LIBCPP_INLINE_VISIBILITY
+  _LIBCPP_CONSTEXPR operator value_type() const _NOEXCEPT {return value;}
+#if _LIBCPP_STD_VER > 11
+  _LIBCPP_INLINE_VISIBILITY
+  constexpr value_type operator ()() const _NOEXCEPT {return value;}
+#endif
+};
+
+template <class _Tp, _Tp __v>
+_LIBCPP_CONSTEXPR const _Tp integral_constant<_Tp, __v>::value;
+
+#if _LIBCPP_STD_VER > 14
+template <bool __b>
+using bool_constant = integral_constant<bool, __b>;
+#define _LIBCPP_BOOL_CONSTANT(__b) bool_constant<(__b)>
+#else
+#define _LIBCPP_BOOL_CONSTANT(__b) integral_constant<bool,(__b)>
+#endif
+
+typedef _LIBCPP_BOOL_CONSTANT(true)  true_type;
+typedef _LIBCPP_BOOL_CONSTANT(false) false_type;
+
+template <bool _Val>
+using _BoolConstant = integral_constant<bool, _Val>;
+
+template <class _Tp, class ...>
+using _FirstType = _Tp;
 
 template <class _Tp>
 struct __identity { typedef _Tp type; };
+
+template <template <class...> class _Templ, class ..._Args>
+std::true_type __sfinae_test_impl(_FirstType<int, _Templ<_Args...> >);
+template <template <class...> class _Templ, class ..._Args>
+std::false_type __sfinae_test_impl(...);
+
+template <template <class ...> class _Templ, class ..._Args>
+using _CanApply = decltype(std::__sfinae_test_impl<_Templ, _Args...>(0));
+
+template <class ..._Args>
+using _DependentTrue = _BoolConstant<sizeof...(_Args) == sizeof...(_Args)>;
+template <class ..._Args>
+using _DependentFalse = _BoolConstant<sizeof...(_Args) != sizeof...(_Args)>;
+
+
+template <bool> struct _MetaBase;
+
+template <class _First, class ..._Rest>
+using _LazyOr = typename _MetaBase<true>::template _OrImpl<false, _First, _Rest...>;
+template <class _First, class ..._Rest>
+using _LazyAnd = typename _MetaBase<sizeof...(_Rest) == sizeof...(_Rest)>::template _AndImpl<true, _First, _Rest...>;
+
+template <bool _Cond, class _Ret = void>
+using _EnableIf = typename _MetaBase<_Cond>::template _EnableIfImpl<_Ret>;
+
+template <>
+struct _MetaBase<true> {
+  template <class _Tp, class _Up>
+  using _Select = _Tp;
+
+  template <class _Tp = void>
+  using _EnableIfImpl = _Tp;
+
+
+  template <class _Tp>
+  using _NotImpl = _BoolConstant<!_Tp::value>;
+  template <bool, class _First, class ..._Rest>
+  using _OrImpl = typename _MetaBase<_First::value != true && sizeof...(_Rest) != 0>::template _OrImpl<_First::value, _Rest...>;
+  template <bool, class _First, class ..._Rest>
+  using _AndImpl = typename _MetaBase<_First::value == true && sizeof...(_Rest) != 0>::template _AndImpl<_First::value, _Rest...>;
+};
+template <>
+struct _MetaBase<false> {
+  template <class _Tp, class _Up>
+  using _Select = _Up;
+
+  template <bool _Result, class ...>
+  using _OrImpl = _BoolConstant<_Result>;
+  template <bool _Result, class ...>
+  using _AndImpl = _BoolConstant<_Result>;
+};
+
+
+template <class>
+struct __void_t { typedef void type; };
 
 template <class _Tp, bool>
 struct _LIBCPP_TEMPLATE_VIS __dependent_type : public _Tp {};
@@ -528,33 +615,6 @@ struct __two {char __lx[2];};
 
 // helper class:
 
-template <class _Tp, _Tp __v>
-struct _LIBCPP_TEMPLATE_VIS integral_constant
-{
-    static _LIBCPP_CONSTEXPR const _Tp      value = __v;
-    typedef _Tp               value_type;
-    typedef integral_constant type;
-    _LIBCPP_INLINE_VISIBILITY
-        _LIBCPP_CONSTEXPR operator value_type() const _NOEXCEPT {return value;}
-#if _LIBCPP_STD_VER > 11
-    _LIBCPP_INLINE_VISIBILITY
-         constexpr value_type operator ()() const _NOEXCEPT {return value;}
-#endif
-};
-
-template <class _Tp, _Tp __v>
-_LIBCPP_CONSTEXPR const _Tp integral_constant<_Tp, __v>::value;
-
-#if _LIBCPP_STD_VER > 14
-template <bool __b>
-using bool_constant = integral_constant<bool, __b>;
-#define _LIBCPP_BOOL_CONSTANT(__b) bool_constant<(__b)>
-#else
-#define _LIBCPP_BOOL_CONSTANT(__b) integral_constant<bool,(__b)>
-#endif
-
-typedef _LIBCPP_BOOL_CONSTANT(true)  true_type;
-typedef _LIBCPP_BOOL_CONSTANT(false) false_type;
 
 #if !defined(_LIBCPP_CXX03_LANG)
 
