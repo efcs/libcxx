@@ -1,4 +1,11 @@
-image: index.docker.io/ericwf/libcxx-buildbot-base:latest
+image: index.docker.io/ericwf/libcxx-gitlab-runner:latest
+variables:
+  ROOT_DIR: $CI_BUILDS_DIR/$CI_PROJECT_NAMESPACE
+  LIBCXX_DIR: $CI_PROJECT_DIR
+  LLVM_DIR: $ROOT_DIR/llvm
+  LIBCXXABI_DIR: $ROOT_DIR/libcxxabi
+  LIBCXX_SOURCE_ROOT: $CI_BUILDS_DIR/libcxx-root/libcxx
+
 
 stages:
   - prepare
@@ -19,6 +26,11 @@ prepare:
 build:
   stage: build
   script:
+    - ls
+    - pwd
+    - ls ..
+    - pwd
+    - env
     - echo "build"
     - ls
     - clang++ --version
