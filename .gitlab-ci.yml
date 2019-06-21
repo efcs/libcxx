@@ -1,56 +1,105 @@
 image: index.docker.io/ericwf/libcxx-gitlab-runner:latest
 variables:
-  ROOT_DIR: $CI_BUILDS_DIR/$CI_PROJECT_NAMESPACE
-  LIBCXX_DIR: $CI_PROJECT_DIR
-  LLVM_DIR: $ROOT_DIR/llvm
-  LIBCXXABI_DIR: $ROOT_DIR/libcxxabi
-  LIBCXX_SOURCE_ROOT: $CI_BUILDS_DIR/libcxx-root/libcxx
+  ROOT: $CI_PROJECT_DIR/
   GIT_STRATEGY: none
 
 stages:
-  - prepare
+  - env
+  - stage_all
+  - stage_projects
+  - configure
   - build
   - test
   - finish
 
-prepare:
-  stage: prepare
-  variables:
-    GIT_STRATEGY: clone
+cache:
+  paths:
+    - llvm-project/
+    - ci/$CI_PROJECT_PATH/
+    - stage/
+    - build/
+
+env:
+  stage: env
   script:
     - env
     - pwd
     - ls
     - ls ..
-    - ls ../libcxx.tmp/
-    - cp -R $CI_PROJECT_DIR/ /tmp/libcxx.orig
-    - mkdir ci/
-    - git clone --depth=1 https://github.com/llvm/llvm-project.git ci/llvm-project
-    - rm -rf ci/llvm-project/libcxx/
-    - cp -R  /tmp/libcxx.orig ci/llvm-project/libcxx
-    - mkdir ci/build
-    - touch ci/build/hello
-  artifacts:
-    when: always
-    paths:
-      - ci/llvm-project/
-      - ci/build/
+    - ls ../..
+    - clang++ --version
+    - g++ --version
+    - cmake --version
+    - ninja --version
 
-build:
+
+stage_all:
+  stage: stage_all
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - mkdir /tmp/$CI_PROJECT_PATH
+    - mv -t /tmp/$CI_PROJECT_PATH/ *
+    - ls
+    - mkdir build/ stage/ ci/
+    - mv /tmp/$CI_PROJECT_NAMESPACE ci/
+    - git clone --depth=1 https://github.com/llvm/llvm-project.git llvm-project/
+    - touch build/BUILD_HERE
+    - touch stage/STAGE_HERE
+    - ls
+
+
+
+stage_projects:libcxx:
+  stage: stage_projects
+  script:
+    - mkdir stage/libcxx
+    - cp -R llvm-project/ stage/libcxx/llvm-project
+    - rm -rf stage/libcxx/llvm-project/libcxx
+    - cp -R ci/$CI_PROJECT_NAMESPACE/libcxx stage/libcxx/llvm-project/libcxx
+  dependencies:
+    - stage_all
+  cache:
+    paths:
+      - stage/libcxx/llvm-project
+
+configure:libcxx:
+  stage: configure
+  variables:
+    LLVM_PROJECT: stage/libcxx/llvm-project
+    SOURCE: stage/libcxx/llvm-project/libcxx
+    BUILD: build/libcxx
+  script:
+    - echo "configure"
+    - mkdir $BUILD
+    - cd $BUILD
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" $LLVM_PROJECT/llvm
+  dependencies:
+    - stage_projects
+
+build:libcxx:
   stage: build
+  variables:
+    LLVM_PROJECT: stage/libcxx/llvm-project
+    SOURCE: stage/libcxx/llvm-project/libcxx
+    BUILD: build/libcxx
   script:
     - ls
-    - ls ci/
-    - ls ci/llvm-project
-    - ls ci/build
-    - ls ..
+    - cd $BUILD
+    - ninja cxx
   dependencies:
-    - prepare
+    - configure
 
-test:
+test:libcxx:
   stage: test
+  variables:
+    LLVM_PROJECT: stage/libcxx/llvm-project
+    SOURCE: stage/libcxx/llvm-project/libcxx
+    BUILD: build/libcxx
   script:
-    - echo "test"
+      - ls
+      - cd $BUILD
+      - ninja checx-cxx
   dependencies:
     - build
 
@@ -58,7 +107,3 @@ finish:
   stage: finish
   script:
     - echo "finish"
-  dependencies:
-    - prepare
-    - build
-    - test
