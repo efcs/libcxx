@@ -27,17 +27,23 @@ prepare:
     - cp -R  /tmp/libcxx.orig ci/llvm-project/libcxx
     - mkdir ci/build
     - touch ci/build/hello
+    - mkdir ../test_dir
+    - touch ../test_dir/t1
   artifacts:
     when: always
     paths:
       - ci/llvm-project/
       - ci/build/
+      - ../test_dir/
 
 build:
   stage: build
   script:
     - ls
     - ls ci/
+    - ls ci/llvm-project
+    - ls ci/build
+    - ls ..
   dependencies:
     - prepare
 
