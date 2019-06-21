@@ -38,6 +38,8 @@ stage_all:
   variables:
     GIT_STRATEGY: clone
   script:
+    - env
+    - pwd
     - mkdir -p /tmp/$CI_PROJECT_PATH
     - mv -t /tmp/$CI_PROJECT_PATH/ *
     - ls
@@ -51,6 +53,7 @@ stage_all:
 stage_projects:libcxx:
   stage: stage_projects
   script:
+    - pwd
     - ls
     - mkdir stage/libcxx
     - cp -R llvm-project/ stage/libcxx/llvm-project
@@ -60,7 +63,7 @@ stage_projects:libcxx:
   artifacts:
     when: always
     paths:
-      - stage/libcxx/llvm-project
+      - stage/libcxx/llvm-project/
       - build/libcxx/
 
 configure:libcxx:
