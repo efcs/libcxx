@@ -16,8 +16,8 @@ cache:
   paths:
     - llvm-project/
     - ci/$CI_PROJECT_PATH/
-    - stage/
-    - build/
+    - stage/STAGE_HERE
+    - build/BUILD_HERE
 
 env:
   stage: env
@@ -56,9 +56,12 @@ stage_projects:libcxx:
     - cp -R llvm-project/ stage/libcxx/llvm-project
     - rm -rf stage/libcxx/llvm-project/libcxx
     - cp -R ci/$CI_PROJECT_NAMESPACE/libcxx stage/libcxx/llvm-project/libcxx
-  cache:
+    - mkdir build/libcxx
+  artifacts:
+    when: always
     paths:
       - stage/libcxx/llvm-project
+      - build/libcxx/
 
 configure:libcxx:
   stage: configure
@@ -75,29 +78,27 @@ configure:libcxx:
     when: always
     paths:
       - build/libcxx/
+  dependencies:
+    - stage_projects:libcxx
 
 build:libcxx:
   stage: build
-  variables:
-    LLVM_PROJECT: stage/libcxx/llvm-project
-    SOURCE: stage/libcxx/llvm-project/libcxx
-    BUILD: build/libcxx
   script:
     - ls
-    - cd $BUILD
+    - cd build/libcxx
     - ninja cxx
   dependencies:
     - configure:libcxx
+  artifacts:
+    when: always
+    paths:
+      - build/libcxx/
 
 test:libcxx:
   stage: test
-  variables:
-    LLVM_PROJECT: stage/libcxx/llvm-project
-    SOURCE: stage/libcxx/llvm-project/libcxx
-    BUILD: build/libcxx
   script:
       - ls
-      - cd $BUILD
+      - cd build/libcxx
       - ninja checx-cxx
   dependencies:
     - build:libcxx
