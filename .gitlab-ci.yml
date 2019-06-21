@@ -5,7 +5,7 @@ variables:
   LLVM_DIR: $ROOT_DIR/llvm
   LIBCXXABI_DIR: $ROOT_DIR/libcxxabi
   LIBCXX_SOURCE_ROOT: $CI_BUILDS_DIR/libcxx-root/libcxx
-
+  GIT_STRATEGY: none
 
 stages:
   - prepare
@@ -15,11 +15,14 @@ stages:
 
 prepare:
   stage: prepare
+  variables:
+    GIT_STRATEGY: clone
   script:
-    - ls
-    - pwd
-    - ls ..
     - env
+    - pwd
+    - ls
+    - ls ..
+    - ls ../libcxx.tmp/
     - cp -R $CI_PROJECT_DIR/ /tmp/libcxx.orig
     - mkdir ci/
     - git clone --depth=1 https://github.com/llvm/llvm-project.git ci/llvm-project
@@ -27,14 +30,11 @@ prepare:
     - cp -R  /tmp/libcxx.orig ci/llvm-project/libcxx
     - mkdir ci/build
     - touch ci/build/hello
-    - mkdir ../test_dir
-    - touch ../test_dir/t1
   artifacts:
     when: always
     paths:
       - ci/llvm-project/
       - ci/build/
-      - ../test_dir/
 
 build:
   stage: build
