@@ -19,23 +19,25 @@ prepare:
     - ls
     - pwd
     - ls ..
-    - cd ..
-    - pwd
     - env
+    - cd $LIBCXX_DIR
+    - mkdir /tmp/libcxx-tmp
+    - mv -t /tmp/libcxx-tmp *
+    - mv /tmp/libcxx-tmp/ libcxx/
+    - mkdir build/
+    - touch build/artifact
+  artifacts:
+    when: always
+    paths:
+      - libcxx/
+      - build/
 
 build:
   stage: build
   script:
     - ls
-    - pwd
-    - ls ..
-    - pwd
-    - env
-    - echo "build"
-    - ls
-    - clang++ --version
-    - ninja --version
-    - cmake --version
+    - ls build/
+
   dependencies:
     - prepare
 
