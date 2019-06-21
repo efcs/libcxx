@@ -13,6 +13,7 @@ stages:
   - finish
 
 cache:
+  untracked: true
   paths:
     - llvm-project/
     - ci/$CI_PROJECT_PATH/
