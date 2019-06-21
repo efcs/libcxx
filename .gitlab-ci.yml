@@ -32,6 +32,8 @@ env:
     - g++ --version
     - cmake --version
     - ninja --version
+  cache:
+    key: none
 
 
 stage_all:
