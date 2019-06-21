@@ -20,24 +20,24 @@ prepare:
     - pwd
     - ls ..
     - env
-    - cd $LIBCXX_DIR
-    - mkdir /tmp/libcxx-tmp
-    - mv -t /tmp/libcxx-tmp *
-    - mv /tmp/libcxx-tmp/ libcxx/
-    - mkdir build/
-    - touch build/artifact
+    - cp -R $CI_PROJECT_DIR/ /tmp/libcxx.orig
+    - mkdir ci/
+    - git clone --depth=1 https://git.llvm.org/llvm-project.git ci/llvm-project
+    - rm -rf ci/llvm-project/libcxx/
+    - cp -R  /tmp/libcxx.orig /tmp/llvm-project/libcxx
+    - mkdir ci/build
+    - touch ci/build/hello
   artifacts:
     when: always
     paths:
-      - libcxx/
-      - build/
+      - ci/llvm-project/
+      - ci/build/
 
 build:
   stage: build
   script:
     - ls
-    - ls build/
-
+    - ls ci/
   dependencies:
     - prepare
 
