@@ -74,8 +74,6 @@ configure:libcxx:
     - mkdir $BUILD
     - cd $BUILD
     - cmake -G Ninja -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" $LLVM_PROJECT/llvm
-  dependencies:
-    - stage_projects
 
 build:libcxx:
   stage: build
@@ -88,7 +86,7 @@ build:libcxx:
     - cd $BUILD
     - ninja cxx
   dependencies:
-    - configure
+    - configure:libcxx
 
 test:libcxx:
   stage: test
@@ -101,7 +99,7 @@ test:libcxx:
       - cd $BUILD
       - ninja checx-cxx
   dependencies:
-    - build
+    - build:libcxx
 
 finish:
   stage: finish
