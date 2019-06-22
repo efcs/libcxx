@@ -38,8 +38,8 @@ stage_all:libcxx:
     GIT_STRATEGY: clone
   script:
     - ./utils/gitlab/display_environment.sh
-    - cp ./utils/gitlab/setup_source_tree.sh /tmp/setup_sources.sh
-    - bash /tmp/setup_sources.sh
+    - cp ./utils/gitlab/stage_llvm_sources.sh /tmp/
+    - bash /tmp/stage_llvm_sources.sh
     - echo "Done staging sources"
 
 stage_projects:libcxx:
@@ -60,10 +60,17 @@ build:libcxx:
   variables:
     CC: clang
     CXX: clang++
+    BUILD_TYPE: RELWITHDEBINFO
+    LLVM_LIT_ARGS: -sv --show-xfail --show-unsupported --xunit-xml-output=$BUILD_LIBCXX/test-results.xml"
   script:
     - echo "configure"
     - cd $BUILD
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" $LLVM_PROJECT/llvm
+    - cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+       -DCMAKE_C_COMPILER=$CC \
+       -DCMAKE_CXX_COMPILER=$CXX \
+       "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" \
+       "-DLLVM_LIT_ARGS=$LLVM_LIT_ARGS" \
+       $LLVM_PROJECT/llvm
     - ninja cxx
   dependencies:
     - stage_projects:libcxx
@@ -74,6 +81,13 @@ test:libcxx:
   script:
       - ls
       - cd build/libcxx
-      - ninja checx-cxx
+      - ninja check-cxxabi
+      - ninja check-cxx
+      - ninja check-cxx-benchmarks
+      - ninja check-cxx-abilist
   dependencies:
     - build:libcxx
+  artifacts:
+    when: always
+    reports:
+      junit: $BUILD_LIBCXX/test-results.xml
