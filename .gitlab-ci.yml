@@ -6,7 +6,6 @@ variables:
 stages:
   - stage_all
   - stage_projects
-  - configure
   - build
   - test
 
@@ -55,9 +54,9 @@ stage_projects:libcxx:
     - cp -R ci/$CI_PROJECT_NAMESPACE/libcxx stage/libcxx/llvm-project/libcxx
     - mkdir -p build/libcxx
 
-configure:libcxx:
+build:libcxx:
   extends: .staged-libcxx
-  stage: configure
+  stage: build
   variables:
     CC: clang
     CXX: clang++
@@ -65,18 +64,9 @@ configure:libcxx:
     - echo "configure"
     - cd $BUILD
     - cmake -G Ninja -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" $LLVM_PROJECT/llvm
-  dependencies:
-    - stage_projects:libcxx
-
-build:libcxx:
-  extends: .staged-libcxx
-  stage: build
-  script:
-    - ls
-    - cd build/libcxx
     - ninja cxx
   dependencies:
-    - configure:libcxx
+    - stage_projects:libcxx
 
 test:libcxx:
   extends: .staged-libcxx
