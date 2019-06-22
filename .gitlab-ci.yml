@@ -30,6 +30,7 @@ stage_all:libcxx:
     - ls
     - pwd
     - ls | xargs ls
+    - ls ./utils/gitlab/
     - ./utils/gitlab/display_environment.sh
     - mkdir -p /tmp/$CI_PROJECT_PATH
     - mv -t /tmp/$CI_PROJECT_PATH/ *
