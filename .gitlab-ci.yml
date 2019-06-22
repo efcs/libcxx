@@ -40,7 +40,7 @@ stage_all:libcxx:
   script:
     - ./utils/gitlab/display_environment.sh
     - cp ./utils/gitlab/setup_source_tree.sh /tmp/setup_sources.sh
-    - /tmp/setup_sources.sh
+    - bash /tmp/setup_sources.sh
     - echo "Done staging sources"
 
 stage_projects:libcxx:
