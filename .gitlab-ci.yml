@@ -27,6 +27,9 @@ stage_all:libcxx:
   variables:
     GIT_STRATEGY: clone
   script:
+    - ls
+    - pwd
+    - ls | xargs ls
     - ./utils/gitlab/display_environment.sh
     - mkdir -p /tmp/$CI_PROJECT_PATH
     - mv -t /tmp/$CI_PROJECT_PATH/ *
