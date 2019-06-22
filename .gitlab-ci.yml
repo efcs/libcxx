@@ -4,45 +4,30 @@ variables:
   GIT_STRATEGY: none
 
 stages:
-  - env
   - stage_all
   - stage_projects
   - configure
   - build
   - test
-  - finish
 
-cache:
-  untracked: true
-  paths:
-    - llvm-project/
-    - ci/$CI_PROJECT_PATH/
-    - stage/STAGE_HERE
-    - build/BUILD_HERE
+.build-step:
+  artifacts:
+    when: always
+    paths:
+      - llvm-project/
+      - ci/$CI_PROJECT_PATH/
+      - stage/STAGE_HERE
+      - build/BUILD_HERE
 
-env:libcxx:
-  stage: env
-  script:
-    - env
-    - pwd
-    - ls
-    - ls ..
-    - ls ../..
-    - clang++ --version
-    - g++ --version
-    - cmake --version
-    - ninja --version
-  cache:
-    key: none
 
 
 stage_all:libcxx:
+  extends: .build-step
   stage: stage_all
   variables:
     GIT_STRATEGY: clone
   script:
-    - env
-    - pwd
+    - ./utils/gitlab/display_environment.sh
     - mkdir -p /tmp/$CI_PROJECT_PATH
     - mv -t /tmp/$CI_PROJECT_PATH/ *
     - ls
@@ -54,6 +39,7 @@ stage_all:libcxx:
     - ls
 
 stage_projects:libcxx:
+  extends: .build-step
   stage: stage_projects
   script:
     - pwd
@@ -70,6 +56,7 @@ stage_projects:libcxx:
       - build/libcxx/
 
 configure:libcxx:
+  extends: .build-step
   stage: configure
   variables:
     LLVM_PROJECT: stage/libcxx/llvm-project
@@ -88,6 +75,7 @@ configure:libcxx:
     - stage_projects:libcxx
 
 build:libcxx:
+  extends: .build-step
   stage: build
   script:
     - ls
@@ -101,6 +89,7 @@ build:libcxx:
       - build/libcxx/
 
 test:libcxx:
+  extends: .build-step
   stage: test
   script:
       - ls
@@ -108,8 +97,3 @@ test:libcxx:
       - ninja checx-cxx
   dependencies:
     - build:libcxx
-
-finish:
-  stage: finish
-  script:
-    - echo "finish"
