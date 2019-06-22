@@ -22,7 +22,7 @@ stages:
   extends: .staged-env
   variables:
     PROJECT_NAME: "libcxx"
-    LLVM_PROJECT: $CI_PROJECT_DIR/stage/libcxx/llvm-project
+    LLVM_PROJECT: "$CI_PROJECT_DIR/stage/libcxx/llvm-project"
     SOURCE: $CI_PROJECT_DIR/stage/libcxx/llvm-project/libcxx
     BUILD: $CI_PROJECT_DIR/build/libcxx
   artifacts:
@@ -63,6 +63,7 @@ build:libcxx:
     BUILD_TYPE: RELWITHDEBINFO
     LLVM_LIT_ARGS: -sv --show-xfail --show-unsupported --xunit-xml-output=$BUILD_LIBCXX/test-results.xml"
   script:
+    - env
     - echo "configure"
     - cd $BUILD
     - cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
