@@ -39,7 +39,7 @@ stage_all:libcxx:
   script:
     - ./utils/gitlab/display_environment.sh
     - cp ./utils/gitlab/stage_llvm_sources.sh /tmp/
-    - bash /tmp/stage_llvm_sources.sh
+    - /tmp/stage_llvm_sources.sh
     - echo "Done staging sources"
 
 stage_projects:libcxx:
