@@ -70,7 +70,7 @@ build:libcxx:
        -DCMAKE_CXX_COMPILER=$CXX \
        "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" \
        "-DLLVM_LIT_ARGS=$LLVM_LIT_ARGS" \
-       $LLVM_PROJECT/llvm
+       "$LLVM_PROJECT/llvm"
     - ninja cxx
   dependencies:
     - stage_projects:libcxx
