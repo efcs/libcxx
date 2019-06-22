@@ -41,6 +41,7 @@ stage_all:libcxx:
     - touch build/BUILD_HERE
     - touch stage/STAGE_HERE
     - ls
+    - echo "WHAT"
 
 stage_projects:libcxx:
   extends: .build-step
