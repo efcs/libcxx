@@ -20,7 +20,7 @@ cache:
     - stage/STAGE_HERE
     - build/BUILD_HERE
 
-env:
+env:libcxx:
   stage: env
   script:
     - env
@@ -36,7 +36,7 @@ env:
     key: none
 
 
-stage_all:
+stage_all:libcxx:
   stage: stage_all
   variables:
     GIT_STRATEGY: clone
