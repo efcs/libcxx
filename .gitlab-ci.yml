@@ -23,9 +23,9 @@ stages:
   extends: .staged-env
   variables:
     PROJECT_NAME: "libcxx"
-    LLVM_PROJECT: stage/libcxx/llvm-project
-    SOURCE: stage/libcxx/llvm-project/libcxx
-    BUILD: build/libcxx
+    LLVM_PROJECT: $CI_PROJECT_DIR/stage/libcxx/llvm-project
+    SOURCE: $CI_PROJECT_DIR/stage/libcxx/llvm-project/libcxx
+    BUILD: $CI_PROJECT_DIR/build/libcxx
   artifacts:
     when: always
     paths:
@@ -58,6 +58,9 @@ stage_projects:libcxx:
 configure:libcxx:
   extends: .staged-libcxx
   stage: configure
+  variables:
+    CC: clang
+    CXX: clang++
   script:
     - echo "configure"
     - cd $BUILD

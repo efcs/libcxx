@@ -11,6 +11,5 @@ mv -t /tmp/$CI_PROJECT_PATH/ *
 mkdir build/ stage/ ci/
 mv /tmp/$CI_PROJECT_NAMESPACE ci/
 git clone --depth=1 https://github.com/llvm/llvm-project.git llvm-project/
-touch build/BUILD_HERE
-touch stage/STAGE_HERE
+rm -rf llvm-project/.git/
 popd
