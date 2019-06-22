@@ -15,8 +15,8 @@ stages:
     paths:
       - llvm-project/
       - ci/$CI_PROJECT_PATH/
-      - stage/STAGE_HERE
-      - build/BUILD_HERE
+      - stage/
+      - build/
 
 .staged-libcxx:
   extends: .staged-env
