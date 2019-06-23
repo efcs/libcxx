@@ -504,6 +504,9 @@ using _FirstType _LIBCPP_NODEBUG_TYPE = typename _MetaBase<(sizeof...(_Args) >= 
 template <class ..._Args>
 using _SecondType _LIBCPP_NODEBUG_TYPE = typename _MetaBase<(sizeof...(_Args) >= 2)>::template _SecondImpl<_Args...>;
 
+template <template <class...> class _Func, class ..._Args>
+struct _Lazy : _Func<_Args...> {};
+
 // Member detector base
 
 template <template <class...> class _Templ, class ..._Args>
@@ -532,9 +535,6 @@ template <class _If, class _Then>
 template <bool _Bp, class _If, class _Then> using conditional_t = typename conditional<_Bp, _If, _Then>::type;
 #endif
 
-template <bool, class _Tp> struct _LIBCPP_TEMPLATE_VIS __lazy_enable_if {};
-template <class _Tp> struct _LIBCPP_TEMPLATE_VIS __lazy_enable_if<true, _Tp> {typedef typename _Tp::type type;};
-
 template <bool, class _Tp = void> struct _LIBCPP_TEMPLATE_VIS enable_if {};
 template <class _Tp> struct _LIBCPP_TEMPLATE_VIS enable_if<true, _Tp> {typedef _Tp type;};
 
@@ -562,6 +562,14 @@ using _IsSame = _BoolConstant<
 #endif
 >;
 
+template <class _Tp, class _Up>
+using _IsNotSame = _BoolConstant<
+#ifdef __clang__
+    !__is_same(_Tp, _Up)
+#else
+    !_VSTD::is_same<_Tp, _Up>::value
+#endif
+>;
 // addressof
 #ifndef _LIBCPP_HAS_NO_BUILTIN_ADDRESSOF
 
@@ -636,49 +644,6 @@ struct __two {char __lx[2];};
 // helper class:
 
 #if !defined(_LIBCPP_CXX03_LANG)
-
-// __lazy_and
-
-template <bool _Last, class ..._Preds>
-struct __lazy_and_impl;
-
-template <class ..._Preds>
-struct __lazy_and_impl<false, _Preds...> : false_type {};
-
-template <>
-struct __lazy_and_impl<true> : true_type {};
-
-template <class _Pred>
-struct __lazy_and_impl<true, _Pred> : integral_constant<bool, _Pred::type::value> {};
-
-template <class _Hp, class ..._Tp>
-struct __lazy_and_impl<true, _Hp, _Tp...> : __lazy_and_impl<_Hp::type::value, _Tp...> {};
-
-template <class _P1, class ..._Pr>
-struct __lazy_and : __lazy_and_impl<_P1::type::value, _Pr...> {};
-
-// __lazy_or
-
-template <bool _List, class ..._Preds>
-struct __lazy_or_impl;
-
-template <class ..._Preds>
-struct __lazy_or_impl<true, _Preds...> : true_type {};
-
-template <>
-struct __lazy_or_impl<false> : false_type {};
-
-template <class _Hp, class ..._Tp>
-struct __lazy_or_impl<false, _Hp, _Tp...>
-        : __lazy_or_impl<_Hp::type::value, _Tp...> {};
-
-template <class _P1, class ..._Pr>
-struct __lazy_or : __lazy_or_impl<_P1::type::value, _Pr...> {};
-
-// __lazy_not
-
-template <class _Pred>
-struct __lazy_not : integral_constant<bool, !_Pred::type::value> {};
 
 // __and_
 template<class...> struct __and_;
@@ -2770,10 +2735,10 @@ struct __is_invalid_base_to_derived_cast {
   static_assert(is_reference<_To>::value, "Wrong specialization");
   using _RawFrom = __uncvref_t<_From>;
   using _RawTo = __uncvref_t<_To>;
-  static const bool value = __lazy_and<
-        __lazy_not<is_same<_RawFrom, _RawTo>>,
+  static const bool value = _And<
+        _IsNotSame<_RawFrom, _RawTo>>,
         is_base_of<_RawFrom, _RawTo>,
-        __lazy_not<__libcpp_is_constructible<_RawTo, _From>>
+        _Not<__libcpp_is_constructible<_RawTo, _From>>
   >::value;
 };
 
@@ -2786,10 +2751,10 @@ template <class _ToRef, class _FromRef>
 struct __is_invalid_lvalue_to_rvalue_cast<_ToRef&&, _FromRef&> {
   using _RawFrom = __uncvref_t<_FromRef>;
   using _RawTo = __uncvref_t<_ToRef>;
-  static const bool value = __lazy_and<
-      __lazy_not<is_function<_RawTo>>,
-      __lazy_or<
-        is_same<_RawFrom, _RawTo>,
+  static const bool value = _And<
+      _Not<is_function<_RawTo>>,
+      _Or<
+        _IsSame<_RawFrom, _RawTo>,
         is_base_of<_RawTo, _RawFrom>>
     >::value;
 };
