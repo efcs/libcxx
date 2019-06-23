@@ -316,7 +316,7 @@ namespace __find_detail {
 template <class _Tp, class... _Types>
 inline _LIBCPP_INLINE_VISIBILITY
 constexpr size_t __find_index() {
-  constexpr bool __matches[] = {is_same_v<_Tp, _Types>...};
+  constexpr bool __matches[] = {_IsSame<_Tp, _Types>::value...};
   size_t __result = __not_found;
   for (size_t __i = 0; __i < sizeof...(_Types); ++__i) {
     if (__matches[__i]) {
@@ -1112,7 +1112,7 @@ struct __overload_bool : _Base {
 
   template <class _Up, class _Ap = __uncvref_t<_Up>>
   auto operator()(bool, _Up&&) const
-      -> enable_if_t<is_same_v<_Ap, bool>, __identity<_Tp>>;
+      -> _EnableIf<_IsSame<_Ap, bool>::value, __identity<_Tp>>;
 };
 
 template <class... _Types>
@@ -1160,7 +1160,7 @@ class _LIBCPP_TEMPLATE_VIS variant
 
 public:
   template <bool _Dummy = true,
-            enable_if_t<__dependent_type<is_default_constructible<__first_type>,
+            _EnableIf<__dependent_type<is_default_constructible<__first_type>,
                                          _Dummy>::value,
                         int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
@@ -1172,22 +1172,22 @@ public:
 
   template <
       class _Arg,
-      enable_if_t<!is_same_v<__uncvref_t<_Arg>, variant>, int> = 0,
-      enable_if_t<!__is_inplace_type<__uncvref_t<_Arg>>::value, int> = 0,
-      enable_if_t<!__is_inplace_index<__uncvref_t<_Arg>>::value, int> = 0,
+      _EnableIf<_IsNotSame<__uncvref_t<_Arg>, variant>::value, int> = 0,
+      _EnableIf<!__is_inplace_type<__uncvref_t<_Arg>>::value, int> = 0,
+      _EnableIf<!__is_inplace_index<__uncvref_t<_Arg>>::value, int> = 0,
       class _Tp = __variant_detail::__best_match_t<_Arg, _Types...>,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_constructible_v<_Tp, _Arg>, int> = 0>
+      _EnableIf<is_constructible_v<_Tp, _Arg>, int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   constexpr variant(_Arg&& __arg) noexcept(
       is_nothrow_constructible_v<_Tp, _Arg>)
       : __impl(in_place_index<_Ip>, _VSTD::forward<_Arg>(__arg)) {}
 
   template <size_t _Ip, class... _Args,
-            class = enable_if_t<(_Ip < sizeof...(_Types)), int>,
+            class = _EnableIf<(_Ip < sizeof...(_Types)), int>,
             class _Tp = variant_alternative_t<_Ip, variant<_Types...>>,
-            enable_if_t<is_constructible_v<_Tp, _Args...>, int> = 0>
+            _EnableIf<is_constructible_v<_Tp, _Args...>, int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   explicit constexpr variant(
       in_place_index_t<_Ip>,
@@ -1198,9 +1198,9 @@ public:
       size_t _Ip,
       class _Up,
       class... _Args,
-      enable_if_t<(_Ip < sizeof...(_Types)), int> = 0,
+      _EnableIf<(_Ip < sizeof...(_Types)), int> = 0,
       class _Tp = variant_alternative_t<_Ip, variant<_Types...>>,
-      enable_if_t<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
+      _EnableIf<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
                   int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   explicit constexpr variant(
@@ -1215,7 +1215,7 @@ public:
       class... _Args,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_constructible_v<_Tp, _Args...>, int> = 0>
+      _EnableIf<is_constructible_v<_Tp, _Args...>, int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   explicit constexpr variant(in_place_type_t<_Tp>, _Args&&... __args) noexcept(
       is_nothrow_constructible_v<_Tp, _Args...>)
@@ -1227,7 +1227,7 @@ public:
       class... _Args,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
+      _EnableIf<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
                   int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   explicit constexpr variant(
@@ -1244,11 +1244,11 @@ public:
 
   template <
       class _Arg,
-      enable_if_t<!is_same_v<__uncvref_t<_Arg>, variant>, int> = 0,
+      _EnableIf<_IsNotSame<__uncvref_t<_Arg>, variant>::value, int> = 0,
       class _Tp = __variant_detail::__best_match_t<_Arg, _Types...>,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_assignable_v<_Tp&, _Arg> && is_constructible_v<_Tp, _Arg>,
+      _EnableIf<is_assignable_v<_Tp&, _Arg> && is_constructible_v<_Tp, _Arg>,
                   int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   variant& operator=(_Arg&& __arg) noexcept(
@@ -1261,9 +1261,9 @@ public:
   template <
       size_t _Ip,
       class... _Args,
-      enable_if_t<(_Ip < sizeof...(_Types)), int> = 0,
+      _EnableIf<(_Ip < sizeof...(_Types)), int> = 0,
       class _Tp = variant_alternative_t<_Ip, variant<_Types...>>,
-      enable_if_t<is_constructible_v<_Tp, _Args...>, int> = 0>
+      _EnableIf<is_constructible_v<_Tp, _Args...>, int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   _Tp& emplace(_Args&&... __args) {
     return __impl.template __emplace<_Ip>(_VSTD::forward<_Args>(__args)...);
@@ -1273,9 +1273,9 @@ public:
       size_t _Ip,
       class _Up,
       class... _Args,
-      enable_if_t<(_Ip < sizeof...(_Types)), int> = 0,
+      _EnableIf<(_Ip < sizeof...(_Types)), int> = 0,
       class _Tp = variant_alternative_t<_Ip, variant<_Types...>>,
-      enable_if_t<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
+      _EnableIf<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
                   int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   _Tp& emplace(initializer_list<_Up> __il, _Args&&... __args) {
@@ -1287,7 +1287,7 @@ public:
       class... _Args,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_constructible_v<_Tp, _Args...>, int> = 0>
+      _EnableIf<is_constructible_v<_Tp, _Args...>, int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   _Tp& emplace(_Args&&... __args) {
     return __impl.template __emplace<_Ip>(_VSTD::forward<_Args>(__args)...);
@@ -1299,7 +1299,7 @@ public:
       class... _Args,
       size_t _Ip =
           __find_detail::__find_unambiguous_index_sfinae<_Tp, _Types...>::value,
-      enable_if_t<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
+      _EnableIf<is_constructible_v<_Tp, initializer_list<_Up>&, _Args...>,
                   int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   _Tp& emplace(initializer_list<_Up> __il, _Args&&... __args) {

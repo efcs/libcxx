@@ -1544,7 +1544,7 @@ struct __is_nothrow_convertible_helper: decltype(__is_nothrow_convertible_test<_
 template <typename _Fm, typename _To>
 struct is_nothrow_convertible : _Or<
     _And<is_void<_To>, is_void<_Fm>>,
-    _And<is_convertible<_Fm, _To>, __is_nothrow_convertible_helper<_Fm, _To>>
+    _Lazy<_And, is_convertible<_Fm, _To>, __is_nothrow_convertible_helper<_Fm, _To>>
 >::type { };
 
 template <typename _Fm, typename _To>
@@ -2702,7 +2702,7 @@ struct __is_invalid_base_to_derived_cast {
   using _RawFrom = __uncvref_t<_From>;
   using _RawTo = __uncvref_t<_To>;
   static const bool value = _And<
-        _IsNotSame<_RawFrom, _RawTo>>,
+        _IsNotSame<_RawFrom, _RawTo>,
         is_base_of<_RawFrom, _RawTo>,
         _Not<__libcpp_is_constructible<_RawTo, _From>>
   >::value;
