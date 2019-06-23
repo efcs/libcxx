@@ -23,8 +23,8 @@ stages:
   variables:
     PROJECT_NAME: "libcxx"
     LLVM_PROJECT: "$CI_PROJECT_DIR/stage/libcxx/llvm-project"
-    SOURCE: $CI_PROJECT_DIR/stage/libcxx/llvm-project/libcxx
-    BUILD: $CI_PROJECT_DIR/build/libcxx
+    SOURCE: "$CI_PROJECT_DIR/stage/libcxx/llvm-project/libcxx"
+    BUILD: "$CI_PROJECT_DIR/build/libcxx"
   artifacts:
     when: always
     paths:
