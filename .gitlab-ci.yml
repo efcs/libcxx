@@ -22,9 +22,6 @@ stages:
   extends: .staged-env
   variables:
     PROJECT_NAME: "libcxx"
-    LLVM_PROJECT: "$CI_PROJECT_DIR/stage/libcxx/llvm-project"
-    SOURCE: "$CI_PROJECT_DIR/stage/libcxx/llvm-project/libcxx"
-    BUILD: "$CI_PROJECT_DIR/build/libcxx"
   artifacts:
     when: always
     paths:
@@ -57,21 +54,18 @@ stage_projects:libcxx:
 build:libcxx:
   extends: .staged-libcxx
   stage: build
-  variables:
-    CC: clang
-    CXX: clang++
-    BUILD_TYPE: RELWITHDEBINFO
-    LLVM_LIT_ARGS: -sv --show-xfail --show-unsupported --xunit-xml-output=$BUILD_LIBCXX/test-results.xml"
   script:
     - env
-    - echo "configure"
-    - cd $BUILD
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-       -DCMAKE_C_COMPILER=$CC \
-       -DCMAKE_CXX_COMPILER=$CXX \
-       "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi" \
-       "-DLLVM_LIT_ARGS=$LLVM_LIT_ARGS" \
-       "$LLVM_PROJECT/llvm"
+    - export CC=clang CXX=clang++
+    - export BUILD_TYPE=RELWITHDEBINFO
+    - export LLVM_LIT_ARGS="-sv --show-xfail --show-unsupported --xunit-xml-output=$CI_PROJECT_DIR/build/libcxx/test-results.xml"
+    - cd build/libcxx/
+    - cmake -G Ninja "-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+       -DCMAKE_C_COMPILER=$CC
+       -DCMAKE_CXX_COMPILER=$CXX
+       "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi"
+       "-DLLVM_LIT_ARGS=$LLVM_LIT_ARGS"
+       ../../stage/libcxx/llvm-project/llvm
     - ninja cxx
   dependencies:
     - stage_projects:libcxx
@@ -91,4 +85,4 @@ test:libcxx:
   artifacts:
     when: always
     reports:
-      junit: $BUILD_LIBCXX/test-results.xml
+      junit: build/libcxx/test-results.xml
