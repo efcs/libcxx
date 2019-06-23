@@ -26,7 +26,7 @@ stages:
       - stage/libcxx/llvm-project/
       - build/libcxx/
 
-.stage_all:libcxx:
+stage_all:libcxx:
   extends: .staged-env
   stage: stage_all
   variables:
