@@ -350,7 +350,7 @@ struct __all_default_constructible;
 
 template <class ..._Tp>
 struct __all_default_constructible<__tuple_types<_Tp...>>
-    : _And<is_default_constructible<_Tp>...>
+    : __all<is_default_constructible<_Tp>::value...>
 { };
 
 // __tuple_impl
