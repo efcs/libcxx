@@ -2525,7 +2525,6 @@ public:
     return *this;
   }
 
-
 #if _LIBCPP_STD_VER <= 14 || defined(_LIBCPP_ENABLE_CXX17_REMOVED_AUTO_PTR)
   template <class _Up>
   _LIBCPP_INLINE_VISIBILITY
@@ -2537,6 +2536,12 @@ public:
     return *this;
   }
 #endif
+
+#ifdef _LIBCPP_CXX03_LANG
+  unique_ptr(unique_ptr const&) = delete;
+  unique_ptr& operator=(unique_ptr const&) = delete;
+#endif
+
 
   _LIBCPP_INLINE_VISIBILITY
   ~unique_ptr() { reset(); }
@@ -2755,6 +2760,10 @@ public:
     return *this;
   }
 
+#ifdef _LIBCPP_CXX03_LANG
+  unique_ptr(unique_ptr const&) = delete;
+  unique_ptr& operator=(unique_ptr const&) = delete;
+#endif
 
 public:
   _LIBCPP_INLINE_VISIBILITY
