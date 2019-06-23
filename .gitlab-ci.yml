@@ -4,12 +4,11 @@ variables:
   GIT_STRATEGY: none
 
 stages:
-  - stage_all
-  - stage_projects
+  - stage_project
   - build
   - test
 
-.staged-env:
+.staged-llvm:
   artifacts:
     when: always
     paths:
@@ -19,35 +18,29 @@ stages:
       - build/
 
 .staged-libcxx:
-  extends: .staged-env
+  extends: .staged-llvm
   artifacts:
     when: always
     paths:
       - stage/libcxx/llvm-project/
       - build/libcxx/
 
-stage_all:libcxx:
-  extends: .staged-env
-  stage: stage_all
+stage_project:libcxx:
+  extends: .staged-libcxx
+  stage: stage_project
   variables:
     GIT_STRATEGY: clone
   script:
     - ./utils/gitlab/display_environment.sh
     - cp ./utils/gitlab/stage_llvm_sources.sh /tmp/
     - /tmp/stage_llvm_sources.sh
-    - echo "Done staging sources"
-
-stage_projects:libcxx:
-  extends: .staged-libcxx
-  stage: stage_projects
-  script:
-    - pwd
-    - ls
     - mkdir stage/libcxx
     - cp -R llvm-project/ stage/libcxx/llvm-project
     - rm -rf stage/libcxx/llvm-project/libcxx
     - cp -R ci/$CI_PROJECT_NAMESPACE/libcxx stage/libcxx/llvm-project/libcxx
     - mkdir -p build/libcxx
+
+
 
 build:libcxx:
   extends: .staged-libcxx
@@ -68,7 +61,7 @@ build:libcxx:
        ../../stage/libcxx/llvm-project/llvm
     - ninja cxx
   dependencies:
-    - stage_projects:libcxx
+    - stage_project:libcxx
 
 test:libcxx:
   extends: .staged-libcxx
