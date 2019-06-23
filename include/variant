@@ -470,7 +470,7 @@ private:
   template <class _Fp, class... _Fs>
   static constexpr void __std_visit_visitor_return_type_check() {
     static_assert(
-        __all<is_same_v<_Fp, _Fs>...>::value,
+        _And<_IsSame<_Fp, _Fs>...>::value,
         "`std::visit` requires the visitor to have a single return type.");
   }
 
@@ -516,7 +516,7 @@ private:
   inline _LIBCPP_INLINE_VISIBILITY
   static constexpr auto __make_fdiagonal() {
     constexpr size_t _Np = __uncvref_t<_Vp>::__size();
-    static_assert(__all<(_Np == __uncvref_t<_Vs>::__size())...>::value);
+    static_assert(_And<_BoolConstant<(_Np == __uncvref_t<_Vs>::__size())>...>::value);
     return __make_fdiagonal_impl<_Fp, _Vp, _Vs...>(make_index_sequence<_Np>{});
   }
 
@@ -836,7 +836,7 @@ _LIBCPP_VARIANT_MOVE_CONSTRUCTOR(
 _LIBCPP_VARIANT_MOVE_CONSTRUCTOR(
     _Trait::_Available,
     __move_constructor(__move_constructor&& __that) noexcept(
-        __all<is_nothrow_move_constructible_v<_Types>...>::value)
+        _And<is_nothrow_move_constructible<_Types>...>::value)
         : __move_constructor(__valueless_t{}) {
       this->__generic_construct(*this, _VSTD::move(__that));
     });
@@ -975,8 +975,8 @@ _LIBCPP_VARIANT_MOVE_ASSIGNMENT(
 _LIBCPP_VARIANT_MOVE_ASSIGNMENT(
     _Trait::_Available,
     __move_assignment& operator=(__move_assignment&& __that) noexcept(
-        __all<(is_nothrow_move_constructible_v<_Types> &&
-               is_nothrow_move_assignable_v<_Types>)...>::value) {
+        _And<_BoolConstant<(is_nothrow_move_constructible_v<_Types> &&
+               is_nothrow_move_assignable_v<_Types>)>...>::value) {
       this->__generic_assign(_VSTD::move(__that));
       return *this;
     });
@@ -1137,23 +1137,23 @@ using __best_match_t =
 template <class... _Types>
 class _LIBCPP_TEMPLATE_VIS variant
     : private __sfinae_ctor_base<
-          __all<is_copy_constructible_v<_Types>...>::value,
-          __all<is_move_constructible_v<_Types>...>::value>,
+          _And<is_copy_constructible<_Types>...>::value,
+          _And<is_move_constructible<_Types>...>::value>,
       private __sfinae_assign_base<
-          __all<(is_copy_constructible_v<_Types> &&
-                 is_copy_assignable_v<_Types>)...>::value,
-          __all<(is_move_constructible_v<_Types> &&
-                 is_move_assignable_v<_Types>)...>::value> {
+          _And<is_copy_constructible<_Types>...,
+                 is_copy_assignable<_Types>...>::value,
+          _And<is_move_constructible<_Types>...,
+              is_move_assignable<_Types>...>::value> {
   static_assert(0 < sizeof...(_Types),
                 "variant must consist of at least one alternative.");
 
-  static_assert(__all<!is_array_v<_Types>...>::value,
+  static_assert(!_Or<is_array<_Types>...>::value,
                 "variant can not have an array type as an alternative.");
 
-  static_assert(__all<!is_reference_v<_Types>...>::value,
+  static_assert(!_Or<is_reference<_Types>...>::value,
                 "variant can not have a reference type as an alternative.");
 
-  static_assert(__all<!is_void_v<_Types>...>::value,
+  static_assert(!_Or<is_void<_Types>...>::value,
                 "variant can not have a void type as an alternative.");
 
   using __first_type = variant_alternative_t<0, variant>;
@@ -1316,15 +1316,16 @@ public:
 
   template <
       bool _Dummy = true,
-      enable_if_t<
-          __all<(
-              __dependent_type<is_move_constructible<_Types>, _Dummy>::value &&
-              __dependent_type<is_swappable<_Types>, _Dummy>::value)...>::value,
+      _EnableIf<
+          _And<
+              __dependent_type<is_move_constructible<_Types>, _Dummy>...,
+              __dependent_type<is_swappable<_Types>, _Dummy>...
+          >::value,
           int> = 0>
   inline _LIBCPP_INLINE_VISIBILITY
   void swap(variant& __that) noexcept(
-      __all<(is_nothrow_move_constructible_v<_Types> &&
-             is_nothrow_swappable_v<_Types>)...>::value) {
+      _And<is_nothrow_move_constructible<_Types>...,
+             is_nothrow_swappable<_Types>...>::value) {
     __impl.__swap(__that.__impl);
   }
 
