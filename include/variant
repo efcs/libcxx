@@ -1140,10 +1140,15 @@ class _LIBCPP_TEMPLATE_VIS variant
           _And<is_copy_constructible<_Types>...>::value,
           _And<is_move_constructible<_Types>...>::value>,
       private __sfinae_assign_base<
-          _And<is_copy_constructible<_Types>...,
-                 is_copy_assignable<_Types>...>::value,
-          _And<is_move_constructible<_Types>...,
-              is_move_assignable<_Types>...>::value> {
+          _And< // Nested to avoid -ftemplate-depth issues
+               _And<is_copy_assignable<_Types>...>,
+               _And<is_copy_constructible<_Types>...>
+          >::value,
+          _And<
+              _And<is_move_constructible<_Types>...>,
+              _And<is_move_assignable<_Types>...>
+            >::value
+        > {
   static_assert(0 < sizeof...(_Types),
                 "variant must consist of at least one alternative.");
 
