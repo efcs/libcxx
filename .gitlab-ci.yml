@@ -27,6 +27,7 @@ stages:
 
 stage:libcxx:
   extends: .staged-libcxx
+  stage: stage
   variables:
     GIT_STRATEGY: clone
   script:
@@ -42,6 +43,7 @@ stage:libcxx:
 
 build:libcxx:
   extends: .staged-libcxx
+  stage: build
   variables:
     CC: "clang"
     CXX: "clang++"
