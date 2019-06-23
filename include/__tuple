@@ -383,17 +383,11 @@ struct __make_tuple_types<__tuple_types<_Types...>, _Ep, 0, true> {
   typedef _LIBCPP_NODEBUG_TYPE __tuple_types<_Types...> type;
 };
 
-template <bool ..._Preds>
-struct __all_dummy;
-
-template <bool ..._Pred>
-using __all = is_same<__all_dummy<_Pred...>, __all_dummy<((void)_Pred, true)...>>;
-
 struct __tuple_sfinae_base {
   template <template <class, class...> class _Trait,
             class ..._LArgs, class ..._RArgs>
   static auto __do_test(__tuple_types<_LArgs...>, __tuple_types<_RArgs...>)
-    -> __all<typename enable_if<_Trait<_LArgs, _RArgs>::value, bool>::type{true}...>;
+    -> _And<_Trait<_LArgs, _RArgs>...>;
   template <template <class...> class>
   static auto __do_test(...) -> false_type;
 
