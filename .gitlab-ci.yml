@@ -20,15 +20,13 @@ stages:
 
 .staged-libcxx:
   extends: .staged-env
-  variables:
-    PROJECT_NAME: "libcxx"
   artifacts:
     when: always
     paths:
       - stage/libcxx/llvm-project/
       - build/libcxx/
 
-stage_all:libcxx:
+.stage_all:libcxx:
   extends: .staged-env
   stage: stage_all
   variables:
@@ -54,15 +52,17 @@ stage_projects:libcxx:
 build:libcxx:
   extends: .staged-libcxx
   stage: build
+  variables:
+    CC: "clang"
+    CXX: "clang++"
+    LLVM_LIT_ARGS: "-sv --show-xfail --show-unsupported --xunit-xml-output=$CI_PROJECT_DIR/build/libcxx/test-results.xml"
+    BUILD_TYPE: "RELWITHDEBINFO"
   script:
     - env
-    - export CC=clang CXX=clang++
-    - export BUILD_TYPE=RELWITHDEBINFO
-    - export LLVM_LIT_ARGS="-sv --show-xfail --show-unsupported --xunit-xml-output=$CI_PROJECT_DIR/build/libcxx/test-results.xml"
     - cd build/libcxx/
     - cmake -G Ninja "-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
-       -DCMAKE_C_COMPILER=$CC
-       -DCMAKE_CXX_COMPILER=$CXX
+       "-DCMAKE_C_COMPILER=$CC"
+       "-DCMAKE_CXX_COMPILER=$CXX"
        "-DLLVM_ENABLE_PROJECTS=libcxx;libcxxabi"
        "-DLLVM_LIT_ARGS=$LLVM_LIT_ARGS"
        ../../stage/libcxx/llvm-project/llvm
