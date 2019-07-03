@@ -56,5 +56,5 @@ services:
     build:
       context: .
       dockerfile: debian9/Dockerfile.gitlab_runner_service
-      target: llvm-gitlab-runner-worker
+      target: llvm-gitlab-runner-service
     image: ericwf/llvm-gitlab-runner-service:latest

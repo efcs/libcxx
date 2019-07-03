@@ -1,4 +1,9 @@
 [[runners]]
+  limit = 10
+  executor = "docker+machine"
+  [runners.machine]
+    IdleCount = 2
+    IdleTime = 1800
   [runners.custom_build_dir]
     enabled = true
 
