@@ -13,7 +13,7 @@ RUN apt-get update && \
   && rm -rf /var/lib/apt/lists/*
 
 ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
-ENV GITLAB_SCRIPTS=/gitlab-scripts
+ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
 
 # Install Docker (used by gitlab runner)
@@ -24,7 +24,7 @@ RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-download
   &&  chmod +x /usr/local/bin/gitlab-runner \
   && useradd --comment 'LLVM GitLab Runner' --create-home gitlab-runner --shell /bin/bash
 
-ADD gitlab/config/ $GITLAB_CONFIG_VOLUME/
-ADD scripts/register_and_run_gitlab_runner.sh $GITLAB_SCRIPTS/
+ADD gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
+ADD gitlab/gcloud/scripts $GITLAB_SCRIPTS
 
 ENTRYPOINT $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"

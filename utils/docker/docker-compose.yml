@@ -44,6 +44,9 @@ services:
       dockerfile: debian9/Dockerfile.buildbot
       target: buildbot
     image: ericwf/libcxx-buildbot-base:latest
+  llvm-gitlab-runner-secrets:
+    build:
+      context
   llvm-gitlab-runner-worker:
     build:
       context: .
