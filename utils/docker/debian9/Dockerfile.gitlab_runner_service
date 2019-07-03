@@ -26,4 +26,4 @@ RUN /tmp/install_gitlab_runner.sh && rm /tmp/install_gitlab_runner.sh
 
 ADD scripts/register_and_run_gitlab_runner.sh $GITLAB_TOOLS/
 
-ENTRYPOINT $GITLAB_TOOLS/register_and_run_gitlab_runner.sh
+ENTRYPOINT $GITLAB_TOOLS/register_and_run_gitlab_runner.sh "$@"
