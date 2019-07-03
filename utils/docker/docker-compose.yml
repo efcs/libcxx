@@ -44,21 +44,17 @@ services:
       dockerfile: debian9/Dockerfile.buildbot
       target: buildbot
     image: ericwf/libcxx-buildbot-base:latest
-  llvm-gitlab-runner-service:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.gitlab_runner_service
-      target: llvm-gitlab-runner-worker
-    image: ericwf/llvm-gitlab-runner-service:latest
   llvm-gitlab-runner-worker:
     build:
       context: .
       dockerfile: debian9/Dockerfile.gitlab_runner_worker
       target: llvm-gitlab-runner-worker
     image: ericwf/llvm-gitlab-runner-worker:latest
-  llvm-gitlab-runner:
+  llvm-gitlab-runner-service:
     depends_on:
-      - llvm-gitlab-runner-service
       - llvm-gitlab-runner-worker
     build:
       context: .
+      dockerfile: debian9/Dockerfile.gitlab_runner_service
+      target: llvm-gitlab-runner-worker
+    image: ericwf/llvm-gitlab-runner-service:latest
