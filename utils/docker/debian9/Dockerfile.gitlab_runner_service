@@ -17,14 +17,14 @@ ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
 
 # Install Docker (used by gitlab runner)
-ADD scripts/install_docker.sh /tmp/install_docker.sh
+ADD utils/docker/scripts/install_docker.sh /tmp/install_docker.sh
 RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
 
 RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64 \
   &&  chmod +x /usr/local/bin/gitlab-runner \
   && useradd --comment 'LLVM GitLab Runner' --create-home gitlab-runner --shell /bin/bash
 
-ADD gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
-ADD gitlab/gcloud/scripts $GITLAB_SCRIPTS
+ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
+ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
 
 ENTRYPOINT $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"

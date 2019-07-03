@@ -17,7 +17,7 @@ RUN apt-get update && \
     apt-utils \
   && rm -rf /var/lib/apt/lists/*
 
-ADD scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
+ADD utils/docker/scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
 RUN /tmp/install_clang_packages.sh && rm /tmp/install_clang_packages.sh
 
 RUN git clone https://git.llvm.org/git/libcxx.git /libcxx
