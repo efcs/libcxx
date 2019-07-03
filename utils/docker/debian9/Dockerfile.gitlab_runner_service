@@ -17,6 +17,7 @@ ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
 # Install gsutil
 RUN curl https://sdk.cloud.google.com | bash
+RUN gcloud init
 
 # Install Docker (used by gitlab runner)
 ADD utils/docker/scripts/install_docker.sh /tmp/install_docker.sh
