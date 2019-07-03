@@ -15,6 +15,8 @@ RUN apt-get update && \
 ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
 ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
+# Install gsutil
+RUN curl https://sdk.cloud.google.com | bash
 
 # Install Docker (used by gitlab runner)
 ADD utils/docker/scripts/install_docker.sh /tmp/install_docker.sh
