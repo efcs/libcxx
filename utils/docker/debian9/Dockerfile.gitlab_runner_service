@@ -16,11 +16,13 @@ ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
 ENV GITLAB_TOOLS=/gitlab-tools
 
 # Install Docker (used by gitlab runner)
-RUN scripts/install_docker.sh
+ADD scripts/install_docker.sh /tmp/install_docker.sh
+RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
 
 
 # Install gitlab runner
-RUN scripts/install_gitlab_runner.sh
+ADD scripts/install_gitlab_runner.sh /tmp/install_gitlab_runner.sh
+RUN /tmp/install_gitlab_runner.sh && rm /tmp/install_gitlab_runner.sh
 
 ADD scripts/register_and_run_gitlab_runner.sh $GITLAB_TOOLS/
 
