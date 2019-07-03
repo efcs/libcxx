@@ -13,17 +13,13 @@ RUN apt-get update && \
   && rm -rf /var/lib/apt/lists/*
 
 ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
-ENV GITLAB_TOOLS=/gitlab-tools
+ENV GITLAB_SCRIPTS=/gitlab-tools
+
+ADD scripts/ $GITLAB_SCRIPTS/
 
 # Install Docker (used by gitlab runner)
-ADD scripts/install_docker.sh /tmp/install_docker.sh
-RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
+RUN $GITLAB_SCRIPTS/install_docker.sh
+RUN $GITLAB_SCRIPTS/install_gitlab_runner.sh
 
 
-# Install gitlab runner
-ADD scripts/install_gitlab_runner.sh /tmp/install_gitlab_runner.sh
-RUN /tmp/install_gitlab_runner.sh && rm /tmp/install_gitlab_runner.sh
-
-ADD scripts/register_and_run_gitlab_runner.sh $GITLAB_TOOLS/
-
-ENTRYPOINT $GITLAB_TOOLS/register_and_run_gitlab_runner.sh "$@"
+ENTRYPOINT $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"
