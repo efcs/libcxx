@@ -49,7 +49,7 @@ services:
       context
   llvm-gitlab-runner-worker:
     build:
-      context: ../../
+      context: ../..
       dockerfile: debian9/Dockerfile.gitlab_runner_worker
       target: llvm-gitlab-runner-worker
     image: ericwf/llvm-gitlab-runner-worker:latest
@@ -57,7 +57,7 @@ services:
     depends_on:
       - llvm-gitlab-runner-worker
     build:
-      context: ../../
+      context: ../..
       dockerfile: debian9/Dockerfile.gitlab_runner_service
       target: llvm-gitlab-runner-service
     image: ericwf/llvm-gitlab-runner-service:latest
