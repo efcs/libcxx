@@ -60,3 +60,5 @@ services:
     depends_on:
       - llvm-gitlab-runner-service
       - llvm-gitlab-runner-worker
+    build:
+      context: .
