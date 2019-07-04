@@ -38,7 +38,7 @@ RUN echo "$GITLAB_TOKEN"
 
 
 
-RUN docker run -d  --name gitlab-runner --rm  \
+CMD docker run -d  --name gitlab-runner --rm  \
    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
   gitlab/gitlab-runner \
   register \
