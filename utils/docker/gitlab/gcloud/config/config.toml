@@ -22,8 +22,6 @@ check_interval = 0
     IdleTime = 300
     MachineDriver = "google"
     MachineName = "llvm-gitlab-runner-auto-scaling-%s"
-    OffPeakIdleCount = 0
-    OffPeakIdleTime = 300
     MachineOptions = [
       "google-project=libcxx-buildbots",
       # The machine type to use, for our needs a n1-standard-1 is enough

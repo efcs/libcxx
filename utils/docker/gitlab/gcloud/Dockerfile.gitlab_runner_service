@@ -30,11 +30,16 @@ RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-download
 ADD scripts/install_cloud_sdk.sh /tmp/
 RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
-ADD config/ /etc/gitlab-runner
+ADD config/ /srv/gitlab-runner/config
+
+RUN docker pull gitlab/gitlab-runner:latest
+RUN docker stop gitlab-runner && docker rm gitlab-runner
+
 
 ARG GITLAB_TOKEN
 RUN echo "$GITLAB_TOKEN"
-RUN gitlab-runner register \
+RUN docker run --rm -v /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner \
+  register \
   --non-interactive \
   --registration-token "$GITLAB_TOKEN" \
   --executor "docker+machine" \
