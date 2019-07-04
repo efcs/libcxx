@@ -19,8 +19,8 @@ x-build-gcc: &build-gcc
       - branch
   image: ericwf/${TARGET}
 
-&gcc-tot-config { name: gcc-tot, branch: master }
-&llvm-tot-config { name: llvm-tot, branch: master }
+- &gcc-tot-config { name: gcc-tot, branch: master }
+- &llvm-tot-config { name: llvm-tot, branch: master }
 
 - &gcc-5-config { name: gcc-5, branch: gcc-5_5_0-release }
 - &llvm-4-config { name: llvm-4, branch: release/4.x }
