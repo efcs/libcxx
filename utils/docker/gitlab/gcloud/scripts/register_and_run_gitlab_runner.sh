@@ -14,15 +14,7 @@ fi
 
 export PATH=$PATH:$GITLAB_SCRIPTS/
 
-gcloud config get-value account
-
 sudo service docker start
-
-mkdir /tmp/secrets
-gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
-gcloud_decrypt.sh /tmp/secrets/gitlab-token.encrypted /tmp/secrets/gitlab-token.plaintext
-
-readonly TOKEN=$(cat /tmp/secrets/gitlab-token.plaintext)
 
 docker run  --rm  \
    -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner \
