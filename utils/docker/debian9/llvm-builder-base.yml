@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  llvm-builder-base:
+    build:
+      context: .
+      dockerfile: llvm-builder-base.Dockerfile
+      target: llvm-builder-base
+    image: ericwf/llvm-builder-base:latest
+

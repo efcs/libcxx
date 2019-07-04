@@ -9,7 +9,7 @@
 #===-------------------------------------------------------------------------------------------===//
 #  compiler-zoo
 #===-------------------------------------------------------------------------------------------===//
-FROM  ericwf/libcxx-buildbot-base:latest AS compiler-zoo
+FROM  ericwf/llvm-builder-base:latest AS compiler-zoo
 LABEL maintainer "libc++ Developers"
 
 # Copy over the GCC and Clang installations

@@ -7,12 +7,13 @@
 #===-------------------------------------------------------------------------------------------===//
 
 # Build GCC versions
-FROM ericwf/builder-base:latest
+FROM ericwf/llvm-builder-base:latest
 LABEL maintainer "libc++ Developers"
 
 ARG install_prefix
 ARG branch
-ARG cherry_pick=""
 
-ADD scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
-RUN /tmp/build_gcc_version.sh --install "$install_prefix" --branch "$branch" --cherry-pick "$cherry_pick"
+# Build additional LLVM versions
+
+ADD utils/docker/scripts/build_llvm_version.sh /tmp/build_llvm_version.sh
+RUN /tmp/build_llvm_version.sh --install "$install_prefix" --branch "$branch"
