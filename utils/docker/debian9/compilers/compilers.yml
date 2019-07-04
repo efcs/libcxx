@@ -2,39 +2,41 @@ version: '3.7'
 
 x-build-clang: &build-clang
   build:
-  context: .
-  dockerfile: clang.Dockerfile
-  args:
-    install_prefix: /opt/${name}
-    - branch
-  image: ericwf/${TARGET}
+    context: .
+    dockerfile: clang.Dockerfile
 
 x-build-gcc: &build-gcc
   build:
     context: .
     dockerfile: gcc.Dockerfile
-    args:
-      install_prefix: /opt/${name}
-      - name
-      - branch
-  image: ericwf/${TARGET}
-
-x-gcc-tot-config: &gcc-tot-config { name: gcc-tot, branch: master }
-x-llvm-tot-config: &llvm-tot-config { name: llvm-tot, branch: master }
-x-gcc-5-config: &gcc-5-config { name: gcc-5, branch: gcc-5_5_0-release }
-x-llvm-4-config: &llvm-4-config { name: llvm-4, branch: release/4.x }
 
 services:
   gcc-5:
-      environment: *gcc-5-config
-      <<: *build-gcc
-  llvm-4:
-    environment: *llvm-4-config
-    <<: *build-clang
-  gcc-tot:
-    environment: *gcc-tot-config
     <<: *build-gcc
-  llvm-tot:
-    environment: *llvm-tot-config
+    build:
+      args:
+        branch: gcc-5_5_0-release
+        install_prefix: /opt/gcc-5
+    image: ericwf/gcc-5
+  llvm-4:
     <<: *build-clang
+    build:
+      args:
+        branch: release/4.x
+        install_prefix: /opt/llvm-4
+    image: ericwf/llvm-4
+  gcc-tot:
+    <<: *build-gcc
+    build:
+      args:
+        branch: master
+        install_prefix: /opt/gcc-tot
+    image: ericwf/gcc-tot
+  llvm-tot:
+    <<: *build-clang
+    build:
+      args:
+        branch: master
+        install_prefix: /opt/llvm-tot
+    image: ericwf/llvm-tot
 

@@ -12,9 +12,10 @@ LABEL maintainer "libc++ Developers"
 
 WORKDIR $LIBCXX_ROOT/utils/docker/debian9/compilers
 
-ARG install_prefix
+
 ARG branch
 ARG cherry_pick=""
+ARG install_prefix
 
 ADD scripts/build_gcc_version.sh
 RUN scripts/build_gcc_version.sh \
