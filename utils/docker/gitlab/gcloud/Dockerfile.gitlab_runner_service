@@ -31,6 +31,8 @@ RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 ADD config/ /etc/gitlab-runner
 
+RUN ls /run/secrets
+
 RUN gitlab-runner register \
   --non-interactive \
   --registration-token "zxtgxrWApsiKsdxUgi5i" \
