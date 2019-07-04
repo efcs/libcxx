@@ -13,16 +13,18 @@ if [[ ! -d "$GITLAB_SCRIPTS" ]]; then
 fi
 
 export PATH=$PATH:$GITLAB_SCRIPTS/
+ls /run/secrets/
 
 
-#mkdir /tmp/secrets
-#gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
-#gcloud_decrypt.sh /tmp/secrets/gitlab-token.encrypted /tmp/secrets/gitlab-token.plaintext
+mkdir /tmp/secrets
+gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
+gcloud_decrypt.sh /tmp/secrets/gitlab-token.encrypted /tmp/secrets/gitlab-token.plaintext
 
-readonly TOKEN=$(cat /run/secrets/llvm_gitlab_token)
+readonly TOKEN=$(cat /tmp/secrets/gitlab-token.plaintext)
 
 docker run  --rm  \
    -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner \
+   -v /var/run/docker.sock:/var/run/docker.sock \
    gitlab/gitlab-runner register \
   --non-interactive \
   --executor "docker" \
