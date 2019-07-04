@@ -60,6 +60,6 @@ services:
     secrets:
       - llvm_gitlab_token
     image: ericwf/llvm-gitlab-runner-service:latest
-  secrets:
-    llvm_gitlab_token:
-      external: true
+secrets:
+  llvm_gitlab_token:
+    external: true
