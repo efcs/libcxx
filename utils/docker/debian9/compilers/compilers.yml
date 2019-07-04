@@ -19,11 +19,10 @@ x-build-gcc: &build-gcc
       - branch
   image: ericwf/${TARGET}
 
-- &gcc-tot-config { name: gcc-tot, branch: master }
-- &llvm-tot-config { name: llvm-tot, branch: master }
-
-- &gcc-5-config { name: gcc-5, branch: gcc-5_5_0-release }
-- &llvm-4-config { name: llvm-4, branch: release/4.x }
+x-gcc-tot-config: &gcc-tot-config { name: gcc-tot, branch: master }
+x-llvm-tot-config: &llvm-tot-config { name: llvm-tot, branch: master }
+x-gcc-5-config: &gcc-5-config { name: gcc-5, branch: gcc-5_5_0-release }
+x-llvm-4-config: &llvm-4-config { name: llvm-4, branch: release/4.x }
 
 services:
   gcc-5:
