@@ -47,7 +47,7 @@ RUN docker run -d  --name gitlab-runner --rm  \
   gitlab/gitlab-runner \
   register \
   --non-interactive \
-  --registration-token "$GITLAB_TOKEN" \
+  --registration-token "zxtgxrWApsiKsdxUgi5i" \
   --url "https://gitlab.com/" \
   --description "llvm-docker-runner" \
   --tag-list "docker,google-cloud"
