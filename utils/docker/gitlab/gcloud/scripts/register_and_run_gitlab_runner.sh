@@ -21,12 +21,11 @@ export PATH=$PATH:$GITLAB_SCRIPTS/
 
 readonly TOKEN=$(cat /run/secrets/llvm_gitlab_token)
 
-docker run  -d --restart always \
-   -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner \
+docker run  --rm  \
    -v /var/run/docker.sock:/var/run/docker.sock \
    gitlab/gitlab-runner register \
   --non-interactive \
-  --executor "docker+machine" \
+  --executor "docker" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
   --registration-token "$TOKEN" \
