@@ -29,6 +29,7 @@ RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-download
 ADD utils/docker/gitlab/gcloud/scripts/install_cloud_sdk.sh /tmp/
 RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 RUN gcloud init
+RUN gcloud config get-value account
 
 ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
 ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
