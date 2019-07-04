@@ -10,8 +10,6 @@
 FROM ericwf/llvm-builder-base:latest
 LABEL maintainer "libc++ Developers"
 
-WORKDIR ../compilers/
-
 ARG install_prefix
 ARG branch
 

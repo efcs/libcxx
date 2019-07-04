@@ -10,8 +10,6 @@
 FROM ericwf/llvm-builder-base:latest
 LABEL maintainer "libc++ Developers"
 
-WORKDIR $LIBCXX_ROOT/utils/docker/debian9/compilers
-
 
 ARG branch
 ARG cherry_pick=""
