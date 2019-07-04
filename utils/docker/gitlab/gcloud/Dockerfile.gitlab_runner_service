@@ -31,11 +31,11 @@ RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 ADD config/ /etc/gitlab-runner
 
-RUN ls /run/secrets
+ARG GITLAB_TOKEN
 
 RUN gitlab-runner register \
   --non-interactive \
-  --registration-token "zxtgxrWApsiKsdxUgi5i" \
+  --registration-token "$GITLAB_TOKEN" \
   --executor "docker+machine" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
