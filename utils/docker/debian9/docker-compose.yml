@@ -4,6 +4,7 @@ services:
     args:
       - LIBCXX_ROOT="${PWD}/../../../"
       - DOCKER_ROOT="${PWD}"
+      - PWD
     build:
       context: .
       dockerfile: llvm-builder-base.Dockerfile
