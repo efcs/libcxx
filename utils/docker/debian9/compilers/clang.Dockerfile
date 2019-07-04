@@ -10,7 +10,7 @@
 FROM ericwf/llvm-builder-base:latest
 LABEL maintainer "libc++ Developers"
 
-WORKDIR $LIBCXX_ROOT/utils/debian9/compilers/
+WORKDIR ../compilers/
 
 ARG install_prefix
 ARG branch

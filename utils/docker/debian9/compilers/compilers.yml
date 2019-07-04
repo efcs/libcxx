@@ -5,8 +5,8 @@ x-build-clang: &build-clang
   context: .
   dockerfile: clang.Dockerfile
   args:
-    install_prefix: /opt/${CNAME}
-    -branch
+    install_prefix: /opt/${name}
+    branch:
   image: ericwf/${TARGET}
 
 x-build-gcc: &build-gcc
