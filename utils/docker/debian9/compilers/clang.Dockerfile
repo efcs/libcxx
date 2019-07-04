@@ -15,5 +15,6 @@ WORKDIR ../compilers/
 ARG install_prefix
 ARG branch
 
-ADD scripts/build_llvm_version.sh
-RUN scripts/build_llvm_version.sh --install "$install_prefix" --branch "$branch"
+ADD scripts/build_llvm_version.sh /tmp/
+RUN /tmp/build_llvm_version.sh --install "$install_prefix" --branch "$branch" \
+  && rm /tmp/build_llvm_version.sh
