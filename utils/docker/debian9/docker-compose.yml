@@ -1,12 +1,12 @@
 version: '3.4'
 services:
   llvm-builder-base:
-    args:
-      - LIBCXX_ROOT="${PWD}/../../../"
-      - DOCKER_ROOT="${PWD}"
-      - PWD
     build:
       context: .
       dockerfile: llvm-builder-base.Dockerfile
       target: llvm-builder-base
+      args:
+        - LIBCXX_ROOT="${PWD}/../../../"
+        - DOCKER_ROOT="${PWD}"
+        - PWD
     image: ericwf/llvm-builder-base:latest
