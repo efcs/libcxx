@@ -1,11 +1,11 @@
 version: '3.7'
 
 x-build-clang: &build-clang
-    context: ./compilers/
+    context: .
     dockerfile: clang.Dockerfile
 
 x-build-gcc: &build-gcc
-    context: ./compilers/
+    context: .
     dockerfile: gcc.Dockerfile
 
 services:
@@ -16,8 +16,6 @@ services:
         branch: gcc-4_8_5-release
         install_prefix: /opt/gcc-4.8.5
         cherry_pick: ec1cc0263f156f70693a62cf17b254a0029f4852
-    depends_on:
-      - llvm-builder-base
     image: ericwf/compiler:gcc-4.8.5
   gcc-4.9.4:
     build:
