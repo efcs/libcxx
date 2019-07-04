@@ -6,7 +6,7 @@ x-build-clang: &build-clang
   dockerfile: clang.Dockerfile
   args:
     install_prefix: /opt/${name}
-    branch:
+    - branch
   image: ericwf/${TARGET}
 
 x-build-gcc: &build-gcc
@@ -14,7 +14,7 @@ x-build-gcc: &build-gcc
     context: .
     dockerfile: gcc.Dockerfile
     args:
-      - install_prefix=/opt/${name}
+      install_prefix: /opt/${name}
       - name
       - branch
   image: ericwf/${TARGET}
