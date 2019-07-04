@@ -33,8 +33,8 @@ RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 ADD config/ /srv/gitlab-runner/config
 ADD config/ /etc/gitlab-runner
 
-RUN docker pull gitlab/gitlab-runner:latest
-RUN  dockerd
+RUN sudo docker pull gitlab/gitlab-runner:latest
+
 
 ARG GITLAB_TOKEN
 RUN echo "$GITLAB_TOKEN"
