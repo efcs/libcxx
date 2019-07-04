@@ -1,11 +1,11 @@
 version: '3.7'
 
 x-build-clang: &build-clang
-    context: .
+    context: ./compilers/
     dockerfile: clang.Dockerfile
 
 x-build-gcc: &build-gcc
-    context: .
+    context: ./compilers/
     dockerfile: gcc.Dockerfile
 
 services:
