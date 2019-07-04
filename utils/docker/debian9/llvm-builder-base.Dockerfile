@@ -9,46 +9,7 @@
 FROM launcher.gcr.io/google/debian9:latest AS llvm-builder-base
 LABEL maintainer "libc++ Developers"
 
-ARG LIBCXX_ROOT
-ENV LIBCXX_ROOT ${LIBCXX_ROOT}
-ARG DOCKER_ROOT
-ENV DOCKER_ROOT ${LIBCXX_ROOT}
+
 
 RUN echo "$LIBCXX_ROOT"
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      ca-certificates \
-      gnupg \
-      build-essential \
-      wget \
-      subversion \
-      unzip \
-      automake \
-      python \
-      cmake \
-      ninja-build \
-      curl \
-      git \
-      gcc-multilib \
-      g++-multilib \
-      libc6-dev \
-      bison \
-      flex \
-      libtool \
-      autoconf \
-      binutils-dev \
-      binutils-gold \
-      software-properties-common \
-      gnupg \
-      apt-transport-https \
-      sudo \
-      bash-completion \
-      vim \
-      systemd \
-      sysvinit-utils \
-      systemd-sysv && \
-  update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20 && \
-  update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10 && \
-  rm -rf /var/lib/apt/lists/*
 
