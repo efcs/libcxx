@@ -13,8 +13,8 @@ if [[ ! -d "$GITLAB_SCRIPTS" ]]; then
 fi
 
 export PATH=$PATH:$GITLAB_SCRIPTS/
-ls /run/secrets/
 
+sudo service docker start
 
 mkdir /tmp/secrets
 gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
