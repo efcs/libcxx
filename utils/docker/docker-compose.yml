@@ -57,4 +57,9 @@ services:
       context: ../..
       dockerfile: utils/docker/debian9/Dockerfile.gitlab_runner_service
       target: llvm-gitlab-runner-service
+    secrets:
+      - llvm_gitlab_token
     image: ericwf/llvm-gitlab-runner-service:latest
+  secrets:
+    llvm_gitlab_token:
+      external: true

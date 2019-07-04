@@ -15,11 +15,11 @@ fi
 export PATH=$PATH:$GITLAB_SCRIPTS/
 
 
-mkdir /tmp/secrets
-gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
-gcloud_decrypt.sh /tmp/secrets/gitlab-token.encrypted /tmp/secrets/gitlab-token.plaintext
+#mkdir /tmp/secrets
+#gsutil cp gs://llvm-gitlab-secrets/gitlab-token.encrypted /tmp/secrets/
+#gcloud_decrypt.sh /tmp/secrets/gitlab-token.encrypted /tmp/secrets/gitlab-token.plaintext
 
-readonly TOKEN=$(cat /tmp/secrets/gitlab-token.plaintext)
+readonly TOKEN=$(cat /run/secrets/llvm_gitlab_token)
 
 docker run --rm -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner gitlab/gitlab-runner register \
   --non-interactive \
