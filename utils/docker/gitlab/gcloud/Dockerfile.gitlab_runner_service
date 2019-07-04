@@ -38,12 +38,12 @@ RUN  dockerd
 
 ARG GITLAB_TOKEN
 RUN echo "$GITLAB_TOKEN"
-RUN docker run --rm -v /srv/gitlab-runner/config:/etc/gitlab-runner  -v /var/run/docker.sock:/var/run/docker.sock \
+RUN docker run --rm -v /srv/gitlab-runner/config:/etc/gitlab-runner  \
   gitlab/gitlab-runner \
   register \
   --non-interactive \
   --registration-token "$GITLAB_TOKEN" \
-  --executor "docker+machine" \
+  --executor "docker" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
   --description "llvm-docker-runner" \
