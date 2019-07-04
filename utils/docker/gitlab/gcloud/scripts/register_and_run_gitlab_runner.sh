@@ -22,7 +22,7 @@ export PATH=$PATH:$GITLAB_SCRIPTS/
 readonly TOKEN=$(cat /run/secrets/llvm_gitlab_token)
 
 docker run  --rm  \
-   -v /var/run/docker.sock:/var/run/docker.sock \
+   -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner \
    gitlab/gitlab-runner register \
   --non-interactive \
   --executor "docker" \
