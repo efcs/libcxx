@@ -37,7 +37,6 @@ RUN gitlab-runner register \
   --executor "docker+machine" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
-  --registration-token "$TOKEN" \
   --description "llvm-docker-runner" \
   --tag-list "docker,google-cloud" \
   --run-untagged="true" \
