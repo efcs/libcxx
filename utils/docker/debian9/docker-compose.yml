@@ -5,7 +5,10 @@ services:
       context: .
       dockerfile: llvm-builder-base.Dockerfile
       target: llvm-builder-base
-      environment:
+      args:
         LIBCXX_ROOT: "$$PWD/../../../"
         DOCKER_ROOT: "$$PWD"
+    environment:
+      LIBCXX_ROOT: "$$PWD/../../../"
+      DOCKER_ROOT: "$$PWD"
     image: ericwf/llvm-builder-base:latest
