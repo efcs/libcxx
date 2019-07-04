@@ -30,7 +30,7 @@ ADD utils/docker/gitlab/gcloud/scripts/install_cloud_sdk.sh /tmp/
 RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 # Install gsutil
-RUN curl https://sdk.cloud.google.com | bash
+#RUN curl https://sdk.cloud.google.com | bash
 
 ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
 ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
