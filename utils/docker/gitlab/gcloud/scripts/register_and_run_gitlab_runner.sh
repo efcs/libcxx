@@ -14,6 +14,8 @@ fi
 
 export PATH=$PATH:$GITLAB_SCRIPTS/
 
+gcloud config get-value account
+
 sudo service docker start
 
 mkdir /tmp/secrets
