@@ -46,4 +46,4 @@ RUN gitlab-runner register \
   --access-level="not_protected"
 
 
-CMD $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"
+CMD sudo gitlab-runner restart
