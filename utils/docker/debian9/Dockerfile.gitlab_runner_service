@@ -15,9 +15,6 @@ RUN apt-get update && \
 ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
 ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
-# Install gsutil
-RUN curl https://sdk.cloud.google.com | bash
-RUN gcloud init
 
 # Install Docker (used by gitlab runner)
 ADD utils/docker/scripts/install_docker.sh /tmp/install_docker.sh
@@ -26,6 +23,14 @@ RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
 RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64 \
   &&  chmod +x /usr/local/bin/gitlab-runner \
   && useradd --comment 'LLVM GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+
+
+# Install gcloud SDK
+ADD utils/docker/gitlab/gcloud/scripts/install_cloud_sdk.sh /tmp/
+RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
+
+# Install gsutil
+RUN curl https://sdk.cloud.google.com | bash
 
 ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
 ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
