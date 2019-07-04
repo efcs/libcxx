@@ -2,8 +2,8 @@ version: '3.4'
 services:
   llvm-builder-base:
     environment:
-      LIBCXX_ROOT: "${PWD}/../../../"
-      DOCKER_ROOT: "${PWD}"
+      - LIBCXX_ROOT="${PWD}/../../../"
+      - DOCKER_ROOT="${PWD}"
     build:
       context: .
       dockerfile: llvm-builder-base.Dockerfile
