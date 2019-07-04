@@ -9,6 +9,8 @@
 FROM launcher.gcr.io/google/debian9:latest AS llvm-builder-base
 LABEL maintainer "libc++ Developers"
 
+RUN echo "$LIBCXX_ROOT"
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \

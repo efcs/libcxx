@@ -10,12 +10,14 @@
 FROM ericwf/llvm-builder-base:latest
 LABEL maintainer "libc++ Developers"
 
+WORKDIR $LIBCXX_ROOT/utils/docker/debian9/compilers
+
 ARG install_prefix
 ARG branch
 ARG cherry_pick=""
 
-ADD utils/docker/scripts/build_gcc_version.sh /tmp/build_gcc_version.sh
-RUN /tmp/build_gcc_version.sh \
+ADD scripts/build_gcc_version.sh
+RUN scripts/build_gcc_version.sh \
     --install "$install_prefix" \
     --branch "$branch" \
     --cherry-pick "$cherry_pick"

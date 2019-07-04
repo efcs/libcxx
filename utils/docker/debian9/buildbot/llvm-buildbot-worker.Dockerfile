@@ -4,6 +4,8 @@
 #===-------------------------------------------------------------------------------------------===//
 FROM ericwf/llvm-builder-base:latest AS llvm-buildbot-worker
 
+WORKDIR $LIBCXX_ROOT/utils/docker/debian9/buildbot
+
 # Copy over the GCC and Clang installations
 COPY --from=ericwf/gcc-5:latest /opt/gcc-5 /opt/gcc-5
 COPY --from=ericwf/gcc-tot:latest /opt/gcc-tot /opt/gcc-tot
@@ -18,7 +20,7 @@ RUN apt-get update && \
     buildbot-slave \
   && rm -rf /var/lib/apt/lists/*
 
-ADD scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
-RUN /tmp/install_clang_packages.sh && rm /tmp/install_clang_packages.sh
+ADD scripts/install_clang_packages.sh
+RUN scripts/install_clang_packages.sh
 
 RUN git clone https://git.llvm.org/git/libcxx.git /libcxx
