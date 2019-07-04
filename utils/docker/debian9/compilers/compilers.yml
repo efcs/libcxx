@@ -1,40 +1,38 @@
 version: '3.7'
 
 x-build-clang: &build-clang
-  build:
     context: .
     dockerfile: clang.Dockerfile
 
 x-build-gcc: &build-gcc
-  build:
     context: .
     dockerfile: gcc.Dockerfile
 
 services:
   gcc-5:
-    <<: *build-gcc
     build:
+      <<: *build-gcc
       args:
         branch: gcc-5_5_0-release
         install_prefix: /opt/gcc-5
     image: ericwf/gcc-5
   llvm-4:
-    <<: *build-clang
     build:
+      <<: *build-clang
       args:
         branch: release/4.x
         install_prefix: /opt/llvm-4
     image: ericwf/llvm-4
   gcc-tot:
-    <<: *build-gcc
     build:
+      <<: *build-gcc
       args:
         branch: master
         install_prefix: /opt/gcc-tot
     image: ericwf/gcc-tot
   llvm-tot:
-    <<: *build-clang
     build:
+      <<: *build-clang
       args:
         branch: master
         install_prefix: /opt/llvm-tot
