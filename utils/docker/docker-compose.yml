@@ -1,53 +1,8 @@
 version: '3.4'
 services:
-  builder-base:
+  llvm-builder-base:
     build:
-      context: .
-      dockerfile: debian9/Dockerfile.base
-      target: builder-base
-    image: ericwf/builder-base:latest
-  gcc-tot:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.gcc
-      args:
-        install_prefix: /opt/gcc-tot
-        branch: master
-    image: ericwf/gcc-tot:latest
-  gcc-5:
-      build:
-        context: .
-        dockerfile: debian9/Dockerfile.gcc
-        args:
-          install_prefix: /opt/gcc-5
-          branch: gcc-5_5_0-release
-      image: ericwf/gcc-5:latest
-  llvm-4:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.clang
-      args:
-        install_prefix: /opt/llvm-4.0
-        branch: release/4.x
-    image: ericwf/llvm-4:latest
-  llvm-tot:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.clang
-      args:
-        install_prefix: /opt/llvm-tot
-        branch: master
-    image: ericwf/llvm-tot:latest
-  buildbot:
-    build:
-      context: .
-      dockerfile: debian9/Dockerfile.buildbot
-      target: buildbot
-    image: ericwf/libcxx-buildbot-base:latest
-  llvm-gitlab-runner-worker:
-    build:
-      context: ../..
-      dockerfile: utils/docker/debian9/Dockerfile.gitlab_runner_worker
-      target: llvm-gitlab-runner-worker
-    image: ericwf/llvm-gitlab-runner-worker:latest
-
+      context: debian9/
+      dockerfile: llvm-builder-base.Dockerfile
+      target: llvm-builder-base
+    image: ericwf/llvm-builder-base:latest
