@@ -4,7 +4,7 @@
 #===-------------------------------------------------------------------------------------------===//
 FROM ericwf/llvm-builder-base:latest AS llvm-buildbot-worker
 
-WORKDIR $DOCKER_ROOT/buildbot
+WORKDIR ./buildbot
 
 # Copy over the GCC and Clang installations
 COPY --from=ericwf/gcc-5:latest /opt/gcc-5 /opt/gcc-5
