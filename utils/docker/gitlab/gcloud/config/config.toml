@@ -6,7 +6,6 @@ check_interval = 0
   name = "LLVM Gitlab Runner"
   executor = "docker+machine"
   url = "https://gitlab.com/"
-  token = "aoeu"
   [runners.docker]
     tls_verify = false
     image = "ericwf/llvm-gitlab-runner-worker:latest"

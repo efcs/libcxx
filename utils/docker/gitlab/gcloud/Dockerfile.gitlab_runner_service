@@ -33,6 +33,7 @@ ADD config/ /etc/gitlab-runner
 
 RUN gitlab-runner register \
   --non-interactive \
+  --registration-token "zxtgxrWApsiKsdxUgi5i"
   --executor "docker+machine" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
