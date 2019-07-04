@@ -32,7 +32,7 @@ RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 ADD config/ /etc/gitlab-runner
 
 ARG GITLAB_TOKEN
-
+RUN echo "$GITLAB_TOKEN"
 RUN gitlab-runner register \
   --non-interactive \
   --registration-token "$GITLAB_TOKEN" \
