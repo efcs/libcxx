@@ -7,8 +7,10 @@ services:
       target: llvm-gitlab-runner-service
     secrets:
       - llvm_gitlab_secret
+      - test_secret
     image: ericwf/llvm-gitlab-runner-service:latest
 secrets:
   llvm_gitlab_secret:
     external: true
-
+  test_secret:
+    file: /tmp/gitlab-token.secret
