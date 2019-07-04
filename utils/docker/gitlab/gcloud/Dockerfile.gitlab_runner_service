@@ -34,7 +34,7 @@ ADD config/ /srv/gitlab-runner/config
 
 RUN docker pull gitlab/gitlab-runner:latest
 RUN docker stop gitlab-runner && docker rm gitlab-runner
-
+RUN  dockerd
 
 ARG GITLAB_TOKEN
 RUN echo "$GITLAB_TOKEN"
