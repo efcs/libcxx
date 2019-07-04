@@ -12,5 +12,5 @@ LABEL maintainer "libc++ Developers"
 ARG LIBCXX_ROOT
 ARG DOCKER_ROOT
 
-RUN echo "$LIBCXX_ROOT"
+RUN echo aeu ${LIBCXX_ROOT}
 
