@@ -23,7 +23,7 @@ readonly TOKEN=$(cat /run/secrets/llvm_gitlab_token)
 
 docker run --rm -v $GITLAB_CONFIG_VOLUME:/etc/gitlab-runner gitlab/gitlab-runner register \
   --non-interactive \
-  --executor "docker" \
+  --executor "docker+machine" \
   --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
   --registration-token "$TOKEN" \
