@@ -31,26 +31,23 @@ ADD scripts/install_cloud_sdk.sh /tmp/
 RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 ADD config/ /srv/gitlab-runner/config
+ADD config/ /etc/gitlab-runner
 
 RUN docker pull gitlab/gitlab-runner:latest
-RUN docker stop gitlab-runner && docker rm gitlab-runner
 RUN  dockerd
 
 ARG GITLAB_TOKEN
 RUN echo "$GITLAB_TOKEN"
-RUN docker run --rm -v /srv/gitlab-runner/config:/etc/gitlab-runner  \
+
+
+
+RUN docker run -d  --name gitlab-runner --rm  \
+   -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+   -v /var/run/docker.sock:/var/run/docker.sock \
   gitlab/gitlab-runner \
   register \
   --non-interactive \
   --registration-token "$GITLAB_TOKEN" \
-  --executor "docker" \
-  --docker-image ericwf/llvm-gitlab-runner-worker:latest \
   --url "https://gitlab.com/" \
   --description "llvm-docker-runner" \
-  --tag-list "docker,google-cloud" \
-  --run-untagged="true" \
-  --locked="false" \
-  --access-level="not_protected"
-
-
-CMD sudo gitlab-runner restart
+  --tag-list "docker,google-cloud"
