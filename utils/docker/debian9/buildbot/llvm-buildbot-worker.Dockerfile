@@ -4,9 +4,6 @@
 #===-------------------------------------------------------------------------------------------===//
 FROM ericwf/llvm-builder-base:latest AS llvm-buildbot-worker
 
-ENV LIBCXX_ROOT
-ENV DOCKER_ROOT
-
 WORKDIR $DOCKER_ROOT/buildbot
 
 # Copy over the GCC and Clang installations

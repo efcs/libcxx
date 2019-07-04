@@ -9,6 +9,9 @@
 FROM launcher.gcr.io/google/debian9:latest AS llvm-builder-base
 LABEL maintainer "libc++ Developers"
 
+ENV LIBCXX_ROOT
+ENV DOCKER_ROOT
+
 RUN echo "$LIBCXX_ROOT"
 
 RUN apt-get update && \
