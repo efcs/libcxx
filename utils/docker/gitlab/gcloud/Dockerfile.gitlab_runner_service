@@ -17,7 +17,7 @@ ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 
 
 # Install Docker (used by gitlab runner)
-ADD utils/docker/scripts/install_docker.sh /tmp/install_docker.sh
+ADD scripts/install_docker.sh /tmp/install_docker.sh
 RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
 
 RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64 \
@@ -26,11 +26,22 @@ RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-download
 
 
 # Install gcloud SDK
-ADD utils/docker/gitlab/gcloud/scripts/install_cloud_sdk.sh /tmp/
+ADD scripts/install_cloud_sdk.sh /tmp/
 RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
-RUN gcloud config get-value account
 
-ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
-ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
+ADD config/ /etc/gitlab-runner
+
+RUN gitlab-runner register \
+  --non-interactive \
+  --executor "docker+machine" \
+  --docker-image ericwf/llvm-gitlab-runner-worker:latest \
+  --url "https://gitlab.com/" \
+  --registration-token "$TOKEN" \
+  --description "llvm-docker-runner" \
+  --tag-list "docker,google-cloud" \
+  --run-untagged="true" \
+  --locked="false" \
+  --access-level="not_protected"
+
 
 CMD $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"

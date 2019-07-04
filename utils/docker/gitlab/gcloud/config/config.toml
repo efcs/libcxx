@@ -1,9 +1,45 @@
+concurrent = 10
+check_interval = 0
+
 [[runners]]
   limit = 10
+  name = "LLVM Gitlab Runner"
   executor = "docker+machine"
-  [runners.machine]
-    IdleCount = 2
-    IdleTime = 1800
+  url = "https://gitlab.com/"
+  token = "aoeu"
+  [runners.docker]
+    tls_verify = false
+    image = "ericwf/llvm-gitlab-runner-worker:latest"
+    privileged = false
+    disable_cache = true
+    shm_size = 0
   [runners.custom_build_dir]
     enabled = true
-
+  [runners.machine]
+    # The number of always active machine
+    IdleCount = 0
+    # The number of seconds a machine has to be idle before removal
+    # Google invoices per second after the first minute so it can be something low.
+    IdleTime = 300
+    MachineDriver = "google"
+    MachineName = "llvm-gitlab-runner-auto-scaling-%s"
+    # Our machine needs only to be available during the week.
+    OffPeakPeriods = [
+      "* * 0-7,20-23 * * mon-fri *",
+      "* * * * * sat,sun *"
+    ]
+    OffPeakIdleCount = 0
+    OffPeakIdleTime = 300
+    MachineOptions = [
+      "google-project=libcxx-buildbots",
+      # The machine type to use, for our needs a n1-standard-1 is enough
+      "google-machine-type=n1-standard-1",
+      "google-machine-image=coreos-cloud/global/images/family/coreos-stable",
+      "google-tags=gitlab-ci-slave",
+      # We use Preemptible VM's as we don't need them long and we are cheapo's
+      "google-preemptible=true",
+      # Make sure this is the same zone as your base instance
+      "google-zone=us-east1-b",
+      # Let the machines use internal IPs for communication
+      "google-use-internal-ip=true"
+    ]

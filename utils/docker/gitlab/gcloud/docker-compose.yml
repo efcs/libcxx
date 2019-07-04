@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  llvm-gitlab-runner-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.gitlab_runner_service
+      target: llvm-gitlab-runner-service
+    image: ericwf/llvm-gitlab-runner-service:latest
