@@ -41,6 +41,7 @@ RUN echo "$GITLAB_TOKEN"
 CMD gitlab-runner \
   register \
   --non-interactive \
+  --executor "docker+machine"
   --registration-token "zxtgxrWApsiKsdxUgi5i" \
   --url "https://gitlab.com/" \
   --description "llvm-docker-runner" \
