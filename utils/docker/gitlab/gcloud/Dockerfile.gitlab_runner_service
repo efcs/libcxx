@@ -32,6 +32,7 @@ RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 ADD config/ /srv/gitlab-runner/config
 
+RUN docker start
 RUN docker pull gitlab/gitlab-runner:latest
 RUN docker stop gitlab-runner && docker rm gitlab-runner
 
