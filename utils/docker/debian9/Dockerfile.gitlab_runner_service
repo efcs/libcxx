@@ -33,4 +33,4 @@ RUN gcloud init
 ADD utils/docker/gitlab/gcloud/config $GITLAB_CONFIG_VOLUME
 ADD utils/docker/gitlab/gcloud/scripts $GITLAB_SCRIPTS
 
-ENTRYPOINT $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"
+CMD $GITLAB_SCRIPTS/register_and_run_gitlab_runner.sh "$@"
