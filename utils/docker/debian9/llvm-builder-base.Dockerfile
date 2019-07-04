@@ -9,8 +9,10 @@
 FROM launcher.gcr.io/google/debian9:latest AS llvm-builder-base
 LABEL maintainer "libc++ Developers"
 
-ENV LIBCXX_ROOT
-ENV DOCKER_ROOT
+ARG LIBCXX_ROOT
+ENV LIBCXX_ROOT ${LIBCXX_ROOT}
+ARG DOCKER_ROOT
+ENV DOCKER_ROOT ${LIBCXX_ROOT}
 
 RUN echo "$LIBCXX_ROOT"
 

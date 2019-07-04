@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   llvm-builder-base:
-    environment:
+    args:
       - LIBCXX_ROOT="${PWD}/../../../"
       - DOCKER_ROOT="${PWD}"
     build:
