@@ -4,17 +4,9 @@
 #===-------------------------------------------------------------------------------------------===//
 FROM ericwf/builder-base:latest AS llvm-gitlab-runner-service
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    bash-completion \
-    vim \
-    sudo \
-    apt-utils \
-  && rm -rf /var/lib/apt/lists/*
 
 ENV GITLAB_CONFIG_VOLUME=/srv/llvm-gitlab-runner-config
 ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
-
 
 # Install Docker (used by gitlab runner)
 ADD scripts/install_docker.sh /tmp/install_docker.sh

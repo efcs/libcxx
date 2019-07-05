@@ -130,4 +130,27 @@ services:
         branch: master
         install_prefix: /opt/llvm-tot
     image: ericwf/compiler:llvm-tot
-
+  compiler-zoo:
+    build:
+      context: .
+      dockerfile: compiler-zoo.Dockerfile
+    target: compiler-zoo
+    image: ericwf/compiler-zoo:latest
+    depends_on:
+      - gcc-4.8.5
+      - gcc-4.9.4
+      - gcc-5
+      - gcc-6
+      - gcc-7
+      - gcc-8
+      - gcc-tot
+      - llvm-3.6
+      - llvm-3.7
+      - llvm-3.8
+      - llvm-3.9
+      - llvm-4
+      - llvm-5
+      - llvm-6
+      - llvm-7
+      - llvm-8
+      - llvm-tot
