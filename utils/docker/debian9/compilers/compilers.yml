@@ -134,7 +134,7 @@ services:
     build:
       context: .
       dockerfile: compiler-zoo.Dockerfile
-    target: compiler-zoo
+      target: compiler-zoo
     image: ericwf/compiler-zoo:latest
     depends_on:
       - gcc-4.8.5

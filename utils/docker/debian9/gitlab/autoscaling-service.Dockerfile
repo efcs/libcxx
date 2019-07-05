@@ -12,15 +12,17 @@ ENV GITLAB_SCRIPTS=/llvm-gitlab-scripts
 ADD scripts/install_docker.sh /tmp/install_docker.sh
 RUN /tmp/install_docker.sh && rm /tmp/install_docker.sh
 
+# Install gcloud SDK
+ADD scripts/install_cloud_sdk.sh /tmp/
+RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
+
+
 RUN curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64 \
   &&  chmod +x /usr/local/bin/gitlab-runner \
   && useradd --comment 'LLVM GitLab Runner' --create-home gitlab-runner --shell /bin/bash \
   && sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 
 
-# Install gcloud SDK
-ADD scripts/install_cloud_sdk.sh /tmp/
-RUN /tmp/install_cloud_sdk.sh && rm /tmp/install_cloud_sdk.sh
 
 ADD config/ /srv/gitlab-runner/config
 ADD config/ /etc/gitlab-runner
