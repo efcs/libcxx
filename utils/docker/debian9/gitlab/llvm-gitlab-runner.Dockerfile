@@ -14,7 +14,9 @@ RUN apt-get update && \
     apt-utils \
   && rm -rf /var/lib/apt/lists/*
 
-ADD utils/docker/scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
+ADD ../../scripts/buildbot/scripts/install_clang_packages.sh /tmp/install_clang_packages.sh
 RUN /tmp/install_clang_packages.sh && rm /tmp/install_clang_packages.sh
 
-RUN git clone https://git.llvm.org/git/libcxx.git /libcxx
+RUN useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+USER gitlab-runner
+ADD config/config.toml /
