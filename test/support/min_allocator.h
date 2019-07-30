@@ -81,6 +81,7 @@ public:
 };
 
 struct malloc_allocator_base {
+    static size_t bytes_allocated;
     static size_t alloc_count;
     static size_t dealloc_count;
     static bool disable_default_constructor;
@@ -95,6 +96,7 @@ struct malloc_allocator_base {
         disable_default_constructor = false;
         alloc_count = 0;
         dealloc_count = 0;
+        bytes_allocated = 0;
     }
 };
 
@@ -102,7 +104,7 @@ struct malloc_allocator_base {
 size_t malloc_allocator_base::alloc_count = 0;
 size_t malloc_allocator_base::dealloc_count = 0;
 bool malloc_allocator_base::disable_default_constructor = false;
-
+size_t malloc_allocator_base::bytes_allocated = 0;
 
 template <class T>
 class malloc_allocator : public malloc_allocator_base
@@ -118,12 +120,14 @@ public:
     T* allocate(std::size_t n)
     {
         ++alloc_count;
+        bytes_allocated += n * sizeof(T);
         return static_cast<T*>(std::malloc(n*sizeof(T)));
     }
 
-    void deallocate(T* p, std::size_t)
+    void deallocate(T* p, std::size_t n)
     {
         ++dealloc_count;
+        bytes_allocated -= n * sizeof(T);
         std::free(static_cast<void*>(p));
     }
 
