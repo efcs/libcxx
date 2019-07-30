@@ -1049,7 +1049,7 @@ protected:
 #ifdef _LIBCPP_ABI_DEQUE_FIX_SPARE_BLOCK_CACHING
     using __funcs = __abiv2_funcs;
 #else
-    using __funcs = __abiv1_funcs;
+    using __funcs = __abiv2_funcs;
 #endif
 
     _LIBCPP_INLINE_VISIBILITY

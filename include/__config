@@ -1431,7 +1431,9 @@ _LIBCPP_FUNC_VIS extern "C" void __sanitizer_annotate_contiguous_container(
 
 #define _LIBCPP_UNUSED_VAR(x) ((void)(x))
 
-#define _LIBCPP_TEST_FRIEND template <int, class ..._Args> friend struct __libcpp_test_friend;
+#define _LIBCPP_TEST_FRIEND                                                    \
+  template <int, class... _Args>                                               \
+  friend struct __libcpp_test_friend
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 template <int, class ..._Args> struct __libcpp_test_friend;
