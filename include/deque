@@ -999,59 +999,30 @@ protected:
 
     struct __abiv1_funcs {
       _LIBCPP_INLINE_VISIBILITY
-      static size_type __recommend_blocks(size_type __n) {
-        return __n / __block_size + (__n % __block_size != 0);
-      }
-
-      _LIBCPP_INLINE_VISIBILITY
       static size_type __capacity(__deque_base const& __db) {
         return __db.__map_.size() == 0
                    ? 0
                    : __db.__map_.size() * __db.__block_size - 1;
       }
-      _LIBCPP_INLINE_VISIBILITY
-      static size_type __front_spare(__deque_base const& __db) {
-        return __db.__start_;
-      }
-
       _LIBCPP_INLINE_VISIBILITY
       static size_type __back_spare(__deque_base const& __db) {
         return __capacity(__db) - (__db.__start_ + __db.__size());
       }
 
-      _LIBCPP_INLINE_VISIBILITY
-      static bool __maybe_remove_front_spare(__deque_base& __db,
-                                             bool __keep_one_spare) {
-        if (__db.__start_ >= 2 * __block_size ||
-            (!__keep_one_spare && __db.__start_ >= __block_size)) {
-          __alloc_traits::deallocate(__db.__alloc(), __db.__map_.front(),
-                                     __block_size);
-          __db.__map_.pop_front();
-          __db.__start_ -= __block_size;
-          return true;
-        }
-        return false;
+      static bool __should_remove_front_spare(const __deque_base& __db,
+                                              bool __keep_one_spare) {
+        return __db.__start_ >= 2 * __block_size ||
+               (!__keep_one_spare && __db.__start_ >= __block_size);
       }
-      _LIBCPP_INLINE_VISIBILITY
-      static bool __maybe_remove_back_spare(__deque_base& __db,
-                                            bool __keep_one_spare) {
-        if (__back_spare(__db) >= 2 * __block_size ||
-            (!__keep_one_spare && __back_spare(__db) >= __block_size)) {
-          __alloc_traits::deallocate(__db.__alloc(), __db.__map_.back(),
-                                     __block_size);
-          __db.__map_.pop_back();
-          return true;
-        }
-        return false;
+
+      static bool __should_remove_back_spare(const __deque_base& __db,
+                                             bool __keep_one_spare) {
+        return __back_spare(__db) >= 2 * __block_size ||
+               (!__keep_one_spare && __back_spare(__db) >= __block_size);
       }
     };
 
     struct __abiv2_funcs {
-      _LIBCPP_INLINE_VISIBILITY
-      static size_type __recommend_blocks(size_type __n) {
-        return __n / __block_size + (__n % __block_size != 0);
-      }
-
       _LIBCPP_INLINE_VISIBILITY
       static size_type __capacity(__deque_base const& __db) {
         return __db.__map_.size() == 0
@@ -1059,38 +1030,61 @@ protected:
                    : __db.__map_.size() * __db.__block_size - 1;
       }
       _LIBCPP_INLINE_VISIBILITY
-      static size_type __front_spare(__deque_base const& __db) {
-        return __db.__start_;
+      static size_type __back_spare(__deque_base const& __db) {
+        return __capacity(__db) - (__db.__start_ + __db.__size());
+      }
+      static bool __should_remove_front_spare(const __deque_base& __db,
+                                              bool __keep_one_spare) {
+        return __db.__start_ > __block_size ||
+               (!__keep_one_spare && __db.__start_ >= __block_size);
       }
 
-      _LIBCPP_INLINE_VISIBILITY
-      static size_type __back_spare(__deque_base const& __db) {
-        return __capacity() - (__db.__start_ + __db.__size());
+      static bool __should_remove_back_spare(const __deque_base& __db,
+                                             bool __keep_one_spare) {
+        return __back_spare(__db) > __block_size ||
+               (!__keep_one_spare && __back_spare(__db) >= __block_size);
       }
     };
 
+#ifdef _LIBCPP_ABI_DEQUE_FIX_SPARE_BLOCK_CACHING
+    using __funcs = __abiv2_funcs;
+#else
     using __funcs = __abiv1_funcs;
+#endif
 
     _LIBCPP_INLINE_VISIBILITY
     static size_type __recommend_blocks(size_type __n) {
-      return __funcs::__recommend_blocks(__n);
+      return __n / __block_size + (__n % __block_size != 0);
     }
 
     _LIBCPP_INLINE_VISIBILITY
     size_type __capacity() const { return __funcs::__capacity(*this); }
 
     _LIBCPP_INLINE_VISIBILITY
-    size_type __front_spare() const { return __funcs::__front_spare(*this); }
+    size_type __front_spare() const { return __start_; }
 
     _LIBCPP_INLINE_VISIBILITY
     size_type __back_spare() const { return __funcs::__back_spare(*this); }
+
     _LIBCPP_INLINE_VISIBILITY bool
     __maybe_remove_front_spare(bool __keep_one_spare = true) {
-      return __funcs::__maybe_remove_front_spare(*this, __keep_one_spare);
+      if (__funcs::__should_remove_front_spare(*this, __keep_one_spare)) {
+        __alloc_traits::deallocate(__alloc(), __map_.front(), __block_size);
+        __map_.pop_front();
+        __start_ -= __block_size;
+        return true;
+      }
+      return false;
     }
+
     _LIBCPP_INLINE_VISIBILITY bool
     __maybe_remove_back_spare(bool __keep_one_spare = true) {
-      return __funcs::__maybe_remove_back_spare(*this, __keep_one_spare);
+      if (__funcs::__should_remove_back_spare(*this, __keep_one_spare)) {
+        __alloc_traits::deallocate(__alloc(), __map_.back(), __block_size);
+        __map_.pop_back();
+        return true;
+      }
+      return false;
     }
 
     bool __invariants() const;
