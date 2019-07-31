@@ -16,12 +16,10 @@ struct std::__libcpp_test_friend<0> {
                       << " : __front_spare() == " << d.__front_spare()
                       << " : __back_spare() == " << d.__back_spare()
                       << " : __capacity() == " << d.__capacity()
-                      << " : bytes alloced == " << malloc_allocator_base::bytes_allocated
-                      << " : cap + size == " << d.__capacity() - d.size() - d.__front_spare() - d.__back_spare() << '\n';
+                      << " : bytes allocated == " << malloc_allocator_base::bytes_allocated << '\n';
   }
 
   static void test_basic();
-  static void test_cap();
 };
 
 void Friend::test_basic() {
@@ -45,14 +43,7 @@ void Friend::test_basic() {
         }
     }
 }
-void Friend::test_cap() {
-   std::deque<char, malloc_allocator<char> > d;
-  d.resize(4096, 'a');
-  print(d);
-
-}
 
 int main() {
   Friend::test_basic();
-  Friend::test_cap();
 }
