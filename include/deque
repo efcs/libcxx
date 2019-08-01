@@ -1438,9 +1438,34 @@ public:
     }
 
  private:
+   _LIBCPP_INLINE_VISIBILITY
+   bool __back_block_almost_empty() const _NOEXCEPT {
+     return ((__back_spare() + 1) % __base::__block_size) == 0;
+   }
+
+   _LIBCPP_INLINE_VISIBILITY
+   bool __should_remove_front_block(bool __keep_one) const _NOEXCEPT {
+     const size_type __fb = __front_spare_blocks();
+     if (__fb == 0)
+       return false;
+     if (__fb > 1 || !__keep_one)
+       return true;
+     return __back_spare_blocks() || __back_block_almost_empty();
+   }
+
+   _LIBCPP_INLINE_VISIBILITY
+   bool __should_remove_back_block(bool __keep_one) const _NOEXCEPT {
+     const size_type __bb = __back_spare_blocks();
+     if (__bb == 0)
+       return false;
+     if (__bb > 1 || !__keep_one)
+       return true;
+     return __front_spare_blocks() || __back_block_almost_empty();
+   }
+
     _LIBCPP_INLINE_VISIBILITY
     bool __maybe_remove_front_spare(bool __keep_one = true) {
-      if (__front_spare_blocks() >= 2 || (!__keep_one && __front_spare_blocks())) {
+      if (__should_remove_front_block(__keep_one)) {
         __alloc_traits::deallocate(__base::__alloc(), __base::__map_.front(),
                                    __base::__block_size);
         __base::__map_.pop_front();
@@ -1452,7 +1477,7 @@ public:
 
     _LIBCPP_INLINE_VISIBILITY
     bool __maybe_remove_back_spare(bool __keep_one = true) {
-      if (__back_spare_blocks() >= 2 || (!__keep_one && __back_spare_blocks())) {
+      if (__should_remove_back_block(__keep_one)) {
         __alloc_traits::deallocate(__base::__alloc(), __base::__map_.back(),
                                    __base::__block_size);
         __base::__map_.pop_back();

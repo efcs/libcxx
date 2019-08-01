@@ -254,11 +254,18 @@ TEST_CASE(std_queue) {
     TEST_REQUIRE(d.__front_spare_blocks() + d.__back_spare_blocks() <= 2);
   }
 
-  // The empty state has two blocks
+  // The empty state has one block
   {
-    TEST_REQUIRE(d.__front_spare() == 16);
+    TEST_REQUIRE(d.__front_spare() == 0);
     TEST_REQUIRE(d.__back_spare() == 15);
-    TEST_REQUIRE(d.__capacity() == 31);
+    TEST_REQUIRE(d.__capacity() == 15);
+  }
+
+  q.push({});
+  {
+    TEST_REQUIRE(d.__front_spare() == 0);
+    TEST_REQUIRE(d.__back_spare() == 14);
+    TEST_REQUIRE(d.__capacity() == 15);
   }
 }
 
@@ -274,7 +281,7 @@ TEST_CASE(pop_front_push_back) {
       take_from_front = true;
     }
     if (d.size() % 1000 == 0 || d.size() < 50) {
-      print(d);
+      //print(d);
     }
   }
 }
