@@ -1014,14 +1014,14 @@ protected:
     struct __abiv2_funcs {
       static bool __should_remove_front_spare(const __deque_base& __db,
                                               bool __keep_one_spare) {
-        return __db.__start_ > __block_size ||
-               (!__keep_one_spare && __db.__start_ >= __block_size);
+        const size_type __ns = __db.__num_front_spare();
+        return __ns > 1 || (!__keep_one_spare && __ns == 1);
       }
 
       static bool __should_remove_back_spare(const __deque_base& __db,
                                              bool __keep_one_spare) {
-        return __db.__back_spare() > __block_size ||
-               (!__keep_one_spare && __db.__back_spare() >= __block_size);
+        const size_type __ns = __db.__num_back_spare();
+        return __ns > 1 || (!__keep_one_spare && __ns == 1);
       }
     };
 
@@ -1043,6 +1043,10 @@ protected:
 
     _LIBCPP_INLINE_VISIBILITY
     size_type __front_spare() const { return __start_; }
+    _LIBCPP_INLINE_VISIBILITY
+    size_type __num_front_spare() const { return __front_spare() / __block_size; }
+    _LIBCPP_INLINE_VISIBILITY
+    size_type __num_back_spare() const { return __back_spare() / __block_size; }
 
     _LIBCPP_INLINE_VISIBILITY
     size_type __back_spare() const {
