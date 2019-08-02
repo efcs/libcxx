@@ -281,7 +281,7 @@ TEST_CASE(pop_front_push_back) {
       take_from_front = true;
     }
     if (d.size() % 1000 == 0 || d.size() < 50) {
-      //print(d);
+      print(d);
     }
   }
 }
