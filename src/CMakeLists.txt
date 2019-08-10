@@ -45,6 +45,7 @@ set(LIBCXX_SOURCES
   support/runtime/stdexcept_default.ipp
   support/runtime/stdexcept_vcruntime.ipp
   system_error.cpp
+  system_error_legacy_definitions.cpp
   thread.cpp
   typeinfo.cpp
   utility.cpp

@@ -27,6 +27,16 @@
 
 #include "test_macros.h"
 
+struct A {
+  const std::error_category* ec;
+  ~A() {
+    std::string str = ec->name();
+    assert(str == "generic") ;
+  }
+} a;
+
+
+
 void test_message_for_bad_value() {
     errno = E2BIG; // something that message will never generate
     const std::error_category& e_cat1 = std::generic_category();
@@ -43,6 +53,9 @@ int main(int, char**)
     {
         test_message_for_bad_value();
     }
+     a.ec = &std::generic_category();
+    std::string m2 = a.ec->name();
+    assert(m2 == "generic");
 
   return 0;
 }

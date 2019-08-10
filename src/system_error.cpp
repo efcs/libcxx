@@ -27,12 +27,6 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 // class error_category
 
-#if defined(_LIBCPP_DEPRECATED_ABI_LEGACY_LIBRARY_DEFINITIONS_FOR_INLINE_FUNCTIONS)
-error_category::error_category() _NOEXCEPT
-{
-}
-#endif
-
 error_category::~error_category() _NOEXCEPT
 {
 }
@@ -164,6 +158,7 @@ __generic_error_category::message(int ev) const
 const error_category&
 generic_category() _NOEXCEPT
 {
+    _LIBCPP_SAFE_STATIC _LIBCPP_NO_DESTROY
     static __generic_error_category s;
     return s;
 }
@@ -206,7 +201,8 @@ __system_error_category::default_error_condition(int ev) const _NOEXCEPT
 const error_category&
 system_category() _NOEXCEPT
 {
-    static __system_error_category s;
+    _LIBCPP_SAFE_STATIC _LIBCPP_NO_DESTROY
+    static __system_error_category s{};
     return s;
 }
 

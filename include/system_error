@@ -198,13 +198,14 @@ class _LIBCPP_TYPE_VIS error_category
 public:
     virtual ~error_category() _NOEXCEPT;
 
-#if defined(_LIBCPP_BUILDING_LIBRARY) && \
-    defined(_LIBCPP_DEPRECATED_ABI_LEGACY_LIBRARY_DEFINITIONS_FOR_INLINE_FUNCTIONS)
-    error_category() _NOEXCEPT;
-#else
     _LIBCPP_INLINE_VISIBILITY
-    _LIBCPP_CONSTEXPR_AFTER_CXX11 error_category() _NOEXCEPT _LIBCPP_DEFAULT
+#ifdef _LIBCPP_BUILDING_LIBRARY
+    constexpr
+#else
+    _LIBCPP_CONSTEXPR_AFTER_CXX11
 #endif
+    error_category() _NOEXCEPT = default;
+
 private:
     error_category(const error_category&);// = delete;
     error_category& operator=(const error_category&);// = delete;
