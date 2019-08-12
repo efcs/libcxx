@@ -972,11 +972,9 @@ public:
       explicit operator bool() const _NOEXCEPT {
         return __pos_ != __end_;
       }
-
       __deque_range begin() const {
         return *this;
       }
-
       __deque_range end() const {
         return __deque_range(__end_, __end_);
       }
@@ -997,7 +995,6 @@ public:
         return *this;
       }
 
-
       friend bool operator==(__deque_range const& __lhs, __deque_range const& __rhs) {
         return __lhs.__pos_ == __rhs.__pos_;
       }
@@ -1005,8 +1002,6 @@ public:
         return !(__lhs == __rhs);
       }
     };
-
-
 
     struct _ConstructTransaction {
       _ConstructTransaction(__deque_base* __db, __deque_block_range& __r)
@@ -1509,19 +1504,45 @@ public:
       return __back_spare() / __base::__block_size;
     }
 
+    float __utilization() const {
+      return  (size()  / static_cast<float>(__capacity())) * 100;
+    }
+
  private:
+  size_type __back_spare_in_last_block() const _NOEXCEPT {
+    return __back_spare() % __base::__block_size;
+  }
+  size_type __front_spare_in_last_block() const _NOEXCEPT {
+    return __front_spare() % __base::__block_size;
+  }
+
+  enum { __threshold = std::max<int>(
+      static_cast<int>(static_cast<float>(__base::__block_size) / 10),
+    1) };
+
    _LIBCPP_INLINE_VISIBILITY
    bool __back_block_almost_empty() const _NOEXCEPT {
      return ((__back_spare() + 1) % __base::__block_size) == 0;
    }
 
    _LIBCPP_INLINE_VISIBILITY
+   bool __front_meets_threshold() const {
+     return false; // __front_spare_in_last_block() > __threshold;
+  }
+   _LIBCPP_INLINE_VISIBILITY
+   bool __back_meets_threshold() const { return __back_spare_in_last_block() > __threshold; }
+
+
+   _LIBCPP_INLINE_VISIBILITY
    bool __should_remove_front_block(bool __keep_one) const _NOEXCEPT {
-     const size_type __fb = __front_spare_blocks();
-     if (__fb == 0)
+     const size_type __full_blocks = __front_spare_blocks();
+     const size_type __partial_blocks = __front_spare() % __base::__block_size;
+     if (__full_blocks == 0)
        return false;
-     if (__fb > 1 || !__keep_one)
+     if (__full_blocks > 1 || !__keep_one)
        return true;
+     if (__front_meets_threshold() && __back_meets_threshold())
+        return true;
      return __back_spare_blocks() || __back_block_almost_empty();
    }
 
@@ -1532,6 +1553,8 @@ public:
        return false;
      if (__bb > 1 || !__keep_one)
        return true;
+      if (__front_meets_threshold() && __back_meets_threshold())
+        return true;
      return __front_spare_blocks() || __back_block_almost_empty();
    }
 
@@ -1556,6 +1579,13 @@ public:
         return true;
       }
       return false;
+    }
+
+    _LIBCPP_INLINE_VISIBILITY
+    bool __maybe_remove_spares(bool __keep_one = true) {
+      bool __removed = __maybe_remove_front_spare();
+      __removed |= __maybe_remove_back_spare();
+      return __removed;
     }
 
     template <class _InpIter>
@@ -1862,8 +1892,7 @@ deque<_Tp, _Allocator>::shrink_to_fit() _NOEXCEPT
     }
     else
     {
-      __maybe_remove_front_spare(/*__keep_one=*/false);
-      __maybe_remove_back_spare(/*__keep_one=*/false);
+      __maybe_remove_spares(/*__keep_one=*/false);
     }
     __base::__map_.shrink_to_fit();
 }
@@ -2736,7 +2765,7 @@ deque<_Tp, _Allocator>::pop_front()
                                                     __base::__start_ % __base::__block_size));
     --__base::size();
     ++__base::__start_;
-    __maybe_remove_front_spare();
+    __maybe_remove_spares();
 }
 
 template <class _Tp, class _Allocator>
@@ -2750,7 +2779,7 @@ deque<_Tp, _Allocator>::pop_back()
                                                     __p / __base::__block_size) +
                                                     __p % __base::__block_size));
     --__base::size();
-    __maybe_remove_back_spare();
+    __maybe_remove_spares();
 }
 
 // move assign [__f, __l) to [__r, __r + (__l-__f)).
@@ -2899,14 +2928,14 @@ deque<_Tp, _Allocator>::erase(const_iterator __f)
         __alloc_traits::destroy(__a, _VSTD::addressof(*__b));
         --__base::size();
         ++__base::__start_;
-        __maybe_remove_front_spare();
+        __maybe_remove_spares();
     }
     else
     {   // erase from back
         iterator __i = _VSTD::move(_VSTD::next(__p), __base::end(), __p);
         __alloc_traits::destroy(__a, _VSTD::addressof(*__i));
         --__base::size();
-        __maybe_remove_back_spare();
+        __maybe_remove_spares();
     }
     return __base::begin() + __pos;
 }
@@ -2929,7 +2958,7 @@ deque<_Tp, _Allocator>::erase(const_iterator __f, const_iterator __l)
                 __alloc_traits::destroy(__a, _VSTD::addressof(*__b));
             __base::size() -= __n;
             __base::__start_ += __n;
-            while (__maybe_remove_front_spare()) {
+            while (__maybe_remove_spares()) {
             }
         }
         else
@@ -2938,7 +2967,7 @@ deque<_Tp, _Allocator>::erase(const_iterator __f, const_iterator __l)
             for (iterator __e = __base::end(); __i != __e; ++__i)
                 __alloc_traits::destroy(__a, _VSTD::addressof(*__i));
             __base::size() -= __n;
-            while (__maybe_remove_back_spare()) {
+            while (__maybe_remove_spares()) {
             }
         }
     }
@@ -2959,7 +2988,7 @@ deque<_Tp, _Allocator>::__erase_to_end(const_iterator __f)
         for (iterator __p = __b + __pos; __p != __e; ++__p)
             __alloc_traits::destroy(__a, _VSTD::addressof(*__p));
         __base::size() -= __n;
-        while (__maybe_remove_back_spare()) {
+        while (__maybe_remove_spares()) {
         }
     }
 }

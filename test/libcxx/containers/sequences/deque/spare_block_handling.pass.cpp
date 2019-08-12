@@ -31,11 +31,13 @@ struct ContainerAdaptor : public Adaptor {
 
 template <class Deque>
 static void print(const Deque& d) {
+
+  std::cout.precision(4);
   std::cout << d.size()
             << " : __front_spare() == " << d.__front_spare()
             << " : __back_spare() == " << d.__back_spare()
             << " : __capacity() == " << d.__capacity()
-            << " : __unused == " << (d.__capacity() - d.size())
+            << " : __utilization() == " << (d.__utilization()) << "%"
             << " : bytes allocated == "
             << malloc_allocator_base::outstanding_bytes << '\n';
 }
@@ -270,8 +272,13 @@ TEST_CASE(std_queue) {
   }
 }
 
+struct Large {
+
+  char buff[512] = {};
+};
+
 TEST_CASE(pop_front_push_back) {
-  Deque<char> d(32 * 1024, 'a');
+  Deque<Large> d(32 * 1024, Large{});
   bool take_from_front = true;
   while (d.size() > 0) {
     if (take_from_front) {
@@ -281,7 +288,10 @@ TEST_CASE(pop_front_push_back) {
       d.pop_back();
       take_from_front = true;
     }
-    if (d.size() % 1000 == 0 || d.size() < 50) {
+    if (d.size() % 713 == 0 || d.size() < 50 || d.__utilization() < 40.0) {
+      if (d.__utilization() < 10.0 && d.size() > 4096) {
+        std::cout << "UTILIZATION WARNING!!\n";
+      }
       print(d);
     }
   }
