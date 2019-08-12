@@ -274,11 +274,12 @@ TEST_CASE(std_queue) {
 
 struct Large {
 
-  char buff[512] = {};
+  char buff[64] = {};
 };
 
 TEST_CASE(pop_front_push_back) {
-  Deque<Large> d(32 * 1024, Large{});
+  using T = Large;
+  Deque<T> d(32 * 1024, T{});
   bool take_from_front = true;
   while (d.size() > 0) {
     if (take_from_front) {
@@ -288,10 +289,8 @@ TEST_CASE(pop_front_push_back) {
       d.pop_back();
       take_from_front = true;
     }
-    if (d.size() % 713 == 0 || d.size() < 50 || d.__utilization() < 40.0) {
-      if (d.__utilization() < 10.0 && d.size() > 4096) {
-        std::cout << "UTILIZATION WARNING!!\n";
-      }
+    if (d.size() % 100 == 0 || d.size() < 5 || (d.__utilization() < 25.0 && d.size() > 100)) {
+
       print(d);
     }
   }
