@@ -35,6 +35,7 @@ static void print(const Deque& d) {
             << " : __front_spare() == " << d.__front_spare()
             << " : __back_spare() == " << d.__back_spare()
             << " : __capacity() == " << d.__capacity()
+            << " : __unused == " << (d.__capacity() - d.size())
             << " : bytes allocated == "
             << malloc_allocator_base::outstanding_bytes << '\n';
 }
