@@ -26,6 +26,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <random>
 #include <regex>
 #include <cassert>
 
@@ -209,9 +210,10 @@ int partition(const uint8_t *data, size_t size)
 int partition_copy(const uint8_t *data, size_t size)
 {
     Vec v1, v2;
-    auto iter = std::partition_copy(data, data + size,
+    volatile auto iter = std::partition_copy(data, data + size,
         std::back_inserter<Vec>(v1), std::back_inserter<Vec>(v2),
         is_even<uint8_t>());
+  ((void)iter);
 
 //  The two vectors should add up to the original size
     if (v1.size() + v2.size() != size) return 1;
@@ -612,6 +614,29 @@ static void set_helper (const uint8_t *data, size_t size, Vec &v1, Vec &v2)
 
     std::sort(v1.begin(), v1.end());
     std::sort(v2.begin(), v2.end());
+}
+
+int random_poisson_distribution(const uint8_t *data, size_t size) {
+  using Dist = std::poisson_distribution<int>;
+  using ParamT = Dist::param_type;
+  if (size < sizeof(ParamT))
+    return 0;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+
+  Dist dist;
+
+  const int num_inputs = size / sizeof(ParamT);
+  const uint8_t* E = data + (num_inputs * sizeof(ParamT));
+  const uint8_t *B = data;
+  for (; B != E; B += sizeof(ParamT)) {
+    ParamT P;
+    memcpy(&P, B, sizeof(ParamT));
+    volatile auto DNO = dist(gen, P);
+    ((void)DNO);
+  }
+
+  return 0;
 }
 
 } // namespace fuzzing

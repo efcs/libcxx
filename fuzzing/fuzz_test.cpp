@@ -124,7 +124,8 @@ const std::map<std::string, FuzzProc> procs = {
     {"regex_awk",           fuzzing::regex_awk},
     {"regex_grep",          fuzzing::regex_grep},
     {"regex_egrep",         fuzzing::regex_egrep},
-    {"search",              fuzzing::search}
+    {"search",              fuzzing::search},
+    {"random_poisson_distribution", fuzzing::random_poisson_distribution}
 };
 
 

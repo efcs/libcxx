@@ -56,6 +56,9 @@ namespace fuzzing {
 // 	int set_symmetric_difference (const uint8_t *data, size_t size);
 // 	int merge                    (const uint8_t *data, size_t size);
 
+// Random numbers
+  int random_poisson_distribution(const uint8_t *data, size_t size);
+
 } // namespace fuzzing
 
 #endif // _LIBCPP_FUZZING
