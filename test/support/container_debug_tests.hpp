@@ -59,7 +59,11 @@ enum ContainerType {
   CT_UnorderedMap,
   CT_UnorderedSet,
   CT_UnorderedMultiMap,
-  CT_UnorderedMultiSet
+  CT_UnorderedMultiSet,
+  CT_GnuHashMap,
+  CT_GnuHashSet,
+  CT_GnuHashMultiMap,
+  CT_GnuHashMultiSet,
 };
 
 constexpr bool isSequential(ContainerType CT) {
@@ -71,28 +75,41 @@ constexpr bool isAssociative(ContainerType CT) {
 }
 
 constexpr bool isUnordered(ContainerType CT) {
-  return CT_UnorderedMap >= CT && CT_UnorderedMultiSet <= CT;
+  return CT_UnorderedMap >= CT && CT_GnuHashSet <= CT;
 }
 
 constexpr bool isSet(ContainerType CT) {
   return CT == CT_Set
       || CT == CT_MultiSet
       || CT == CT_UnorderedSet
-      || CT == CT_UnorderedMultiSet;
+      || CT == CT_UnorderedMultiSet
+      || CT == CT_GnuHashSet
+      || CT == CT_GnuHashMultiSet;
 }
 
 constexpr bool isMap(ContainerType CT) {
   return CT == CT_Map
       || CT == CT_MultiMap
       || CT == CT_UnorderedMap
-      || CT == CT_UnorderedMultiMap;
+      || CT == CT_UnorderedMultiMap
+      || CT == CT_GnuHashMap
+      || CT == CT_GnuHashMultiMap;
 }
 
 constexpr bool isMulti(ContainerType CT) {
   return CT == CT_MultiMap
       || CT == CT_MultiSet
       || CT == CT_UnorderedMultiMap
-      || CT == CT_UnorderedMultiSet;
+      || CT == CT_UnorderedMultiSet
+      || CT == CT_GnuHashMultiMap
+      || CT == CT_GnuHashMultiSet;
+}
+
+constexpr bool isGnu(ContainerType CT) {
+  return CT == CT_GnuHashSet
+      || CT == CT_GnuHashMap
+      || CT == CT_GnuHashMultiSet
+      || CT == CT_GnuHashMultiMap;
 }
 
 template <class Container, class ValueType = typename Container::value_type>
@@ -173,8 +190,16 @@ struct BasicContainerChecks {
     }
   }
 
+  static Container makeContainerImpl(allocator_type A) {
+    if constexpr (isGnu(CT)) {
+      return Container(5, typename Container::hasher{}, typename Container::key_equal{}, A);
+    } else {
+      return Container(A);
+    }
+  }
+
   static Container makeContainer(int size, allocator_type A = allocator_type()) {
-    Container C(A);
+    Container C = makeContainerImpl(A);
     if constexpr (CT == CT_ForwardList) {
       for (int i = 0; i < size; ++i)
         C.insert_after(C.before_begin(), Helper::makeValueType(i));
@@ -239,8 +264,14 @@ struct BasicContainerChecks {
   static void DerefEndIterator() {
     CHECKPOINT("testing deref end iterator");
     Container C = makeContainer(1);
+    const Container &CC = C;
     iterator i = C.begin();
-    const_iterator ci = C.cbegin();
+    const_iterator ci;
+    if constexpr (isGnu(CT)) {
+      ci = CC.begin();
+    } else {
+      ci = C.cbegin();
+    }
     (void)*i; (void)*ci;
     if constexpr (CT != CT_VectorBool) {
       i.operator->();
@@ -279,6 +310,9 @@ struct BasicContainerChecks {
 
   static void MoveInvalidatesIterators() {
     CHECKPOINT("copy move invalidates iterators");
+    if (isGnu(CT)) {
+      return; // GNU containers don't have move constructors
+    }
     Container C1 = makeContainer(3);
     iterator i = C1.begin();
     Container C2 = std::move(C1);
