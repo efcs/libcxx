@@ -15,10 +15,14 @@
 // UNSUPPORTED: with_system_cxx_lib
 
 // test container debugging
-
+#if defined(__DEPRECATED)
+#undef __DEPRECATED
+#endif
 #define _LIBCPP_DEBUG 1
 #include <unordered_map>
 #include <unordered_set>
+#include <ext/hash_map>
+#include <ext/hash_set>
 #include <utility>
 #include <cassert>
 #include "container_debug_tests.h"
@@ -62,6 +66,12 @@ int main(int, char**)
     UnorderedContainerChecks<
         std::unordered_multiset<int, std::hash<int>, std::equal_to<int>, SetAlloc>,
         CT_UnorderedMultiSet>::run();
+    UnorderedContainerChecks<
+        __gnu_cxx::hash_multiset<int, std::hash<int>, std::equal_to<int>, SetAlloc>,
+        CT_GnuHashMultiSet>::run();
+    UnorderedContainerChecks<
+        __gnu_cxx::hash_multimap<int, int, std::hash<int>, std::equal_to<int>, MapAlloc>,
+        CT_GnuHashMultiMap>::run();
   }
 
   return 0;

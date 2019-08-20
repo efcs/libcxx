@@ -25,6 +25,7 @@
 #   include <cstdlib>
 #   include <cstdio>
 #   include <cstddef>
+#   include <cstring>
 #endif
 
 #if _LIBCPP_DEBUG_LEVEL >= 1 && !defined(_LIBCPP_ASSERT)
@@ -37,6 +38,8 @@
 #define _LIBCPP_DEBUG_ASSERT(x, m) _LIBCPP_ASSERT(x, m)
 #endif
 #define _LIBCPP_DEBUG_MODE(...) __VA_ARGS__
+#define _LIBCPP_DEBUG_PARAM(...) , __VA_ARGS__
+#define _LIBCPP_DEBUG_ITERATOR
 #endif
 
 #ifndef _LIBCPP_ASSERT
@@ -47,6 +50,9 @@
 #endif
 #ifndef _LIBCPP_DEBUG_MODE
 #define _LIBCPP_DEBUG_MODE(...) ((void)0)
+#endif
+#ifndef _LIBCPP_DEBUG_PARAM
+#define _LIBCPP_DEBUG_PARAM(...)
 #endif
 
 _LIBCPP_BEGIN_NAMESPACE_STD
@@ -231,6 +237,12 @@ public:
 
     template <class _Cont>
     _LIBCPP_INLINE_VISIBILITY
+    void __insert_c_helper(void *__c) {
+        return __insert_c(__c, &__create_C_node<_Cont>);
+    }
+
+    template <class _Cont>
+    _LIBCPP_INLINE_VISIBILITY
     void __insert_c(_Cont* __c)
     {
         __insert_c(static_cast<void*>(__c), &__create_C_node<_Cont>);
@@ -272,6 +284,104 @@ _LIBCPP_FUNC_VIS const __libcpp_db* __get_const_db();
 
 
 #endif // _LIBCPP_DEBUG_LEVEL >= 2 || defined(_LIBCPP_BUILDING_LIBRARY)
+
+
+template <class _Cont>
+struct __container_debug_base {
+ protected:
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  __container_debug_base() noexcept {
+    _VSTD::__get_db()->__insert_c_helper<_Cont>(this);
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  ~__container_debug_base() {
+    _VSTD::__get_db()->__erase_c(this);
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  bool __is_valid_iterator(void* __p) _NOEXCEPT {
+    return std::__get_const_db()->__find_c_from_i(__p) == this;
+  }
+
+
+  typedef void* (_NodeToPointerFn)(void*);
+
+  template <class _Iter, class _CallBack>
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  void __remove_iterator(_Iter __it, _CallBack __convert) _NOEXCEPT {
+      __c_node* __c = __get_db()->__find_c_and_lock(this);
+      for (__i_node** __p = __c->end_; __p != __c->beg_; )
+      {
+          --__p;
+          if (__convert((*__p)->__i_) == __it)
+          {
+              (*__p)->__c_ = nullptr;
+              if (--__c->end_ != __p)
+                  memmove(__p, __p+1, (__c->end_ - __p)*sizeof(__i_node*));
+          }
+      }
+      __get_db()->unlock();
+  }
+
+#else
+  bool __is_valid_iterator(void* __p) _NOEXCEPT = delete;
+#endif
+
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  void __swap_c(void* __other)  _NOEXCEPT {
+      _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->swap(this, __other));
+      ((void)__other);
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  void __invalidate_all_iterators() _NOEXCEPT {
+      _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->__invalidate_all(this));
+  }
+
+
+};
+
+struct __iterator_debug_base {
+ protected:
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  __iterator_debug_base() noexcept {
+     _VSTD::__get_db()->__insert_i(this);
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  explicit __iterator_debug_base(const void *__c) noexcept {
+     _VSTD::__get_db()->__insert_ic(this, __c);
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  __iterator_debug_base(__iterator_debug_base const& __other) noexcept {
+    _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->__iterator_copy(this, &__other));
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  __iterator_debug_base& operator=(__iterator_debug_base const& __other) noexcept {
+    _LIBCPP_DEBUG_MODE(if (this != &__other) {
+        _VSTD::__get_db()->__iterator_copy(this, &__other);
+    });
+    return *this;
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  ~__iterator_debug_base() {
+    _VSTD::__get_db()->__erase_i(this);
+  }
+#endif
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  void __check_dereferenceable() const _NOEXCEPT {
+      _LIBCPP_DEBUG_ASSERT(std::__get_const_db()->__dereferenceable(this),
+                           "Attempted to dereference a non-dereferenceable container iterator");
+  }
+};
 
 _LIBCPP_END_NAMESPACE_STD
 
