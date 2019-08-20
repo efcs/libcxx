@@ -1519,8 +1519,7 @@ public:
   struct _AggressiveReleasingPolicy {
     bool __remove_front(bool __keep_one) const _NOEXCEPT {
       const size_type __full_blocks = __d.__front_spare_blocks();
-      const size_type __partial_blocks =
-          __d.__front_spare() % __base::__block_size;
+
       if (__full_blocks == 0)
         return false;
       if (__full_blocks > 1 || !__keep_one)
@@ -1543,16 +1542,17 @@ public:
     _AggressiveReleasingPolicy(_AggressiveReleasingPolicy const&) = delete;
 
   private:
-    static const size_type __threshold = std::max<int>(
+    static  size_type __threshold() _NOEXCEPT {
+      return std::max<int>(
         static_cast<int>(static_cast<float>(__base::__block_size) / 10), 1);
-
+    }
     _LIBCPP_INLINE_VISIBILITY
     bool __front_meets_threshold() const {
-      return __d.__front_spare_in_last_block() > __threshold;
+      return __d.__front_spare_in_last_block() > __threshold();
     }
     _LIBCPP_INLINE_VISIBILITY
     bool __back_meets_threshold() const {
-      return __d.__back_spare_in_last_block() > __threshold;
+      return __d.__back_spare_in_last_block() > __threshold();
     }
 
     _LIBCPP_INLINE_VISIBILITY

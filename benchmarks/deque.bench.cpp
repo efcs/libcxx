@@ -42,6 +42,21 @@ BENCHMARK_CAPTURE(BM_ConstructIterIter,
   getRandomStringInputs)->Arg(TestNumInputs);
 
 
-
+template <class GenInputs>
+void BM_PushFrontPopBack(benchmark::State& st, GenInputs gen) {
+    auto in = gen(st.range(0));
+    using ValueT = typename decltype(in)::value_type;
+    using Deque = std::deque<ValueT>;
+    auto elem = in[0];
+    benchmark::DoNotOptimize(&elem);
+    Deque d(in.begin(), in.end());
+    benchmark::DoNotOptimize(&d);
+    for (auto _ : st) {
+      d.pop_back();
+      d.push_front(elem);
+    }
+    benchmark::ClobberMemory();
+}
+BENCHMARK_CAPTURE(BM_PushFrontPopBack, deque_push_front_pop_back, getRandomIntegerInputs<int>)->Arg(TestNumInputs);
 
 BENCHMARK_MAIN();
