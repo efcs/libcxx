@@ -1431,7 +1431,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__deallocate_node(__next_pointer __np)
     while (__np != nullptr)
     {
         __next_pointer __next = __np->__next_;
-        _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterator(__np, &__iter_to_node_ptr<iterator>));
+        _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterators_at_position(__np, &__iter_to_node_ptr<iterator>));
         __node_pointer __real_np = __np->__upcast();
         __node_traits::destroy(__na, _NodeTypes::__get_ptr(__real_np->__value_));
         __node_traits::deallocate(__na, __real_np, 1);
@@ -2467,7 +2467,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::remove(const_iterator __p) _NOEXCEPT
     __pn->__next_ = __cn->__next_;
     __cn->__next_ = nullptr;
     --size();
-    _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterator(__cn, &__iter_to_node_ptr<iterator>));
+    _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterators_at_position(__cn, &__iter_to_node_ptr<iterator>));
     return __node_holder(__cn->__upcast(), _Dp(__node_alloc(), true));
 }
 

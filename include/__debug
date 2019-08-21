@@ -310,7 +310,7 @@ protected:
 
   template <class _Iter, class _CallBack>
   _LIBCPP_INLINE_VISIBILITY
-  void __remove_iterator(_Iter __it, _CallBack __convert) _NOEXCEPT {
+  void __remove_iterators_at_position(_Iter __it, _CallBack __convert) _NOEXCEPT {
 #if _LIBCPP_DEBUG_LEVEL >= 2
       __c_node* __c = __get_db()->__find_c_and_lock(this);
       for (__i_node** __p = __c->end_; __p != __c->beg_; )
@@ -321,6 +321,7 @@ protected:
               (*__p)->__c_ = nullptr;
               if (--__c->end_ != __p)
                   memmove(__p, __p+1, (__c->end_ - __p)*sizeof(__i_node*));
+
           }
       }
       __get_db()->unlock();
