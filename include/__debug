@@ -40,6 +40,7 @@
 #define _LIBCPP_DEBUG_MODE(...) __VA_ARGS__
 #define _LIBCPP_DEBUG_PARAM(...) , __VA_ARGS__
 #define _LIBCPP_DEBUG_ITERATOR
+#define _LIBCPP_DEBUG_FORCE_INLINE
 #endif
 
 #ifndef _LIBCPP_ASSERT
@@ -53,6 +54,9 @@
 #endif
 #ifndef _LIBCPP_DEBUG_PARAM
 #define _LIBCPP_DEBUG_PARAM(...)
+#endif
+#ifndef _LIBCPP_DEBUG_FORCE_INLINE
+#define _LIBCPP_DEBUG_FORCE_INLINE _LIBCPP_ALWAYS_INLINE
 #endif
 
 _LIBCPP_BEGIN_NAMESPACE_STD
@@ -89,9 +93,10 @@ void __libcpp_abort_debug_function(__libcpp_debug_info const&);
 _LIBCPP_FUNC_VIS
 bool __libcpp_set_debug_function(__libcpp_debug_function_type __func);
 
-#if _LIBCPP_DEBUG_LEVEL >= 2 || defined(_LIBCPP_BUILDING_LIBRARY)
-
 struct _LIBCPP_TYPE_VIS __c_node;
+struct _LIBCPP_TYPE_VIS __i_node;
+
+#if _LIBCPP_DEBUG_LEVEL >= 2 || defined(_LIBCPP_BUILDING_LIBRARY)
 
 struct _LIBCPP_TYPE_VIS __i_node
 {
@@ -99,15 +104,9 @@ struct _LIBCPP_TYPE_VIS __i_node
     __i_node* __next_;
     __c_node* __c_;
 
-#ifndef _LIBCPP_CXX03_LANG
     __i_node(const __i_node&) = delete;
     __i_node& operator=(const __i_node&) = delete;
-#else
-private:
-    __i_node(const __i_node&);
-    __i_node& operator=(const __i_node&);
-public:
-#endif
+
     _LIBCPP_INLINE_VISIBILITY
     __i_node(void* __i, __i_node* __next, __c_node* __c)
         : __i_(__i), __next_(__next), __c_(__c) {}
@@ -122,15 +121,9 @@ struct _LIBCPP_TYPE_VIS __c_node
     __i_node** end_;
     __i_node** cap_;
 
-#ifndef _LIBCPP_CXX03_LANG
     __c_node(const __c_node&) = delete;
     __c_node& operator=(const __c_node&) = delete;
-#else
-private:
-    __c_node(const __c_node&);
-    __c_node& operator=(const __c_node&);
-public:
-#endif
+
     _LIBCPP_INLINE_VISIBILITY
     __c_node(void* __c, __c_node* __next)
         : __c_(__c), __next_(__next), beg_(nullptr), end_(nullptr), cap_(nullptr) {}
@@ -209,15 +202,9 @@ class _LIBCPP_TYPE_VIS __libcpp_db
 
     __libcpp_db();
 public:
-#ifndef _LIBCPP_CXX03_LANG
     __libcpp_db(const __libcpp_db&) = delete;
     __libcpp_db& operator=(const __libcpp_db&) = delete;
-#else
-private:
-    __libcpp_db(const __libcpp_db&);
-    __libcpp_db& operator=(const __libcpp_db&);
-public:
-#endif
+
     ~__libcpp_db();
 
     class __db_c_iterator;
@@ -288,29 +275,43 @@ _LIBCPP_FUNC_VIS const __libcpp_db* __get_const_db();
 
 template <class _Cont>
 struct __container_debug_base {
- protected:
-#if _LIBCPP_DEBUG_LEVEL >= 2
+protected:
   _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  __container_debug_base() noexcept {
+  __container_debug_base() _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
     _VSTD::__get_db()->__insert_c_helper<_Cont>(this);
   }
+#else
+  = default;
+#endif
 
   _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  ~__container_debug_base() {
+  ~__container_debug_base()
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
     _VSTD::__get_db()->__erase_c(this);
   }
+#else
+  = default;
+#endif
 
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  bool __is_valid_iterator(void* __p) _NOEXCEPT {
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  bool __is_valid_iterator(void* __p) _NOEXCEPT
+  {
+#if _LIBCPP_DEBUG_LEVEL >= 2
     return std::__get_const_db()->__find_c_from_i(__p) == this;
+#else
+    ((void)__p);
+    return true;
+#endif
   }
 
 
-  typedef void* (_NodeToPointerFn)(void*);
-
   template <class _Iter, class _CallBack>
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  _LIBCPP_INLINE_VISIBILITY
   void __remove_iterator(_Iter __it, _CallBack __convert) _NOEXCEPT {
+#if _LIBCPP_DEBUG_LEVEL >= 2
       __c_node* __c = __get_db()->__find_c_and_lock(this);
       for (__i_node** __p = __c->end_; __p != __c->beg_; )
       {
@@ -323,60 +324,99 @@ struct __container_debug_base {
           }
       }
       __get_db()->unlock();
-  }
-
 #else
-  bool __is_valid_iterator(void* __p) _NOEXCEPT = delete;
+    ((void)__it);
+    ((void)__convert);
 #endif
-
-
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  void __swap_c(void* __other)  _NOEXCEPT {
-      _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->swap(this, __other));
-      ((void)__other);
   }
 
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  void __invalidate_all_iterators() _NOEXCEPT {
+  template <class _Iter, class _CallBack>
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  void __remove_iterators_past(_Iter __new_last, _CallBack __convert) _NOEXCEPT {
+#if _LIBCPP_DEBUG_LEVEL >= 2
+      __c_node* __c = __get_db()->__find_c_and_lock(this);
+      for (__i_node** __p = __c->end_; __p != __c->beg_; )
+      {
+          --__p;
+          if (__convert((*__p)->__i_) > __new_last)
+          {
+              (*__p)->__c_ = nullptr;
+              if (--__c->end_ != __p)
+                  memmove(__p, __p+1, (__c->end_ - __p)*sizeof(__i_node*));
+          }
+      }
+      __get_db()->unlock();
+#else
+    ((void)__new_last);
+    ((void)__convert);
+#endif
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  void __swap_container(void* __other)  _NOEXCEPT {
+      _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->swap(this, __other));
+    ((void)__other);
+  }
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  void __invalidate_all_iterators() _NOEXCEPT
+  {
       _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->__invalidate_all(this));
   }
-
-
 };
 
 struct __iterator_debug_base {
- protected:
-#if _LIBCPP_DEBUG_LEVEL >= 2
+protected:
   _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  __iterator_debug_base() noexcept {
+  __iterator_debug_base() _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
      _VSTD::__get_db()->__insert_i(this);
   }
+#else
+  = default;
+#endif
 
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  explicit __iterator_debug_base(const void *__c) noexcept {
-     _VSTD::__get_db()->__insert_ic(this, __c);
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  explicit __iterator_debug_base(const void *__c) _NOEXCEPT
+  {
+     _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->__insert_ic(this, __c));
+     ((void)__c);
   }
 
   _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  __iterator_debug_base(__iterator_debug_base const& __other) noexcept {
-    _LIBCPP_DEBUG_MODE(_VSTD::__get_db()->__iterator_copy(this, &__other));
+  __iterator_debug_base(__iterator_debug_base const& __other) _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
+    _VSTD::__get_db()->__iterator_copy(this, &__other);
   }
-
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  __iterator_debug_base& operator=(__iterator_debug_base const& __other) noexcept {
-    _LIBCPP_DEBUG_MODE(if (this != &__other) {
-        _VSTD::__get_db()->__iterator_copy(this, &__other);
-    });
-    return *this;
-  }
-
-  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
-  ~__iterator_debug_base() {
-    _VSTD::__get_db()->__erase_i(this);
-  }
+#else
+  = default;
 #endif
 
   _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  __iterator_debug_base& operator=(__iterator_debug_base const& __other) _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
+    if (this != &__other) {
+        _VSTD::__get_db()->__iterator_copy(this, &__other);
+    };
+    return *this;
+  }
+#else
+  = default;
+#endif
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE
+  ~__iterator_debug_base()
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
+    _VSTD::__get_db()->__erase_i(this);
+  }
+#else
+  = default;
+#endif
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
   void __check_dereferenceable() const _NOEXCEPT {
       _LIBCPP_DEBUG_ASSERT(std::__get_const_db()->__dereferenceable(this),
                            "Attempted to dereference a non-dereferenceable container iterator");

@@ -786,10 +786,16 @@ public:
     using _DebugBase::__is_valid_iterator;
 
   template <class _Iter>
-  static __next_pointer  __iter_to_node_ptr(void* __p) {
-    _Iter* __i = static_cast<_Iter*>(__p);
-    return __i->__node_;
+  _LIBCPP_INLINE_VISIBILITY
+  static __next_pointer  __iter_to_node_ptr(void* __p) _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+  {
+    return static_cast<_Iter*>(__p)->__node_;
   }
+#else
+  = delete;
+#endif
+
 private:
     // check for sane allocator pointer rebinding semantics. Rebinding the
     // allocator for a new pointer type should be exactly the same as rebinding
@@ -1341,7 +1347,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__hash_table(__hash_table&& __u)
         __u.__p1_.first().__next_ = nullptr;
         __u.size() = 0;
     }
-    _DebugBase::__swap_c(std::addressof(__u));
+    _DebugBase::__swap_container(std::addressof(__u));
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
@@ -1366,7 +1372,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__hash_table(__hash_table&& __u,
             size() = __u.size();
             __u.size() = 0;
         }
-        _DebugBase::__swap_c(std::addressof(__u));
+        _DebugBase::__swap_container(std::addressof(__u));
     }
 }
 
@@ -1474,7 +1480,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__move_assign(
         __u.__p1_.first().__next_ = nullptr;
         __u.size() = 0;
     }
-    _DebugBase::__swap_c(std::addressof(__u));
+    _DebugBase::__swap_container(std::addressof(__u));
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>
@@ -2188,7 +2194,7 @@ template <class _Tp, class _Hash, class _Equal, class _Alloc>
 void
 __hash_table<_Tp, _Hash, _Equal, _Alloc>::__rehash(size_type __nbc)
 {
-    _DebugBase::__invalidate_all_iterators();
+    _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
     __pointer_allocator& __npa = __bucket_list_.get_deleter().__alloc();
     __bucket_list_.reset(__nbc > 0 ?
                       __pointer_alloc_traits::allocate(__npa, __nbc) : nullptr);
@@ -2599,7 +2605,7 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::swap(__hash_table& __u)
         __u.__bucket_list_[__constrain_hash(__u.__p1_.first().__next_->__hash(), __u.bucket_count())] =
             __u.__p1_.first().__ptr();
 
-    _DebugBase::__swap_c(std::addressof(__u));
+    _DebugBase::__swap_container(std::addressof(__u));
 }
 
 template <class _Tp, class _Hash, class _Equal, class _Alloc>

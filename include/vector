@@ -475,11 +475,7 @@ class _LIBCPP_TEMPLATE_VIS vector
 private:
     typedef __vector_base<_Tp, _Allocator>           __base;
     typedef allocator<_Tp>                           __default_allocator_type;
-
-    using __base::_DebugBase::__swap_c;
-    using __base::_DebugBase::__is_valid_iterator;
-    using __base::_DebugBase::__invalidate_all_iterators;
-    typedef typename __vector_base<_Tp, _Allocator>::_DebugBase _DebugBase;
+    using typename __base::_DebugBase;
 
 public:
     typedef vector                                   __self;
@@ -771,7 +767,7 @@ public:
         size_type __old_size = size();
         __base::clear();
         __annotate_shrink(__old_size);
-        __invalidate_all_iterators();
+        _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
     }
 
     void resize(size_type __sz);
@@ -797,7 +793,15 @@ public:
 #endif  // _LIBCPP_DEBUG_LEVEL >= 2
 
 private:
-    _LIBCPP_INLINE_VISIBILITY void __invalidate_iterators_past(pointer __new_last);
+    static _LIBCPP_INLINE_VISIBILITY _LIBCPP_ALWAYS_INLINE const_pointer __convert_iter(void* __p) _NOEXCEPT
+#if _LIBCPP_DEBUG_LEVEL >= 2
+    {
+      return  static_cast<const_iterator*>(__p)->base();
+    }
+#else
+    = delete;
+#endif
+
     void __vallocate(size_type __n);
     void __vdeallocate() _NOEXCEPT;
     _LIBCPP_INLINE_VISIBILITY size_type __recommend(size_type __new_size) const;
@@ -827,7 +831,7 @@ private:
     _LIBCPP_INLINE_VISIBILITY
     void __destruct_at_end(pointer __new_last) _NOEXCEPT
     {
-        __invalidate_iterators_past(__new_last);
+      _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterators_past(__new_last, __convert_iter));
         size_type __old_size = size();
         __base::__destruct_at_end(__new_last);
         __annotate_shrink(__old_size);
@@ -953,7 +957,7 @@ vector<_Tp, _Allocator>::__swap_out_circular_buffer(__split_buffer<value_type, a
     _VSTD::swap(this->__end_cap(), __v.__end_cap());
     __v.__first_ = __v.__begin_;
     __annotate_new(size());
-    __invalidate_all_iterators();
+    _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
 }
 
 template <class _Tp, class _Allocator>
@@ -969,7 +973,7 @@ vector<_Tp, _Allocator>::__swap_out_circular_buffer(__split_buffer<value_type, a
     _VSTD::swap(this->__end_cap(), __v.__end_cap());
     __v.__first_ = __v.__begin_;
     __annotate_new(size());
-    __invalidate_all_iterators();
+    _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
     return __r;
 }
 
@@ -1251,7 +1255,7 @@ vector<_Tp, _Allocator>::vector(vector&& __x)
 #endif
     : __base(_VSTD::move(__x.__alloc()))
 {
-    __swap_c(&__x);
+    _DebugBase::__swap_container(std::addressof(__x));
     this->__begin_ = __x.__begin_;
     this->__end_ = __x.__end_;
     this->__end_cap() = __x.__end_cap();
@@ -1269,7 +1273,7 @@ vector<_Tp, _Allocator>::vector(vector&& __x, const allocator_type& __a)
         this->__end_ = __x.__end_;
         this->__end_cap() = __x.__end_cap();
         __x.__begin_ = __x.__end_ = __x.__end_cap() = nullptr;
-        __swap_c(&__x);
+        _DebugBase::__swap_container(std::addressof(__x));
     }
     else
     {
@@ -1337,7 +1341,7 @@ vector<_Tp, _Allocator>::__move_assign(vector& __c, true_type)
     this->__end_ = __c.__end_;
     this->__end_cap() = __c.__end_cap();
     __c.__begin_ = __c.__end_ = __c.__end_cap() = nullptr;
-    __swap_c(&__c);
+    _DebugBase::__swap_container(std::addressof(__c));
 }
 
 #endif  // !_LIBCPP_CXX03_LANG
@@ -1408,7 +1412,7 @@ vector<_Tp, _Allocator>::assign(_ForwardIterator __first, _ForwardIterator __las
         __vallocate(__recommend(__new_size));
         __construct_at_end(__first, __last, __new_size);
     }
-    __invalidate_all_iterators();
+    _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
 }
 
 template <class _Tp, class _Allocator>
@@ -1430,7 +1434,7 @@ vector<_Tp, _Allocator>::assign(size_type __n, const_reference __u)
         __vallocate(__recommend(static_cast<size_type>(__n)));
         __construct_at_end(__n, __u);
     }
-    __invalidate_all_iterators();
+    _LIBCPP_DEBUG_MODE(_DebugBase::__invalidate_all_iterators());
 }
 
 template <class _Tp, class _Allocator>
@@ -1654,7 +1658,7 @@ inline _LIBCPP_INLINE_VISIBILITY
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::erase(const_iterator __position)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::erase(iterator) called with an iterator not"
         " referring to this vector");
     _LIBCPP_ASSERT(__position != end(),
@@ -1662,7 +1666,7 @@ vector<_Tp, _Allocator>::erase(const_iterator __position)
     difference_type __ps = __position - cbegin();
     pointer __p = this->__begin_ + __ps;
     this->__destruct_at_end(_VSTD::move(__p + 1, this->__end_, __p));
-    this->__invalidate_iterators_past(__p-1);
+    _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterators_past(__p-1, __convert_iter));
     iterator __r = __make_iter(__p);
     return __r;
 }
@@ -1671,17 +1675,17 @@ template <class _Tp, class _Allocator>
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::erase(const_iterator __first, const_iterator __last)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__first),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__first)),
         "vector::erase(iterator,  iterator) called with an iterator not"
         " referring to this vector");
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__last),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__last)),
         "vector::erase(iterator,  iterator) called with an iterator not"
         " referring to this vector");
     _LIBCPP_ASSERT(__first <= __last, "vector::erase(first, last) called with invalid range");
     pointer __p = this->__begin_ + (__first - begin());
     if (__first != __last) {
         this->__destruct_at_end(_VSTD::move(__p + (__last - __first), this->__end_, __p));
-        this->__invalidate_iterators_past(__p - 1);
+        _LIBCPP_DEBUG_MODE(_DebugBase::__remove_iterators_past(__p-1, __convert_iter));
     }
     iterator __r = __make_iter(__p);
     return __r;
@@ -1709,7 +1713,7 @@ template <class _Tp, class _Allocator>
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::insert(const_iterator __position, const_reference __x)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::insert(iterator, x) called with an iterator not"
         " referring to this vector");
     pointer __p = this->__begin_ + (__position - begin());
@@ -1744,7 +1748,7 @@ template <class _Tp, class _Allocator>
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::insert(const_iterator __position, value_type&& __x)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::insert(iterator, x) called with an iterator not"
         " referring to this vector");
     pointer __p = this->__begin_ + (__position - begin());
@@ -1775,7 +1779,7 @@ template <class... _Args>
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::emplace(const_iterator __position, _Args&&... __args)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::emplace(iterator, x) called with an iterator not"
         " referring to this vector");
     pointer __p = this->__begin_ + (__position - begin());
@@ -1808,7 +1812,7 @@ template <class _Tp, class _Allocator>
 typename vector<_Tp, _Allocator>::iterator
 vector<_Tp, _Allocator>::insert(const_iterator __position, size_type __n, const_reference __x)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::insert(iterator, n, x) called with an iterator not"
         " referring to this vector");
     pointer __p = this->__begin_ + (__position - begin());
@@ -1857,7 +1861,7 @@ typename enable_if
 >::type
 vector<_Tp, _Allocator>::insert(const_iterator __position, _InputIterator __first, _InputIterator __last)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::insert(iterator, range) called with an iterator not"
         " referring to this vector");
     difference_type __off = __position - begin();
@@ -1908,7 +1912,7 @@ typename enable_if
 >::type
 vector<_Tp, _Allocator>::insert(const_iterator __position, _ForwardIterator __first, _ForwardIterator __last)
 {
-    _LIBCPP_DEBUG_ASSERT(__is_valid_iterator(&__position),
+    _LIBCPP_DEBUG_ASSERT(_DebugBase::__is_valid_iterator(std::addressof(__position)),
         "vector::insert(iterator, range) called with an iterator not"
         " referring to this vector");
     pointer __p = this->__begin_ + (__position - begin());
@@ -1987,7 +1991,7 @@ vector<_Tp, _Allocator>::swap(vector& __x)
     _VSTD::swap(this->__end_cap(), __x.__end_cap());
     __swap_allocator(this->__alloc(), __x.__alloc(),
         integral_constant<bool,__alloc_traits::propagate_on_container_swap::value>());
-    __swap_c(&__x);
+    _DebugBase::__swap_container(std::addressof(__x));
 }
 
 template <class _Tp, class _Allocator>
@@ -2045,26 +2049,6 @@ vector<_Tp, _Allocator>::__subscriptable(const const_iterator* __i, ptrdiff_t __
 
 #endif  // _LIBCPP_DEBUG_LEVEL >= 2
 
-template <class _Tp, class _Allocator>
-inline _LIBCPP_INLINE_VISIBILITY
-void
-vector<_Tp, _Allocator>::__invalidate_iterators_past(pointer __new_last) {
-#if _LIBCPP_DEBUG_LEVEL >= 2
-  __c_node* __c = __get_db()->__find_c_and_lock(this);
-  for (__i_node** __p = __c->end_; __p != __c->beg_; ) {
-    --__p;
-    const_iterator* __i = static_cast<const_iterator*>((*__p)->__i_);
-    if (__i->base() > __new_last) {
-      (*__p)->__c_ = nullptr;
-      if (--__c->end_ != __p)
-        memmove(__p, __p+1, (__c->end_ - __p)*sizeof(__i_node*));
-    }
-  }
-  __get_db()->unlock();
-#else
-  ((void)__new_last);
-#endif
-}
 
 // vector<bool>
 
