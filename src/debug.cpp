@@ -22,16 +22,27 @@
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-std::string __libcpp_debug_info::what() const {
-  string msg = __file_;
-  msg += ":" + to_string(__line_) + ": _LIBCPP_ASSERT '";
-  msg += __pred_;
-  msg += "' failed. ";
-  msg += __msg_;
-  return msg;
+const char* __libcpp_debug_info::__what_impl() const {
+  ssize_t guess_size = 256;
+  char* buff = new char[guess_size]{};
+  auto do_format = [&]() {
+    return ::snprintf(buff, guess_size, "%s:%d: _LIBCPP_ASSERT '%s' failed. %s\n", __file_, __line_, __pred_, __msg_);
+  };
+  auto ret = do_format();
+  _LIBCPP_INTERNAL_ASSERT(ret >= 0, "Failed to write string");
+  if (ret >= guess_size) {
+    guess_size = ret + 10;
+    delete [] buff;
+    buff = new char[guess_size];
+    do_format();
+  }
+  return buff;
 }
+
 _LIBCPP_NORETURN void __libcpp_abort_debug_function(__libcpp_debug_info const& info) {
-    std::fprintf(stderr, "%s\n", info.what().c_str());
+    const char* c_str = info.__what_impl();
+    std::fprintf(stderr, "%s\n", c_str);
+    delete [] c_str;
     std::abort();
 }
 
@@ -140,7 +151,7 @@ __libcpp_db::__find_c_from_i(void* __i) const
     RLock _(mut());
 #endif
     __i_node* i = __find_iterator(__i);
-    _LIBCPP_ASSERT(i != nullptr, "iterator not found in debug database.");
+    _LIBCPP_INTERNAL_ASSERT(i != nullptr, "iterator not found in debug database.");
     return i->__c_ != nullptr ? i->__c_->__c_ : nullptr;
 }
 
@@ -306,11 +317,11 @@ __libcpp_db::__find_c(void* __c) const
 {
     size_t hc = hash<void*>()(__c) % static_cast<size_t>(__cend_ - __cbeg_);
     __c_node* p = __cbeg_[hc];
-    _LIBCPP_ASSERT(p != nullptr, "debug mode internal logic error __find_c A");
+    _LIBCPP_INTERNAL_ASSERT(p != nullptr, "debug mode internal logic error __find_c A");
     while (p->__c_ != __c)
     {
         p = p->__next_;
-        _LIBCPP_ASSERT(p != nullptr, "debug mode internal logic error __find_c B");
+        _LIBCPP_INTERNAL_ASSERT(p != nullptr, "debug mode internal logic error __find_c B");
     }
     return p;
 }
@@ -336,14 +347,14 @@ __libcpp_db::__erase_c(void* __c)
         if (p == nullptr)
             return;
         __c_node* q = nullptr;
-        _LIBCPP_ASSERT(p != nullptr, "debug mode internal logic error __erase_c A");
+        _LIBCPP_INTERNAL_ASSERT(p != nullptr, "debug mode internal logic error __erase_c A");
         while (p->__c_ != __c)
         {
             q = p;
             p = p->__next_;
             if (p == nullptr)
                 return;
-            _LIBCPP_ASSERT(p != nullptr, "debug mode internal logic error __erase_c B");
+            _LIBCPP_INTERNAL_ASSERT(p != nullptr, "debug mode internal logic error __erase_c B");
         }
         if (q == nullptr)
             __cbeg_[hc] = p->__next_;
@@ -449,19 +460,19 @@ __libcpp_db::swap(void* c1, void* c2)
 #endif
     size_t hc = hash<void*>()(c1) % static_cast<size_t>(__cend_ - __cbeg_);
     __c_node* p1 = __cbeg_[hc];
-    _LIBCPP_ASSERT(p1 != nullptr, "debug mode internal logic error swap A");
+    _LIBCPP_INTERNAL_ASSERT(p1 != nullptr, "debug mode internal logic error swap A");
     while (p1->__c_ != c1)
     {
         p1 = p1->__next_;
-        _LIBCPP_ASSERT(p1 != nullptr, "debug mode internal logic error swap B");
+        _LIBCPP_INTERNAL_ASSERT(p1 != nullptr, "debug mode internal logic error swap B");
     }
     hc = hash<void*>()(c2) % static_cast<size_t>(__cend_ - __cbeg_);
     __c_node* p2 = __cbeg_[hc];
-    _LIBCPP_ASSERT(p2 != nullptr, "debug mode internal logic error swap C");
+    _LIBCPP_INTERNAL_ASSERT(p2 != nullptr, "debug mode internal logic error swap C");
     while (p2->__c_ != c2)
     {
         p2 = p2->__next_;
-        _LIBCPP_ASSERT(p2 != nullptr, "debug mode internal logic error swap D");
+        _LIBCPP_INTERNAL_ASSERT(p2 != nullptr, "debug mode internal logic error swap D");
     }
     std::swap(p1->beg_, p2->beg_);
     std::swap(p1->end_, p2->end_);
@@ -570,7 +581,7 @@ void
 __c_node::__remove(__i_node* p)
 {
     __i_node** r = find(beg_, end_, p);
-    _LIBCPP_ASSERT(r != end_, "debug mode internal logic error __c_node::__remove");
+    _LIBCPP_INTERNAL_ASSERT(r != end_, "debug mode internal logic error __c_node::__remove");
     if (--end_ != r)
         memmove(r, r+1, static_cast<size_t>(end_ - r)*sizeof(__i_node*));
 }

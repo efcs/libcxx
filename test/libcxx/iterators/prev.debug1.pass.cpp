@@ -17,7 +17,10 @@
 
 // Call prev(forward_iterator, -1)
 
-#define _LIBCPP_DEBUG 0
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
+#define _LIBCPP_DEBUG 1
 
 #include <iterator>
 #include "test_macros.h"

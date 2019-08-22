@@ -1110,7 +1110,7 @@ public:
   path lexically_relative(const path& __base) const;
 
   _LIBCPP_INLINE_VISIBILITY path lexically_proximate(const path& __base) const {
-    path __result = this->lexically_relative(__base);
+    path __result = this->lexically_relative(__base).__register_string_debug();
     if (__result.native().empty())
       return *this;
     return __result;
@@ -1176,6 +1176,14 @@ public:
     path __result(__lhs);
     __result /= __rhs;
     return __result;
+  }
+
+  _LIBCPP_INLINE_VISIBILITY _LIBCPP_DEBUG_FORCE_INLINE
+  path& __register_string_debug() _NOEXCEPT {
+#if _LIBCPP_DEBUG_LEVEL >= 2
+    __get_db()->__insert_c(std::addressof(__pn_));
+#endif
+    return *this;
   }
 private:
   inline _LIBCPP_INLINE_VISIBILITY path&
@@ -1459,7 +1467,7 @@ inline _LIBCPP_INLINE_VISIBILITY path current_path() {
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path current_path(error_code& __ec) {
-  return __current_path(&__ec);
+  return __current_path(&__ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY void current_path(const path& __p) {
@@ -1472,21 +1480,21 @@ inline _LIBCPP_INLINE_VISIBILITY void current_path(const path& __p,
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path absolute(const path& __p) {
-  return __absolute(__p);
+  return __absolute(__p).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path absolute(const path& __p,
                                                error_code& __ec) {
-  return __absolute(__p, &__ec);
+  return __absolute(__p, &__ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path canonical(const path& __p) {
-  return __canonical(__p);
+  return __canonical(__p).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path canonical(const path& __p,
                                                 error_code& __ec) {
-  return __canonical(__p, &__ec);
+  return __canonical(__p, &__ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY void copy(const path& __from,
@@ -1807,10 +1815,10 @@ inline _LIBCPP_INLINE_VISIBILITY void permissions(const path& __p, perms __prms,
 inline _LIBCPP_INLINE_VISIBILITY path proximate(const path& __p,
                                                 const path& __base,
                                                 error_code& __ec) {
-  path __tmp = __weakly_canonical(__p, &__ec);
+  path __tmp = __weakly_canonical(__p, &__ec).__register_string_debug();
   if (__ec)
     return {};
-  path __tmp_base = __weakly_canonical(__base, &__ec);
+  path __tmp_base = __weakly_canonical(__base, &__ec).__register_string_debug();
   if (__ec)
     return {};
   return __tmp.lexically_proximate(__tmp_base);
@@ -1818,7 +1826,7 @@ inline _LIBCPP_INLINE_VISIBILITY path proximate(const path& __p,
 
 inline _LIBCPP_INLINE_VISIBILITY path proximate(const path& __p,
                                                 error_code& __ec) {
-  return proximate(__p, current_path(), __ec);
+  return proximate(__p, current_path(), __ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path
@@ -1828,21 +1836,21 @@ proximate(const path& __p, const path& __base = current_path()) {
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path read_symlink(const path& __p) {
-  return __read_symlink(__p);
+  return __read_symlink(__p).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path read_symlink(const path& __p,
                                                    error_code& __ec) {
-  return __read_symlink(__p, &__ec);
+  return __read_symlink(__p, &__ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path relative(const path& __p,
                                                const path& __base,
                                                error_code& __ec) {
-  path __tmp = __weakly_canonical(__p, &__ec);
+  path __tmp = __weakly_canonical(__p, &__ec).__register_string_debug();
   if (__ec)
     return path();
-  path __tmpbase = __weakly_canonical(__base, &__ec);
+  path __tmpbase = __weakly_canonical(__base, &__ec).__register_string_debug();
   if (__ec)
     return path();
   return __tmp.lexically_relative(__tmpbase);
@@ -1924,20 +1932,20 @@ symlink_status(const path& __p, error_code& __ec) noexcept {
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path temp_directory_path() {
-  return __temp_directory_path();
+  return __temp_directory_path().__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path temp_directory_path(error_code& __ec) {
-  return __temp_directory_path(&__ec);
+  return __temp_directory_path(&__ec).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path weakly_canonical(path const& __p) {
-  return __weakly_canonical(__p);
+  return __weakly_canonical(__p).__register_string_debug();
 }
 
 inline _LIBCPP_INLINE_VISIBILITY path weakly_canonical(path const& __p,
                                                        error_code& __ec) {
-  return __weakly_canonical(__p, &__ec);
+  return __weakly_canonical(__p, &__ec).__register_string_debug();
 }
 
 class directory_iterator;

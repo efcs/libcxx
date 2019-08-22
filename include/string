@@ -4285,7 +4285,7 @@ bool
 basic_string<_CharT, _Traits, _Allocator>::__dereferenceable(const const_iterator* __i) const
 {
     return this->data() <= _VSTD::__to_raw_pointer(__i->base()) &&
-           _VSTD::__to_raw_pointer(__i->base()) < this->data() + this->size();
+           _VSTD::__to_raw_pointer(__i->base()) <= this->data() + this->size();
 }
 
 template<class _CharT, class _Traits, class _Allocator>
@@ -4309,7 +4309,7 @@ bool
 basic_string<_CharT, _Traits, _Allocator>::__subscriptable(const const_iterator* __i, ptrdiff_t __n) const
 {
     const value_type* __p = _VSTD::__to_raw_pointer(__i->base()) + __n;
-    return this->data() <= __p && __p < this->data() + this->size();
+    return this->data() <= __p && __p <= this->data() + this->size();
 }
 
 #endif  // _LIBCPP_DEBUG_LEVEL >= 2

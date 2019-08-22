@@ -22,6 +22,9 @@
 // void set_exception(exception_ptr p);
 // Test that a null exception_ptr is diagnosed.
 
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_DEBUG 0
 
 #include <future>

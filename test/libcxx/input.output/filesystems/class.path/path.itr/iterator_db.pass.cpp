@@ -14,7 +14,9 @@
 // <filesystem>
 
 // class path
-
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_DEBUG 0
 #include "filesystem_include.h"
 #include <iterator>

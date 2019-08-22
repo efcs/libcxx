@@ -279,12 +279,20 @@ struct BasicContainerChecks {
     }
     ++i; ++ci;
     assert(i == C.end());
-    EXPECT_DEATH( *i );
-    EXPECT_DEATH( *ci );
-    if constexpr (CT != CT_VectorBool) {
-      EXPECT_DEATH( i.operator->() );
-      EXPECT_DEATH( ci.operator->() );
+    if constexpr (CT != CT_String) {
+      EXPECT_DEATH( *i );
+      EXPECT_DEATH( *ci );
+      if constexpr (CT != CT_VectorBool) {
+        EXPECT_DEATH( i.operator->() );
+        EXPECT_DEATH( ci.operator->() );
+      }
+    } else {
+      assert(*i == '\0');
+      assert(*ci == '\0');
+      assert(*(i.operator->()) == '\0');
+      assert(*(ci.operator->()) == '\0');
     }
+
   }
 
   // Container tests
