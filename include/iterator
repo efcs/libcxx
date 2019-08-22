@@ -1555,7 +1555,7 @@ bool
 operator<(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y) _NOEXCEPT
 {
 #if _LIBCPP_DEBUG_LEVEL >= 2
-    _LIBCPP_ASSERT((!__x.base() && !__y.base()) || __get_const_db()->__less_than_comparable(&__x, &__y),
+    _LIBCPP_ASSERT(__get_const_db()->__less_than_comparable(&__x, &__y),
                    "Attempted to compare incomparable iterators");
 #endif
     return __x.base() < __y.base();
@@ -1633,7 +1633,7 @@ operator-(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y) _NOEXC
 -> decltype(__x.base() - __y.base())
 {
 #if _LIBCPP_DEBUG_LEVEL >= 2
-    _LIBCPP_ASSERT((!__x.base() && !__y.base()) || __get_const_db()->__less_than_comparable(&__x, &__y),
+    _LIBCPP_ASSERT(__get_const_db()->__less_than_comparable(&__x, &__y),
                    "Attempted to subtract incompatible iterators");
 #endif
     return __x.base() - __y.base();
