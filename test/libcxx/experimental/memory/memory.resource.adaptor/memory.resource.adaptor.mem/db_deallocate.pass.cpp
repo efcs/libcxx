@@ -8,6 +8,8 @@
 
 // UNSUPPORTED: c++98, c++03
 
+// MODULES_DEFINES: _LIBCPP_DEBUG=0
+
 // <experimental/memory_resource>
 
 // template <class T> class polymorphic_allocator
@@ -15,7 +17,9 @@
 // T* polymorphic_allocator<T>::deallocate(T*, size_t size)
 
 int AssertCount = 0;
-
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_ASSERT(x, m) ((x) ? (void)0 : (void)::AssertCount++)
 #define _LIBCPP_DEBUG 0
 #include <experimental/memory_resource>

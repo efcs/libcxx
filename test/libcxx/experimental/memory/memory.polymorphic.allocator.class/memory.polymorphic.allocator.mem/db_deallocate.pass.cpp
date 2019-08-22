@@ -14,9 +14,14 @@
 
 // T* polymorphic_allocator<T>::deallocate(T*, size_t size)
 
+// MODULES_DEFINES: _LIBCPP_DEBUG=0
+
 int AssertCount = 0;
 
 #define _LIBCPP_ASSERT(x, m) ((x) ? (void)0 : (void)::AssertCount++)
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_DEBUG 0
 #include <experimental/memory_resource>
 #include <type_traits>

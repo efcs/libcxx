@@ -8,6 +8,8 @@
 
 // UNSUPPORTED: libcpp-no-exceptions
 
+// MODULES_DEFINES: _LIBCPP_DEBUG=0
+
 // <algorithm>
 
 // template <class _Compare> struct __debug_less
@@ -16,6 +18,9 @@
 
 struct DebugException {};
 
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_DEBUG 0
 #define _LIBCPP_ASSERT(x, m) ((x) ? (void)0 : throw ::DebugException())
 

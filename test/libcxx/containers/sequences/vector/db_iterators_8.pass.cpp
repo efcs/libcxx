@@ -31,6 +31,7 @@ int main(int, char**)
     C c(1);
     C::iterator i = c.end();
     T j = *i;
+    ((void)j);
     assert(false);
     }
 #if TEST_STD_VER >= 11
@@ -40,6 +41,7 @@ int main(int, char**)
     C c(1);
     C::iterator i = c.end();
     T j = *i;
+    ((void)j);
     assert(false);
     }
 #endif

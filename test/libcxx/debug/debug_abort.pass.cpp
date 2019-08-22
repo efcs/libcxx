@@ -14,6 +14,9 @@
 
 // Test that the default debug handler aborts the program.
 
+#ifdef _LIBCPP_DEBUG
+#undef _LIBCPP_DEBUG
+#endif
 #define _LIBCPP_DEBUG 0
 
 #include <csignal>
