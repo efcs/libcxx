@@ -1,0 +1,6 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="string.h"];
+  header_2 [ shape="box", label="__config"];
+  header_13 [ shape="box", label="stddef.h"];
+  header_1 -> header_2;
+}

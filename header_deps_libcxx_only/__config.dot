@@ -1,0 +1,3 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="__config"];
+}

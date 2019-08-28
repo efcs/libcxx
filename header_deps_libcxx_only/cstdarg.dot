@@ -1,0 +1,5 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="cstdarg"];
+  header_2 [ shape="box", label="__config"];
+  header_1 -> header_2;
+}

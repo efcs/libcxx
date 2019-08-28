@@ -1,0 +1,26 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="atomic"];
+  header_2 [ shape="box", label="__config"];
+  header_11 [ shape="box", label="cstddef"];
+  header_12 [ shape="box", label="version"];
+  header_15 [ shape="box", label="__nullptr"];
+  header_16 [ shape="box", label="cstdint"];
+  header_17 [ shape="box", label="stdint.h"];
+  header_26 [ shape="box", label="type_traits"];
+  header_15 -> header_2;
+  header_1 -> header_2;
+  header_1 -> header_11;
+  header_1 -> header_16;
+  header_1 -> header_26;
+  header_1 -> header_12;
+  header_11 -> header_2;
+  header_11 -> header_12;
+  header_11 -> header_15;
+  header_17 -> header_2;
+  header_12 -> header_2;
+  header_26 -> header_2;
+  header_26 -> header_11;
+  header_26 -> header_12;
+  header_16 -> header_2;
+  header_16 -> header_17;
+}

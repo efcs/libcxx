@@ -1,0 +1,30 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="stdlib.h"];
+  header_2 [ shape="box", label="__config"];
+  header_13 [ shape="box", label="stddef.h"];
+  header_45 [ shape="box", label="math.h"];
+  header_57 [ shape="box", label="type_traits"];
+  header_58 [ shape="box", label="cstddef"];
+  header_59 [ shape="box", label="version"];
+  header_61 [ shape="box", label="__nullptr"];
+  header_62 [ shape="box", label="limits"];
+  header_63 [ shape="box", label="__undef_macros"];
+  header_45 -> header_2;
+  header_45 -> header_1;
+  header_45 -> header_57;
+  header_45 -> header_62;
+  header_61 -> header_2;
+  header_62 -> header_2;
+  header_62 -> header_57;
+  header_62 -> header_63;
+  header_62 -> header_59;
+  header_57 -> header_2;
+  header_57 -> header_58;
+  header_57 -> header_59;
+  header_1 -> header_2;
+  header_1 -> header_45;
+  header_59 -> header_2;
+  header_58 -> header_2;
+  header_58 -> header_59;
+  header_58 -> header_61;
+}

@@ -1,0 +1,21 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="limits"];
+  header_2 [ shape="box", label="__config"];
+  header_11 [ shape="box", label="type_traits"];
+  header_12 [ shape="box", label="cstddef"];
+  header_13 [ shape="box", label="version"];
+  header_16 [ shape="box", label="__nullptr"];
+  header_17 [ shape="box", label="__undef_macros"];
+  header_1 -> header_2;
+  header_1 -> header_11;
+  header_1 -> header_17;
+  header_1 -> header_13;
+  header_11 -> header_2;
+  header_11 -> header_12;
+  header_11 -> header_13;
+  header_13 -> header_2;
+  header_16 -> header_2;
+  header_12 -> header_2;
+  header_12 -> header_13;
+  header_12 -> header_16;
+}

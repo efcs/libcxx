@@ -1,0 +1,8 @@
+digraph "dependencies" {
+  header_1 [ shape="box", label="cfloat"];
+  header_2 [ shape="box", label="__config"];
+  header_11 [ shape="box", label="float.h"];
+  header_1 -> header_2;
+  header_1 -> header_11;
+  header_11 -> header_2;
+}
