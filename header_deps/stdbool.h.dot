@@ -1,16 +1,17 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="stdbool.h"];
-  header_0 [ shape="box", label="tmp/tmpw8iwRO.libcxx.header.deps/test_stdbool.h.cpp"];
-  header_2 [ shape="box", label="__config"];
-  header_3 [ shape="box", label="usr/include/features.h"];
-  header_4 [ shape="box", label="usr/include/stdc-predef.h"];
-  header_5 [ shape="box", label="usr/include/x86_64-linux-gnu/sys/cdefs.h"];
-  header_6 [ shape="box", label="usr/include/x86_64-linux-gnu/bits/wordsize.h"];
-  header_7 [ shape="box", label="usr/include/x86_64-linux-gnu/bits/long-double.h"];
-  header_8 [ shape="box", label="usr/include/x86_64-linux-gnu/gnu/stubs.h"];
-  header_9 [ shape="box", label="usr/include/x86_64-linux-gnu/gnu/stubs-64.h"];
-  header_11 [ shape="box", label="usr/local/lib/clang/10.0.0/include/stdbool.h"];
-  header_8 -> header_9;
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="stdbool.h" ];
+  header_11 [ shape="box", label="/usr/local/lib/clang/10.0.0/include/stdbool.h" ];
+  header_2 [ shape="box", label="__config" ];
+  header_3 [ shape="box", label="/usr/include/features.h" ];
+  header_4 [ shape="box", label="/usr/include/stdc-predef.h" ];
+  header_5 [ shape="box", label="/usr/include/x86_64-linux-gnu/sys/cdefs.h" ];
+  header_6 [ shape="box", label="/usr/include/x86_64-linux-gnu/bits/wordsize.h" ];
+  header_7 [ shape="box", label="/usr/include/x86_64-linux-gnu/bits/long-double.h" ];
+  header_8 [ shape="box", label="/usr/include/x86_64-linux-gnu/gnu/stubs.h" ];
+  header_9 [ shape="box", label="/usr/include/x86_64-linux-gnu/gnu/stubs-64.h" ];
+  header_5 -> header_6;
+  header_5 -> header_7;
   header_2 -> header_3;
   header_3 -> header_4;
   header_3 -> header_5;
@@ -18,6 +19,5 @@ digraph "dependencies" {
   header_0 -> header_1;
   header_1 -> header_2;
   header_1 -> header_11;
-  header_5 -> header_6;
-  header_5 -> header_7;
+  header_8 -> header_9;
 }

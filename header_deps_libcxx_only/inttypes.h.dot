@@ -1,8 +1,10 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="inttypes.h"];
-  header_2 [ shape="box", label="__config"];
-  header_13 [ shape="box", label="stdint.h"];
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="inttypes.h" ];
+  header_13 [ shape="box", label="stdint.h" ];
+  header_2 [ shape="box", label="__config" ];
+  header_13 -> header_2;
+  header_0 -> header_1;
   header_1 -> header_2;
   header_1 -> header_13;
-  header_13 -> header_2;
 }

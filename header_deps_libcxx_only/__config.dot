@@ -1,3 +1,5 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="__config"];
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="__config" ];
+  header_0 -> header_1;
 }

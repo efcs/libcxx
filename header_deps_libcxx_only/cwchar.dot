@@ -1,21 +1,23 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="cwchar"];
-  header_2 [ shape="box", label="__config"];
-  header_11 [ shape="box", label="cwctype"];
-  header_12 [ shape="box", label="cctype"];
-  header_13 [ shape="box", label="ctype.h"];
-  header_23 [ shape="box", label="wctype.h"];
-  header_27 [ shape="box", label="wchar.h"];
-  header_32 [ shape="box", label="stddef.h"];
-  header_13 -> header_2;
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="cwchar" ];
+  header_11 [ shape="box", label="cwctype" ];
+  header_12 [ shape="box", label="cctype" ];
+  header_13 [ shape="box", label="ctype.h" ];
+  header_2 [ shape="box", label="__config" ];
+  header_23 [ shape="box", label="wctype.h" ];
+  header_27 [ shape="box", label="wchar.h" ];
+  header_32 [ shape="box", label="stddef.h" ];
+  header_27 -> header_2;
+  header_23 -> header_2;
+  header_0 -> header_1;
+  header_1 -> header_27;
   header_1 -> header_2;
   header_1 -> header_11;
-  header_1 -> header_27;
   header_11 -> header_2;
-  header_11 -> header_12;
   header_11 -> header_23;
-  header_27 -> header_2;
+  header_11 -> header_12;
   header_12 -> header_2;
   header_12 -> header_13;
-  header_23 -> header_2;
+  header_13 -> header_2;
 }

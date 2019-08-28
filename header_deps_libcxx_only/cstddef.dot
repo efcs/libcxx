@@ -1,11 +1,13 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="cstddef"];
-  header_2 [ shape="box", label="__config"];
-  header_11 [ shape="box", label="version"];
-  header_14 [ shape="box", label="__nullptr"];
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="cstddef" ];
+  header_11 [ shape="box", label="version" ];
+  header_14 [ shape="box", label="__nullptr" ];
+  header_2 [ shape="box", label="__config" ];
   header_14 -> header_2;
+  header_11 -> header_2;
+  header_0 -> header_1;
+  header_1 -> header_14;
   header_1 -> header_2;
   header_1 -> header_11;
-  header_1 -> header_14;
-  header_11 -> header_2;
 }

@@ -16,33 +16,42 @@ import libcxx.util
 class DotEmitter(object):
   def __init__(self, name):
     self.name = name
-    self.node_strings = []
+    self.node_strings = {}
     self.edge_strings = []
 
   def addNode(self, node):
-    res = str(self.id)
-    if len(self.attributes):
-      res += ' ['
+    res = str(node.id)
+    if len(node.attributes):
       attr_strs = []
-      for k,v in self.attributes.iteritems():
+      for k,v in node.attributes.iteritems():
         attr_strs += ['%s="%s"' % (k, v)]
       res += ' [ %s ]' % (', '.join(attr_strs))
     res += ';'
-    self.node_strings += [res]
+    assert node.id not in self.node_strings
+    self.node_strings[node.id] = res
 
   def addEdge(self, n1, n2):
     res = '%s -> %s;' % (n1.id, n2.id)
     self.edge_strings += [res]
 
+  def node_key(self, n):
+    id = n.id
+    assert id.startswith('\w*\d+')
+
   def emit(self):
-    node_definitions = '\n  '.join(self.node_strings)
+    node_definitions_list = []
+    sorted_keys = self.node_strings.keys()
+    sorted_keys.sort()
+    for k in sorted_keys:
+      node_definitions_list += [self.node_strings[k]]
+    node_definitions = '\n  '.join(node_definitions_list)
     edge_list = '\n  '.join(self.edge_strings)
     return '''
-digraph {name} {
-{node_definitions}
-{edge_list}
-}    
-'''.format(name=self.name, node_definitions=node_definitions, edge_list=edge_list).trim()
+digraph "{name}" {{
+  {node_definitions}
+  {edge_list}
+}}    
+'''.format(name=self.name, node_definitions=node_definitions, edge_list=edge_list).strip()
 
 
 class DotReader(object):
@@ -53,7 +62,7 @@ class DotReader(object):
     raise Exception(msg)
 
   def parse(self, data):
-    lines = [l.trim() for l in data.splitlines() if l.trim()]
+    lines = [l.strip() for l in data.splitlines() if l.strip()]
     maxIdx = len(lines)
     idx = 0
     if not self.parseIntroducer(lines[idx]):
@@ -81,7 +90,7 @@ class DotReader(object):
 
   def parseAttributes(self, raw_str):
     attribute_re = re.compile('^\s*(\w+)="([^"]+)"')
-    parts = [l.trim() for l in raw_str.split(',') if l.trim()]
+    parts = [l.strip() for l in raw_str.split(',') if l.strip()]
     attribute_dict = {}
     for a in parts:
       m = attribute_re.match(a)
@@ -125,21 +134,74 @@ class Node(object):
   def addEdge(self, dest):
     self.edges.add(dest)
 
+  def __eq__(self, another):
+    if isinstance(another, str):
+      return another == self.id
+    return hasattr(another, 'id') and self.id == another.id
+
+  def __hash__(self):
+    return hash(self.id)
+
+  def __str__(self):
+    res = self.id
+    if len(self.attributes):
+      attr = []
+      for k,v in self.attributes.iteritems():
+        attr += ['%s="%s"' % (k, v)]
+      res += ' [%s ]' % (', '.join(attr))
+    return res
+
+  def __repr__(self):
+    return '%s' % self
+
 class DirectedGraph(object):
-  def __init__(self, name, nodes):
+  def __init__(self, name=None, nodes=None):
     self.name = name
-    self.nodes = defaultdict(list(nodes))
+    self.nodes = set() if nodes is None else set(nodes)
 
   def setName(self, n):
     self.name = n
 
+  def _getNode(self, n_or_id):
+    if isinstance(n_or_id, Node):
+      return n_or_id
+    return self.getNode(n_or_id)
+
+  def getNode(self, str_id):
+    for s in self.nodes:
+      if s.id == str_id:
+        return s
+    return None
+
+  def getNodeByLabel(self, l):
+    found = None
+    for s in self.nodes:
+      if s.attributes['label'] == l:
+        assert found is None
+        found = s
+    return found
+
   def addEdge(self, n1, n2):
+    assert isinstance(n1, str)
+    assert isinstance(n2, str)
     assert n1 in self.nodes
     assert n2 in self.nodes
-    self.nodes[n1].addEdge(n2)
+    self.getNode(n1).addEdge(self.getNode(n2))
 
   def addNode(self, n):
     self.nodes.add(n)
+
+  def removeNode(self, n):
+    n = self._getNode(n)
+    for other_n in self.nodes:
+      if other_n == n:
+        continue
+      new_edges = set()
+      for e in other_n.edges:
+        if e != n:
+          new_edges.add(e)
+      other_n.edges = new_edges
+    self.nodes.remove(n)
 
   def toDot(self):
     dot = DotEmitter(self.name)
@@ -154,3 +216,15 @@ class DirectedGraph(object):
     reader = DotReader()
     graph = reader.parse(str)
     return graph
+
+  @staticmethod
+  def fromDotFile(fname):
+    with open(fname, 'r') as f:
+      return DirectedGraph.fromDot(f.read())
+
+  def toDotFile(self, fname):
+    with open(fname, 'w') as f:
+      f.write(self.toDot())
+
+  def __repr__(self):
+    return self.toDot()

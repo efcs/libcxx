@@ -1,15 +1,17 @@
 digraph "dependencies" {
-  header_1 [ shape="box", label="cinttypes"];
-  header_2 [ shape="box", label="__config"];
-  header_11 [ shape="box", label="cstdint"];
-  header_12 [ shape="box", label="stdint.h"];
-  header_21 [ shape="box", label="inttypes.h"];
+  header_0 [ shape="box", label="\<stdin\>" ];
+  header_1 [ shape="box", label="cinttypes" ];
+  header_11 [ shape="box", label="cstdint" ];
+  header_12 [ shape="box", label="stdint.h" ];
+  header_2 [ shape="box", label="__config" ];
+  header_21 [ shape="box", label="inttypes.h" ];
   header_21 -> header_2;
   header_21 -> header_12;
-  header_12 -> header_2;
+  header_0 -> header_1;
+  header_1 -> header_2;
+  header_1 -> header_21;
+  header_1 -> header_11;
   header_11 -> header_2;
   header_11 -> header_12;
-  header_1 -> header_2;
-  header_1 -> header_11;
-  header_1 -> header_21;
+  header_12 -> header_2;
 }
