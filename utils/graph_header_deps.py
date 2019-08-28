@@ -307,13 +307,14 @@ def main():
         help='the compile commands database')
 
     args = parser.parse_args()
-    if not os.path.isdir(args.output):
-        print_and_exit('"%s" must point to a directory' % args.output)
+
+    out_dir = os.path.abspath(args.output)
+    if not os.path.isdir(out_dir):
+        print_and_exit('"%s" must point to a directory' % out_dir)
 
     compile_commands = None
     with open(args.compile_commands, 'r') as f:
         compile_commands = json.load(f)
-
 
     global temp_directory_root
     temp_directory_root = tempfile.mkdtemp('.libcxx.header.deps')
@@ -325,7 +326,7 @@ def main():
     print('building headers')
     for header in headers_list:
         header_name = os.path.basename(header)
-        out = os.path.join(args.output, ('%s.dot' % header_name))
+        out = os.path.join(out_dir, ('%s.dot' % header_name))
         input = os.path.join(temp_directory_root, ('test_%s.cpp' % header_name))
         with open(input, 'w') as f:
             f.write('#include <%s>\n\n' % header_name)
@@ -333,8 +334,8 @@ def main():
         execute_command_verbose(cmd, cwd=wd, verbose=args.verbose)
 
 
-    for fname in os.listdir(args.output):
-        dot_file = os.path.join(args.output, fname)
+    for fname in os.listdir(out_dir):
+        dot_file = os.path.join(out_dir, fname)
         if not os.path.isfile(dot_file):
             continue
         data = None
