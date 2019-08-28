@@ -20,6 +20,7 @@ import sys
 import shlex
 import json
 import re
+from collections import defaultdict
 
 temp_directory_root = None
 def exit_with_cleanups(status):
@@ -90,8 +91,81 @@ def get_include_dir():
     include_dir = os.path.join(curr_dir, 'include')
     return include_dir
 
+
+class Graph():
+    def __init__(self,vertices):
+        self.graph = defaultdict(list)
+        self.V = vertices
+
+    def addEdge(self,u,v):
+        self.graph[u].append(v)
+
+    def isCyclicUtil(self, v, visited, recStack, path):
+        # Mark current node as visited and
+        # adds to recursion stack
+        path += [v]
+        visited[v] = True
+        recStack[v] = True
+        # Recur for all neighbours
+        # if any neighbour is visited and in
+        # recStack then graph is cyclic
+        for neighbour in self.graph[v]:
+
+            if visited[neighbour] == False:
+                if self.isCyclicUtil(neighbour, visited, recStack, path) == True:
+                    return True
+            elif recStack[neighbour] == True:
+                return True
+        # The node needs to be poped from
+        # recursion stack before function ends
+        path = path[:-1]
+        recStack[v] = False
+        return False
+
+    # Returns true if graph is cyclic else false
+    def isCyclic(self, path):
+        visited = {}
+        recStack = {}
+        for n in self.V:
+            visited[n] = False
+            recStack[n] = False
+        for node in self.V:
+            if visited[node] == False:
+                path += [node]
+                if self.isCyclicUtil(node,visited,recStack, path) == True:
+                    return True
+                path = path[:-1]
+        return False
+
+def build_graph(edge_list):
+    nodes = set()
+    for n1, n2 in edge_list:
+        nodes.add(n1)
+        nodes.add(n2)
+    g = Graph(nodes)
+    for n1, n2 in edge_list:
+        g.addEdge(n1, n2)
+    path = []
+    if g.isCyclic(path) == 1:
+        print "Graph has a cycle"
+        print(path)
+
+def extract_nodes(data):
+    node_re = re.compile('^\s+header_(\d+) \[.*label="([^"]+)"\];.*')
+    lines = data.splitlines()
+    node_map = {}
+    for l in lines:
+        m = node_re.match(l)
+        if not m:
+            continue
+        n = int(m.group(1))
+        file = m.group(2)
+        node_map[n] = file
+    return node_map
+
+
 def extract_edges(data):
-    edge_re = re.compile('^\s+(header_\d+) -> (header_\d+);.*')
+    edge_re = re.compile('^\s+header_(\d+) -> header_(\d+);.*')
     lines = data.splitlines()
     edges = []
     for l in lines:
@@ -100,8 +174,23 @@ def extract_edges(data):
             continue
         n1 = m.group(1)
         n2 = m.group(2)
-        edges += [(n1, n2)]
+        edges += [(int(n1), int(n2))]
     return edges
+
+def detect_cycles_imp(n, edge_list, seen, path):
+    for n1, n2 in edge_list:
+        if n1 != n:
+            continue
+        if seen[n2]:
+            path += [n2]
+            return True
+        seen[n2] = True
+        has_cycle = detect_cycles_imp(n2, edge_list, seen, path)
+        seen[n2] = False
+        if has_cycle:
+            return True
+    return False
+
 
 def detect_cycles(edge_list):
     seen = {}
@@ -118,13 +207,19 @@ def detect_cycles(edge_list):
         visited[n1] = False
         visited[n2] = False
     remaining = list(remaining)
+    cycles = []
     for i in range(0, len(remaining)):
         n = remaining[i]
-
-        seen.add(n)
+        path = [n]
+        seen[n] = True
         for n1, n2 in edge_list:
             if n1 != n:
                 continue
+            if detect_cycles_imp(n, edge_list, seen, path):
+                cycles += [path]
+        seen[n] = False
+    return cycles
+
 
 
 
@@ -145,8 +240,6 @@ def process_dot_data(data):
         if ('/' + file_name).startswith(include_path):
             wanted_nodes += [node_name]
         else:
-            print('inc_path = %s' % include_path)
-            print('file_name = %s' % file_name)
             unwanted_lines += [l]
     for l in lines:
         m = edge_re.match(l)
@@ -229,6 +322,7 @@ def main():
     wd, base_cmd = get_base_command(compile_commands)
     headers_list = get_headers()
 
+    print('building headers')
     for header in headers_list:
         header_name = os.path.basename(header)
         out = os.path.join(args.output, ('%s.dot' % header_name))
@@ -246,6 +340,12 @@ def main():
         data = None
         with open(dot_file, 'r') as f:
             data = f.read()
+        nodes =extract_nodes(data)
+        edge_list = extract_edges(data)
+        new_edge_list = []
+        for n1, n2 in edge_list:
+            new_edge_list += [(nodes[n1], nodes[n2])]
+        build_graph(new_edge_list)
         if args.libcxx_only:
             data = process_dot_data(data)
         data = canonicalize_local_nodes(data)
