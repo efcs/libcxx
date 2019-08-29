@@ -8,14 +8,8 @@
 #===----------------------------------------------------------------------===##
 
 from argparse import ArgumentParser
-from ctypes.util import find_library
-import distutils.spawn
-import glob
-import tempfile
 import os
 import shutil
-import subprocess
-import signal
 import sys
 import shlex
 import json
@@ -74,11 +68,12 @@ def remove_non_std_headers(graph):
         graph.removeNode(xn)
 
 class DependencyCommand(object):
-    def __init__(self, compile_commands, output_dir):
+    def __init__(self, compile_commands, output_dir, new_std=None):
         output_dir = os.path.abspath(output_dir)
         if not os.path.isdir(output_dir):
             print_and_exit('"%s" must point to a directory' % output_dir)
         self.output_dir = output_dir
+        self.new_std = new_std
         cwd,bcmd =  self._get_base_command(compile_commands)
         self.cwd = cwd
         self.base_cmd = bcmd
@@ -110,6 +105,12 @@ class DependencyCommand(object):
             in_arg = cmd.index('-c')
             del cmd[in_arg]
             del cmd[in_arg]
+            if self.new_std is not None:
+                for f in cmd:
+                    if f.startswith('-std='):
+                        del cmd[cmd.index(f)]
+                        cmd += [self.new_std]
+                        break
             return wd, cmd
         print_and_exit("failed to find command to build algorithm.cpp")
 
@@ -155,7 +156,7 @@ class CanonicalGraphBuilder(object):
         for n in g.nodes:
             new_name = self.canonical.getNodeByLabel(n.attributes['label']).id
             for e in n.edges:
-                to_node = self.canonical.getNodeByLabel(g.getNode(e).attributes['label']).id
+                to_node = self.canonical.getNodeByLabel(e.attributes['label']).id
                 self.canonical.addEdge(new_name, to_node)
 
 
@@ -169,17 +170,35 @@ def main():
         help='The output file. stdout is used if not given',
         type=str, action='store')
     parser.add_argument(
+        '--no-compile', dest='no_compile', action='store_true', default=False)
+    parser.add_argument(
         '--libcxx-only', dest='libcxx_only', action='store_true', default=False)
     parser.add_argument(
         'compile_commands', metavar='compile-commands-file',
         help='the compile commands database')
 
     args = parser.parse_args()
-    builder = DependencyCommand(args.compile_commands, args.output)
-    outputs = builder.run_for_headers(get_libcxx_headers())
-    graphs = post_process_outputs(outputs, args.libcxx_only)
+    builder = DependencyCommand(args.compile_commands, args.output, new_std='-std=c++2a')
+    if not args.no_compile:
+        outputs = builder.run_for_headers(get_libcxx_headers())
+        graphs = post_process_outputs(outputs, args.libcxx_only)
+    else:
+        outputs = [os.path.join(args.output, l) for l in os.listdir(args.output) if not l.endswith('all_headers.dot')]
+        graphs = [dot.DirectedGraph.fromDotFile(o) for o in outputs]
+
     canon = CanonicalGraphBuilder(graphs).build()
     canon.toDotFile(os.path.join(args.output, 'all_headers.dot'))
+    all_graphs = graphs + [canon]
+
+    for g in all_graphs:
+        cycle_finder = dot.CycleFinder(g)
+        all_cycles = cycle_finder.findCyclesInGraph()
+        if len(all_cycles):
+            print "cycle in graph %s" % g.name
+            for start, path in all_cycles:
+                print "Cycle for %s = %s" % (start, path)
+
+
 
 if __name__ == '__main__':
     main()

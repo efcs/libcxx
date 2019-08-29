@@ -143,6 +143,10 @@ class Node(object):
     return hash(self.id)
 
   def __str__(self):
+    return self.attributes["label"]
+
+  def __repr__(self):
+    return self.__str__()
     res = self.id
     if len(self.attributes):
       attr = []
@@ -150,9 +154,6 @@ class Node(object):
         attr += ['%s="%s"' % (k, v)]
       res += ' [%s ]' % (', '.join(attr))
     return res
-
-  def __repr__(self):
-    return '%s' % self
 
 class DirectedGraph(object):
   def __init__(self, name=None, nodes=None):
@@ -168,8 +169,9 @@ class DirectedGraph(object):
     return self.getNode(n_or_id)
 
   def getNode(self, str_id):
+    assert isinstance(str_id, str) or isinstance(str_id, Node)
     for s in self.nodes:
-      if s.id == str_id:
+      if s == str_id:
         return s
     return None
 
@@ -182,11 +184,11 @@ class DirectedGraph(object):
     return found
 
   def addEdge(self, n1, n2):
-    assert isinstance(n1, str)
-    assert isinstance(n2, str)
+    n1 = self._getNode(n1)
+    n2 = self._getNode(n2)
     assert n1 in self.nodes
     assert n2 in self.nodes
-    self.getNode(n1).addEdge(self.getNode(n2))
+    n1.addEdge(n2)
 
   def addNode(self, n):
     self.nodes.add(n)
@@ -228,3 +230,69 @@ class DirectedGraph(object):
 
   def __repr__(self):
     return self.toDot()
+
+class BFS(object):
+  def __init__(self, start):
+    self.visited = set()
+    self.to_visit = []
+    self.start = start
+
+  def __nonzero__(self):
+    return len(self.to_visit) != 0
+
+  def empty(self):
+    return len(self.to_visit) == 0
+
+  def push_back(self, node):
+    assert node not in self.visited
+    self.visited.add(node)
+    self.to_visit += [node]
+
+  def maybe_push_back(self, node):
+    if node in self.visited:
+      return
+    self.push_back(node)
+
+  def pop_front(self):
+    assert len(self.to_visit)
+    elem = self.to_visit[0]
+    del self.to_visit[0]
+    return elem
+
+  def seen(self, n):
+    return n in self.visited
+
+
+
+class CycleFinder(object):
+  def __init__(self, graph):
+    self.graph = graph
+
+  def findCycleForNode(self, n):
+    assert n in self.graph.nodes
+    all_paths = {}
+    all_cycles = []
+    bfs = BFS(n)
+    bfs.push_back(n)
+    all_paths[n] = [n]
+    while bfs:
+      n = bfs.pop_front()
+      assert n in all_paths
+      for e in n.edges:
+        en = self.graph.getNode(e)
+        if not bfs.seen(en):
+          new_path = list(all_paths[n])
+          new_path.extend([en])
+          all_paths[en] = new_path
+          bfs.push_back(en)
+        if en == bfs.start:
+          all_cycles += [all_paths[n]]
+    return all_cycles
+
+  def findCyclesInGraph(self):
+    all_cycles = []
+    for n in self.graph.nodes:
+      cycle = self.findCycleForNode(n)
+      if cycle:
+        all_cycles += [(n, cycle)]
+    return all_cycles
