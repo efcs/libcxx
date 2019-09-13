@@ -15,7 +15,7 @@ ARG branch
 ARG cherry_pick=""
 ARG install_prefix
 
-ADD scripts/build_gcc_version.sh /tmp/
+ADD compilers/scripts/build_gcc_version.sh /tmp/
 RUN /tmp/build_gcc_version.sh \
     --install "$install_prefix" \
     --branch "$branch" \
