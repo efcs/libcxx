@@ -13,6 +13,6 @@ LABEL maintainer "libc++ Developers"
 ARG install_prefix
 ARG branch
 
-ADD compilers/scripts/build_llvm_version.sh /tmp/
+ADD scripts/build_llvm_version.sh /tmp/
 RUN /tmp/build_llvm_version.sh --install "$install_prefix" --branch "$branch" \
   && rm /tmp/build_llvm_version.sh
