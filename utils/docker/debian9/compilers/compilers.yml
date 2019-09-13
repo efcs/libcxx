@@ -133,7 +133,7 @@ services:
   compiler-zoo:
     build:
       context: .
-      dockerfile: compiler-zoo.Dockerfile
+      dockerfile: compilers/compiler-zoo.Dockerfile
       target: compiler-zoo
     image: ericwf/compiler-zoo:latest
     depends_on:
