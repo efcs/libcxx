@@ -6,8 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This is a dummy feature that prevents this test from running by default.
-// REQUIRES: template-cost-testing
+
 
 // The table below compares the compile time and object size for each of the
 // variants listed in the RUN script.
@@ -22,36 +21,86 @@
 
 #include <type_traits>
 #include <cassert>
+#include <tuple>
 
 #include "test_macros.h"
 #include "template_cost_testing.h"
 
 template <int N> struct Arg { enum { value = 1 }; };
 
+
+#define TYPE_LIST_ORIG \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, \
+  int, int, int, int, int, int, int, int, int, int, int, int, int, int, int
+#define TYPE_LIST TYPE_LIST_ORIG
+#define INT_TYPE_() int,
+
+
 #ifdef TEST_NEW
-#define IS_SAME  std::_IsSame
+#define TUPLE_ELEMENT(I)  __type_pack_element<I,  TYPE_LIST>
 #else
-#define IS_SAME std::is_same
+#define TUPLE_ELEMENT(I) std::tuple_element_t<I, std::tuple< TYPE_LIST> >
 #endif
 
-#define TEST_CASE_NOP() IS_SAME < Arg< __COUNTER__ >, Arg < __COUNTER__ > >::value,
-#define TEST_CASE_TYPE() IS_SAME < Arg< __COUNTER__ >, Arg < __COUNTER__ > >,
+#define TEST_CASE() TUPLE_ELEMENT(__COUNTER__){},
 
-int sink(...);
-
+int sink(...) { volatile int v = 0; return v;  }
 int x = sink(
-  REPEAT_10000(TEST_CASE_NOP)
-  REPEAT_10000(TEST_CASE_NOP) 42
+  REPEAT_100(TEST_CASE) int{}
 );
 
-void Foo( REPEAT_1000(TEST_CASE_TYPE) int) { }
+#undef TEST_CASE
+#undef TYPE_LIST
+#define TYPE_LIST T...
+#define TEST_CASE() TUPLE_ELEMENT(__COUNTER__),
 
-static_assert(__COUNTER__ > 10000, "");
+template <class ...T>
+void Foo(REPEAT_100(TEST_CASE) int) {}
+template void Foo<TYPE_LIST_ORIG>(REPEAT_100(TUPLE_ELEMENT(__COUNTER__)), int);
 
-void escape() {
 
-sink(&x);
-sink(&Foo);
-}
-
+int main() {}
 
